@@ -1,0 +1,151 @@
+/* dnd-easter-egg.css
+   Estilos para el juego roguelike D&D Easter Egg */
+body {
+   background: #181818;
+   color: #e0e0e0;
+   font-family: 'Press Start 2P', 'VT323', 'Consolas', 'monospace', serif;
+   margin: 0;
+   image-rendering: pixelated;
+}
+.main {
+   max-width: 900px;
+   margin: 0 auto;
+   padding: 32px 12px;
+   border: 4px solid #444;
+   background: #181818;
+   box-shadow: 0 0 0 4px #222, 0 0 32px #000a;
+}
+h1 {
+   text-align: center;
+   font-size: 2.2em;
+   margin-bottom: 0.5em;
+   font-family: 'Press Start 2P', 'VT323', 'Consolas', 'monospace', serif;
+   letter-spacing: 2px;
+   color: #ffec7a;
+   text-shadow: 2px 2px 0 #222, 0 0 8px #ffec7a88;
+}
+.section {
+   background: #232323;
+   border-radius: 0;
+   border: 2px solid #666;
+   margin-bottom: 24px;
+   padding: 24px;
+   box-shadow: 0 2px 12px #000a;
+   font-family: 'VT323', 'Consolas', 'monospace', serif;
+   font-size: 1.15em;
+}
+.choices {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 12px;
+   margin-bottom: 18px;
+}
+.choices label {
+   background: #222;
+   border: 2px solid #555;
+   border-radius: 0;
+   padding: 10px 18px;
+   cursor: pointer;
+   font-family: 'VT323', 'Consolas', 'monospace', serif;
+   font-size: 1em;
+   color: #b0eaff;
+   box-shadow: 2px 2px 0 #111;
+   transition: background 0.2s, border 0.2s;
+}
+.choices input[type=radio], .choices input[type=checkbox] {
+   margin-right: 8px;
+   accent-color: #ffec7a;
+}
+.choices label:hover, .choices input:checked + label {
+   background: #333;
+   border: 2px solid #ffec7a;
+   color: #fff;
+}
+.btn {
+   background: #ffec7a;
+   color: #232323;
+   border: 2px solid #b0eaff;
+   border-radius: 0;
+   padding: 12px 28px;
+   font-size: 1.1em;
+   font-family: 'Press Start 2P', 'VT323', 'Consolas', 'monospace', serif;
+   font-weight: bold;
+   cursor: pointer;
+   margin-top: 18px;
+   box-shadow: 2px 2px 0 #111;
+   transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.btn:hover {
+   background: #b0eaff;
+   color: #181818;
+   border: 2px solid #ffec7a;
+}
+.log {
+   background: #111;
+   border: 2px solid #ff7a00;
+   border-radius: 0;
+   padding: 16px;
+   min-height: 120px;
+   margin-top: 18px;
+   font-size: 1.1em;
+   font-family: 'VT323', 'Consolas', 'monospace', serif;
+   color: #ffec7a;
+   box-shadow: 2px 2px 0 #000a;
+}
+.enemy, .player {
+   font-weight: bold;
+   font-family: 'Press Start 2P', 'VT323', 'Consolas', 'monospace', serif;
+   letter-spacing: 1px;
+}
+.shop {
+   background: #222;
+   border: 2px solid #b0eaff;
+   border-radius: 0;
+   padding: 16px;
+   margin-top: 18px;
+   font-family: 'VT323', 'Consolas', 'monospace', serif;
+}
+.shop-item {
+   margin-bottom: 8px;
+   font-family: 'VT323', 'Consolas', 'monospace', serif;
+}
+.hidden { display: none; }
+
+/* Pixel art FX para daño, curación, estados */
+.fx-damage {
+   animation: fx-damage 0.3s linear 1;
+   color: #ff3c3c !important;
+   text-shadow: 0 0 8px #ff3c3c, 2px 2px 0 #000;
+}
+.fx-heal {
+   animation: fx-heal 0.3s linear 1;
+   color: #7aff7a !important;
+   text-shadow: 0 0 8px #7aff7a, 2px 2px 0 #000;
+}
+.fx-status {
+   animation: fx-status 0.4s linear 1;
+   color: #b0eaff !important;
+   text-shadow: 0 0 8px #b0eaff, 2px 2px 0 #000;
+}
+@keyframes fx-damage {
+   0% { filter: brightness(2) contrast(2); }
+   100% { filter: none; }
+}
+@keyframes fx-heal {
+   0% { filter: brightness(2) saturate(2); }
+   100% { filter: none; }
+}
+@keyframes fx-status {
+   0% { filter: brightness(2) hue-rotate(90deg); }
+   100% { filter: none; }
+}
+
+/* Scrollbar retro */
+::-webkit-scrollbar {
+   width: 12px;
+   background: #232323;
+}
+::-webkit-scrollbar-thumb {
+   background: #444;
+   border: 2px solid #b0eaff;
+}

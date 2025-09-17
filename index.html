@@ -1,141 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daniel Salini - Portfolio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://adminlte.io/themes/v3/plugins/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="https://adminlte.io/themes/v3/dist/css/adminlte.min.css">
+    <title>Daniel Salini - Portfolio Profesional</title>
+    <link href="https://fonts.cdnfonts.com/css/thegoodmonolith" rel="stylesheet">
+    <link rel="stylesheet" href="circle-animations.css">
     <style>
-        .about-hover:hover {
-            cursor: pointer;
-            color: red;
-            text-decoration: underline;
+        /* Extra: para overlay de datos */
+        .circle-info-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.2s;
         }
-        .easter-egg {
-            display: none;
-            margin-top: 20px;
-            background-color: #f3f4f6;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
+        .circle-info-content {
+            background: #181818;
+            color: #fff;
+            border-radius: 16px;
+            padding: 32px 24px 24px 24px;
+            min-width: 320px;
+            max-width: 90vw;
+            box-shadow: 0 8px 32px #000a;
+            position: relative;
+            font-family: 'TheGoodMonolith', monospace;
+        }
+        .circle-info-content h2 {
+            margin-top: 0;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        .circle-info-content .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .circle-info-content .contact-btn {
+            display: inline-block;
+            margin-top: 18px;
+            background: #ff7a00;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 22px;
+            font-size: 1em;
+            font-family: inherit;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .circle-info-content .contact-btn:hover {
+            background: #ff9a3c;
+        }
+        .circle-info-content .external-link {
+            color: #7fd7ff;
+            text-decoration: underline;
+            margin-left: 8px;
+            font-size: 1em;
         }
     </style>
 </head>
-<body class="hold-transition sidebar-mini bg-gradient-to-r from-orange-400 to-gray-300">
-    <div class="wrapper">
-        <aside class="main-sidebar sidebar-dark-primary elevation-4 bg-gradient-to-r from-gray-400 to-yellow-500">
-            <a href="#" class="brand-link">
-                <span class="brand-text font-weight-light">Daniel Salini</span>
-            </a>
-            <div class="sidebar">
-                <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-                        <li class="nav-item">
-                            <a href="https://github.com/Gureboy" class="nav-link" target="_blank">
-                                <i class="fab fa-github"></i>
-                                <p>GitHub</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="https://www.youtube.com/@Raijinshun" class="nav-link" target="_blank">
-                                <i class="fab fa-youtube"></i>
-                                <p>YouTube</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="mailto:Danielsalini77@gmail.com" class="nav-link">
-                                <i class="fas fa-envelope"></i>
-                                <p>Email</p>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
+<body>
+            <h1>Daniel Salini</h1>
+            <div class="container">
+                    <div class="animation-container" data-circle="0"><div class="animation-title">Perfil Profesional</div><div id="anim1" class="circle-container"></div></div>
+                    <div class="animation-container" data-circle="1"><div class="animation-title">Experiencia Freelance</div><div id="anim2" class="circle-container"></div></div>
+                    <div class="animation-container" data-circle="2"><div class="animation-title">Profesor UPRO</div><div id="anim3" class="circle-container"></div></div>
+                <div class="animation-container" data-circle="3"><div class="animation-title">Proyectos Técnicos</div><div id="anim4" class="circle-container"></div></div>
+                <div class="animation-container" data-circle="4"><div class="animation-title">Experiencia en Soporte</div><div id="anim5" class="circle-container"></div></div>
+                <div class="animation-container" data-circle="5"><div class="animation-title">Experiencia Técnica</div><div id="anim6" class="circle-container"></div></div>
+                <div class="animation-container" data-circle="6"><div class="animation-title">Educación</div><div id="anim7" class="circle-container"></div></div>
+                <div class="animation-container" data-circle="7"><div class="animation-title">Habilidades Técnicas</div><div id="anim8" class="circle-container"></div></div>
+                <div class="animation-container" data-circle="8"><div class="animation-title">Idiomas</div><div id="anim9" class="circle-container"></div></div>
+                <div class="animation-container" data-circle="9"><div class="animation-title">About me</div><div id="anim10" class="circle-container"></div></div>
+                <div class="animation-container" data-circle="10"><div class="animation-title">Contacto</div><div id="anim11" class="circle-container"></div></div>
+                <div class="animation-container" data-circle="11"><div class="animation-title">Más sobre mí</div><div id="anim12" class="circle-container"></div></div>
             </div>
-        </aside>
-        <div class="content-wrapper p-5">
-            <section class="content-header">
-                <h1 class="text-3xl sm:text-4xl font-bold">About Me</h1>
-                <p class="mt-3 text-lg sm:text-xl">
-                    Like Camus’ absurd man, I embrace the paradox of engineering and existence. 
-                    I navigate through embedded systems, PLC automation, and software development, not to seek meaning, 
-                    but to create functionality in an indifferent universe. My work spans from pentesting WiFi networks 
-                    with ESP8266 to designing complex Function Blocks in SCL for industrial automation. Whether crafting 
-                    web applications with Vue and React, or optimizing microcontroller firmware, I seek mastery in the craft itself. 
-                    I believe that in every well-written line of code, there is defiance against entropy.
-                </p>
-            </section>
-            <section class="mt-5">
-                <h2 class="text-3xl sm:text-4xl font-bold">Skills</h2>
-                <ul class="list-disc pl-5 mt-3 text-lg sm:text-xl">
-                    <li>Embedded Systems (ESP8266, ESP32, Arduino)</li>
-                    <li>Industrial Automation (PLC, Ladder, SCL, TIA Portal)</li>
-                    <li>Pentesting & Networking (WiFi Security, Packet Injection, ESP8266 exploits)</li>
-                    <li>Web Development (Vue, React, Tailwind, AdminLTE)</li>
-                    <li>Software Development (Python, C++, C#, SQL)</li>
-                    <li>Database Management & Optimization</li>
-                    <li>Cybersecurity & Ethical Hacking</li>
-                </ul>
-            </section>
-            <section class="mt-5">
-                <h2 class="text-3xl sm:text-4xl font-bold">Projects</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-3">
-                    <div class="bg-white p-5 shadow rounded">
-                        <h3 class="text-2xl font-bold">SaluduinoWeb</h3>
-                        <p>A web-based patient monitoring system using ESP8266, AdminLTE, and database integration.</p>
-                        <a href="https://github.com/Gureboy/SaluduinoWeb" target="_blank" class="text-blue-500">View on GitHub</a>
-                    </div>
-                    <div class="bg-white p-5 shadow rounded">
-                        <h3 class="text-2xl font-bold">ESP8266 WiFi Pentesting Tool</h3>
-                        <p>A security auditing tool for WiFi networks using the ESP8266, implementing advanced packet manipulation.</p>
-                        <a href="#" class="text-blue-500">View Details</a>
-                    </div>
+            <div id="circle-info-modal" class="circle-info-modal" style="display:none;"></div>
+            <footer style="margin-top: 40px; text-align: center;">
+                <div style="font-size: 1.3em; font-weight: bold;">Daniel Salini</div>
+                <div style="font-family: 'Times New Roman', Times, serif; font-size: 1.1em; margin-top: 8px; color: #ccc;">
+                    No tengo capa ni superpoderes, pero cada día me levanto y lucho con lo que tengo. Y eso, para mí, ya es ser héroe.
                 </div>
-            </section>
+            </footer>
+            <script src="circle-animations.js"></script>
+            <script>
+                // Datos de cada círculo (puedes personalizar más)
+                const circleData = [
+                    {
+                        title: "Perfil Profesional",
+                        text: `Desarrollador fullstack e ingeniero multidisciplinario con experiencia en programación industrial (PLC), desarrollo web frontend/backend y diseño eléctrico. Experto en resolver problemas complejos en entornos productivos, con enfoque en innovación, eficiencia y resultados cuantificables. Alta capacidad analítica, comunicación y trabajo en equipo.`
+                    },
+                    {
+                        title: "Experiencia Freelance",
+                        text: `Freelance | Desarrollador Fullstack y Consultor Eléctrico (2019-Actualidad)<br>• Diseño de esquemas eléctricos y planos unifilares bajo normas internacionales.<br>• Programación PLC Siemens y Allen-Bradley, integración SCADA.<br>• Soluciones IoT con ESP8266/ESP32.<br>• Apps web fullstack con React, Node.js, Express, MongoDB/PostgreSQL.<br>• APIs RESTful, Docker, interfaces interactivas, IA en chatbots.`
+                    },
+                    {
+                        title: "Profesor UPRO",
+                        text: `Profesor de Programación PLC y Electricidad Avanzada | UPRO (2024-Actualidad)<br>• Programación PLC Siemens, SCADA, LADDER y SCL.<br>• Electricidad avanzada, alta tensión, tableros AEA.<br>• Esquemas CAD eléctricos, enseñanza técnica.`
+                    },
+                    {
+                        title: "Proyectos Técnicos",
+                        text: `Profesor y Desarrollador de Proyectos Técnicos | UPRO Penal de San Luis (2025-Actualidad)<br>• Enseñanza de electricidad y electrónica aplicada.<br>• Desarrollo de proyectos técnicos prácticos para reinserción social.`
+                    },
+                    {
+                        title: "Experiencia en Soporte",
+                        text: `Customer Service Agent | Influx (2025)<br>• Gestión de clientes vía CRM (Zendesk).<br>• Soporte técnico y ventas.<br>• Seguimiento postventa, reducción de reclamos.`
+                    },
+                    {
+                        title: "Experiencia Técnica",
+                        text: `Trainee & Soporte Técnico | GAOTEK (2022-2023)<br>• Gestión de CRM, soporte técnico, coordinación de proyectos.<br>Administrativo y Atención al Cliente | STARTEX (2018)<br>• Control de asistencia, reportes, caja.<br>Atención al Cliente | Telefónica de Argentina (2014-2015)<br>Administrador Logístico | Alcuva (2012-2014)<br>• Rutas, permisos, servidores Windows NT.`
+                    },
+                    {
+                        title: "Educación",
+                        text: `• Curso de CCNA Cisco Networking Academy<br>• Curso de Ciberseguridad Ofensiva (Kali Purple)<br>• Curso de Desarrollo de Software Microsoft<br>• Técnico Industrial<br>• Programador Industrial PLC UPRO<br>• Ingeniería Electrónica UNSL` 
+                    },
+                    {
+                        title: "Habilidades Técnicas",
+                        text: `Lenguajes: Python, C++, HTML, PHP, JavaScript, SQL, TypeScript<br>Frameworks: React, Node.js, Express, Bootstrap, Angular, Tailwind CSS<br>Herramientas: Docker, Git, Webpack, SolidWorks, ANSYS, MATLAB, Zendesk, HubSpot<br>Áreas: Fullstack, PLC/SCADA, CAD eléctrico, ciberseguridad, IoT, soporte técnico, enseñanza, administración de servidores.`
+                    },
+                    {
+                        title: "Idiomas",
+                        text: `Español: Nativo<br>Inglés: C1 (avanzado)`
+                    },
+                    {
+                        title: "LinkedIn & GitHub",
+                        text: `
+                            <a href='https://linkedin.com/in/katosx' class='external-link' target='_blank'>LinkedIn</a><br>
+                            <a href='https://github.com/Gureboy' class='external-link' target='_blank'>GitHub</a>
+                        `,
+                        redirect: 'https://linkedin.com/in/katosx'
+                    },
+                    {
+                        title: "Más sobre mí",
+                        text: `Apasionado por la tecnología, la docencia y la innovación. Siempre en búsqueda de nuevos desafíos y oportunidades para crecer profesionalmente. ¡Gracias por visitar mi portfolio!`
+                    },
+                    {
+                        title: "¡Contáctame!",
+                        text: `¿Te interesa trabajar conmigo o tienes una propuesta?` +
+                            `<br><a href='mailto:danielsalini77@gmail.com' class='contact-btn'>Contactar por Email</a>`
+                    }
+                ];
 
-            <!-- Easter Egg and click counter logic -->
-            <section class="mt-5">
-                <h2 id="about-me" class="text-3xl sm:text-4xl font-bold about-hover">About Me</h2>
-                <div id="easter-egg" class="easter-egg">
-                    <h3 class="text-2xl font-bold">Congratulations!</h3>
-                    <p>You unlocked the Easter Egg! 🎮</p>
-                    <button onclick="startGame()" class="bg-blue-500 text-white px-4 py-2 rounded mt-3">Start Game</button>
-                    <div id="game-container" class="mt-3"></div>
-                </div>
-            </section>
-        </div>
-    </div>
-
-    <script>
-        let clickCount = 0;
-
-        // Click listener for About Me
-        document.getElementById("about-me").addEventListener("click", function() {
-            clickCount++;
-            if (clickCount === 7) {
-                document.getElementById("easter-egg").style.display = 'block';
-            }
-        });
-
-        // Add hover effect text to "About Me"
-        document.getElementById("about-me").addEventListener("mouseover", function() {
-            this.setAttribute("title", "Don't click me 7 times please");
-        });
-
-        // Function to start a simple game
-        function startGame() {
-            const gameContainer = document.getElementById("game-container");
-            gameContainer.innerHTML = '<p>Click anywhere to score!</p>';
-            gameContainer.style.cursor = 'pointer';
-            
-            gameContainer.addEventListener("click", function() {
-                const score = Math.floor(Math.random() * 100) + 1;
-                gameContainer.innerHTML = `<p>You scored: ${score} points! 🎉</p>`;
-            });
-        }
-    </script>
+                // Modal de info
+                function showCircleInfo(idx) {
+                    const data = circleData[idx];
+                    if (!data) return;
+                    const modal = document.getElementById('circle-info-modal');
+                    modal.innerHTML = `<div class='circle-info-content'>
+                        <button class='close-btn' title='Cerrar'>&times;</button>
+                        <h2>${data.title}</h2>
+                        <div>${data.text}</div>
+                    </div>`;
+                    modal.style.display = 'flex';
+                    // Redirección si corresponde
+                    if (data.redirect) {
+                        setTimeout(() => { window.open(data.redirect, '_blank'); }, 1200);
+                    }
+                    modal.querySelector('.close-btn').onclick = () => {
+                        modal.style.display = 'none';
+                    };
+                    modal.onclick = (e) => {
+                        if (e.target === modal) modal.style.display = 'none';
+                    };
+                }
+                        document.querySelectorAll('.animation-container').forEach((el, idx) => {
+                            if (idx === 9) {
+                                el.onclick = () => {
+                                    window.open('dnd-easter-egg.html', '_blank');
+                                };
+                            } else {
+                                el.onclick = () => showCircleInfo(idx);
+                            }
+                        });
+            </script>
 </body>
-</html>
+document.getElementById('close-node-info').onclick = () => {
 
