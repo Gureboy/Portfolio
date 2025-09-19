@@ -733,6 +733,43 @@
     }
   };
 
+  // Memory optimization for animations
+  const AnimationOptimizer = {
+    activeAnimations: new Set(),
+    
+    pauseOffscreen() {
+      const containers = document.querySelectorAll('.animation-container');
+      containers.forEach(container => {
+        const rect = container.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+        
+        const animation = container.querySelector('[style*="animation"]');
+        if (animation) {
+          animation.style.animationPlayState = isVisible ? 'running' : 'paused';
+        }
+      });
+    },
+    
+    cleanup() {
+      // Remove unused dots
+      document.querySelectorAll('.dot').forEach(dot => {
+        if (!dot.offsetParent) dot.remove();
+      });
+    }
+  };
+
+  // Optimize on scroll
+  let scrollTimeout;
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      AnimationOptimizer.pauseOffscreen();
+    }, 100);
+  });
+
+  // Cleanup every 30 seconds
+  setInterval(AnimationOptimizer.cleanup, 30000);
+
   // Enhanced initialization with better error handling and progressive loading
   function initializeAnimations() {
     try {
