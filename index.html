@@ -483,10 +483,135 @@
         .dot.animating {
             will-change: transform, opacity;
         }
+
+        /* Auth styles */
+        .auth-section {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #333;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .auth-tab.active {
+            color: #fff;
+            background: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #444;
+            background: #222;
+            color: #fff;
+            border-radius: 4px;
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .auth-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .auth-benefits {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+        
+        .auth-benefits ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .auth-benefits li {
+            margin: 0.5rem 0;
+            padding-left: 1rem;
+        }
+        
+        .user-welcome {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+        
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .leaderboard-entry.current-user {
+            background: rgba(102, 126, 234, 0.3);
+            border-left: 4px solid #667eea;
+        }
+        
+        .you-label {
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        
+        .welcome-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
     </style>
     <script src="i18n.js"></script>
-    <!-- Add database API -->
+    <!-- Add authentication -->
+    <script src="auth/stack-auth.js"></script>
     <script src="database/api.js"></script>
+    <script src="dnd-easter-egg.js"></script>
 </head>
 <body>
     <!-- Performance indicator -->
