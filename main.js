@@ -152,6 +152,11 @@ Email: ${email}
 Mensaje:
 ${message}
 
+Puedes ver más sobre mi trabajo en:
+- GitHub: https://github.com/Gureboy
+- LinkedIn: https://www.linkedin.com/in/katosx/
+- YouTube (Katosx): https://www.youtube.com/watch?v=N4dmCNN2foQ
+
 Saludos,
 ${name}`;
 

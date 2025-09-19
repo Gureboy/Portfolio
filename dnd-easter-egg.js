@@ -1,34 +1,68 @@
-// --- JUEGO D&D COMPLETAMENTE OFFLINE CON JQUERY ---
-// Complete roguelike sin backend, usando localStorage
+// --- JUEGO D&D OPTIMIZADO Y LIMPIO ---
+// Complete roguelike offline con arquitectura modular
 
 (function($) {
   'use strict';
   
-  // Sistema de guardado local
+  // ================================
+  // CONFIGURACIÓN Y CONSTANTES
+  // ================================
+  
+  const CONFIG = {
+    AUTO_SAVE_INTERVAL: 10000,
+    MAX_LOG_ENTRIES: 6,
+    ANIMATION_DELAY: 800,
+    LEVEL_UP_MULTIPLIER: 1.5
+  };
+
+  const GAME_STATES = {
+    MENU: 'menu',
+    CHARACTER_SELECT: 'character_select',
+    PLAYING: 'playing',
+    PAUSED: 'paused'
+  };
+
+  // ================================
+  // SISTEMA DE ALMACENAMIENTO
+  // ================================
+  
   const GameStorage = {
+    PREFIX: 'dnd_game_',
+    
     save(key, data) {
       try {
-        localStorage.setItem(`dnd_game_${key}`, JSON.stringify(data));
+        localStorage.setItem(this.PREFIX + key, JSON.stringify(data));
         return true;
       } catch (error) {
-        console.warn('No se pudo guardar:', error);
+        console.warn('Storage save failed:', error);
         return false;
       }
     },
     
     load(key) {
       try {
-        const data = localStorage.getItem(`dnd_game_${key}`);
+        const data = localStorage.getItem(this.PREFIX + key);
         return data ? JSON.parse(data) : null;
       } catch (error) {
-        console.warn('No se pudo cargar:', error);
+        console.warn('Storage load failed:', error);
         return null;
       }
     },
     
+    remove(key) {
+      localStorage.removeItem(this.PREFIX + key);
+    },
+    
+    clear() {
+      Object.keys(localStorage)
+        .filter(key => key.startsWith(this.PREFIX))
+        .forEach(key => localStorage.removeItem(key));
+    },
+    
     getLeaderboard() {
-      const scores = this.load('leaderboard') || [];
-      return scores.sort((a, b) => b.score - a.score).slice(0, 10);
+      return (this.load('leaderboard') || [])
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
     },
     
     addScore(playerData) {
@@ -38,22 +72,54 @@
         class_name: playerData.cls.n,
         final_level: playerData.lvl,
         score: this.calculateScore(playerData),
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        playTime: Date.now() - playerData.startTime
       });
       this.save('leaderboard', scores);
     },
     
     calculateScore(player) {
-      return (player.lvl * 100) + (player.gold) + (player.xp);
+      const levelBonus = player.lvl * 100;
+      const goldBonus = player.gold;
+      const xpBonus = player.xp;
+      const timeBonus = Math.max(0, 10000 - (Date.now() - player.startTime) / 1000);
+      return Math.round(levelBonus + goldBonus + xpBonus + timeBonus);
     }
   };
+
+  // ================================
+  // DATOS DEL JUEGO
+  // ================================
   
-  // Enhanced classes with unique abilities
   const CLASSES = [
-    {n:"Bárbaro",h:12,a:15,s:3,d:1,c:2,desc:"Guerrero salvaje con gran resistencia",special:"Furia (+3 daño por 3 turnos)"},
-    {n:"Mago",h:6,a:12,s:0,d:1,c:0,i:3,w:1,desc:"Maestro de la magia arcana",special:"Hechizos poderosos"},
-    {n:"Clérigo",h:8,a:14,s:1,d:0,c:2,w:3,ch:1,desc:"Sanador divino",special:"Curación divina"},
-    {n:"Pícaro",h:8,a:13,s:1,d:3,c:1,w:1,desc:"Ágil y sigiloso",special:"Ataque furtivo"}
+    {
+      n: "Bárbaro",
+      h: 12, a: 15, s: 3, d: 1, c: 2,
+      desc: "Guerrero salvaje con gran resistencia",
+      special: "Furia (+3 daño por 3 turnos)",
+      color: "#dc2626"
+    },
+    {
+      n: "Mago", 
+      h: 6, a: 12, s: 0, d: 1, c: 0, i: 3, w: 1,
+      desc: "Maestro de la magia arcana",
+      special: "Hechizos poderosos",
+      color: "#7c3aed"
+    },
+    {
+      n: "Clérigo",
+      h: 8, a: 14, s: 1, d: 0, c: 2, w: 3, ch: 1,
+      desc: "Sanador divino",
+      special: "Curación divina",
+      color: "#059669"
+    },
+    {
+      n: "Pícaro",
+      h: 8, a: 13, s: 1, d: 3, c: 1, w: 1,
+      desc: "Ágil y sigiloso",
+      special: "Ataque furtivo",
+      color: "#d97706"
+    }
   ];
   
   // Expanded item system with rarities
@@ -104,638 +170,535 @@
     {type:"boss",monster:{n:"Señor Dragón",h:80,a:18,at:15,c:4},desc:"El señor dragón despierta para defender su tesoro."}
   ];
   
-  let gameState = {
-    currentEncounter: 0,
-    storyMode: true,
-    shopLevel: 1
-  };
+  // ================================
+  // ESTADO DEL JUEGO
+  // ================================
   
-  // Equipment system
-  function initializeCharacter(selectedClass) {
-    return {
-      cls: selectedClass,
-      name: selectedClass.n,
-      lvl: 1,
-      hp: selectedClass.h + 10,
-      maxHP: selectedClass.h + 10,
-      ac: selectedClass.a,
-      xp: 0,
-      xpNext: 50,
-      gold: 50,
-      inv: [ITEMS[0], ITEMS[0]], // Start with 2 minor potions
-      equipped: {
-        weapon: null,
-        armor: null,
-        ring: null,
-        amulet: null,
-        head: null,
-        boots: null
-      },
-      log: [],
-      stats: {
-        str: selectedClass.s || 0,
-        dex: selectedClass.d || 0,
-        con: selectedClass.c || 0,
-        int: selectedClass.i || 0,
-        wis: selectedClass.w || 0,
-        cha: selectedClass.ch || 0
-      },
-      conditions: [],
-      abilities: {
-        rage: selectedClass.n === 'Bárbaro' ? 2 : 0,
-        spells: selectedClass.n === 'Mago' ? 3 : 0,
-        heals: selectedClass.n === 'Clérigo' ? 3 : 0,
-        sneak: selectedClass.n === 'Pícaro' ? 2 : 0
+  class GameState {
+    constructor() {
+      this.currentEncounter = 0;
+      this.currentState = GAME_STATES.MENU;
+      this.autoSaveInterval = null;
+      this.startTime = Date.now();
+    }
+
+    reset() {
+      this.currentEncounter = 0;
+      this.currentState = GAME_STATES.MENU;
+      this.startTime = Date.now();
+      this.stopAutoSave();
+    }
+
+    startAutoSave() {
+      this.stopAutoSave();
+      this.autoSaveInterval = setInterval(() => {
+        if (window.char) {
+          GameStorage.save('current_character', window.char);
+          GameStorage.save('current_encounter', this.currentEncounter);
+        }
+      }, CONFIG.AUTO_SAVE_INTERVAL);
+    }
+
+    stopAutoSave() {
+      if (this.autoSaveInterval) {
+        clearInterval(this.autoSaveInterval);
+        this.autoSaveInterval = null;
       }
-    };
-  }
-  
-  // Enhanced character selection sin autenticación
-  function showCharacterSelection() {
-    const $game = $('#game');
-    
-    const html = `
-      <div class='section char-selection'>
-        <h2>⚔️ Elige tu Héroe ⚔️</h2>
-        <p>Cada clase tiene habilidades especiales y estilos de juego únicos:</p>
-        
-        <div class='character-grid'>
-          ${CLASSES.map((cls, i) => `
-            <div class='char-card' data-class-index='${i}'>
-              <h3>${cls.n}</h3>
-              <p class='char-desc'>${cls.desc}</p>
-              <p class='char-special'><strong>Especial:</strong> ${cls.special}</p>
-              <div class='char-stats'>
-                <small>HP: ${cls.h + 10} | AC: ${cls.a} | ATK: ${cls.s}</small>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-        
-        <div class='game-info'>
-          <p><strong>🎮 Juego completamente offline</strong></p>
-          <p>Tu progreso se guarda automáticamente en el navegador</p>
-        </div>
-      </div>
-    `;
-    
-    $game.html(html);
-    
-    // Usar jQuery para eventos
-    $('.char-card').on('click', function() {
-      const classIndex = $(this).data('class-index');
-      selectCharacter(classIndex);
-    });
+    }
   }
 
-  // Función selectCharacter simplificada
-  window.selectCharacter = function(idx) {
-    const selectedClass = CLASSES[idx];
-    window.char = initializeCharacter(selectedClass);
-    
-    // Auto-save cada 10 segundos
-    setInterval(() => {
-      GameStorage.save('current_character', window.char);
-      GameStorage.save('current_encounter', gameState.currentEncounter);
-    }, 10000);
-    
-    gameState.currentEncounter = 0;
-    addLog(`¡Aventura iniciada como ${selectedClass.n}!`);
-    startStoryEncounter();
-  };
+  const gameState = new GameState();
+
+  // ================================
+  // SISTEMA DE PERSONAJES
+  // ================================
   
-  // Enhanced encounter system
-  function startStoryEncounter() {
-    const encounter = STORY_ENCOUNTERS[gameState.currentEncounter];
-    if (!encounter) {
-      showVictoryScreen();
-      return;
+  class Character {
+    constructor(selectedClass) {
+      Object.assign(this, {
+        cls: selectedClass,
+        name: selectedClass.n,
+        lvl: 1,
+        hp: selectedClass.h + 10,
+        maxHP: selectedClass.h + 10,
+        ac: selectedClass.a,
+        xp: 0,
+        xpNext: 50,
+        gold: 50,
+        startTime: Date.now(),
+        inv: [ITEMS[0], ITEMS[0]],
+        equipped: {
+          weapon: null, armor: null, ring: null,
+          amulet: null, head: null, boots: null
+        },
+        log: [],
+        stats: {
+          str: selectedClass.s || 0,
+          dex: selectedClass.d || 0,
+          con: selectedClass.c || 0,
+          int: selectedClass.i || 0,
+          wis: selectedClass.w || 0,
+          cha: selectedClass.ch || 0
+        },
+        conditions: [],
+        abilities: this.getInitialAbilities(selectedClass.n)
+      });
     }
-    
-    const $game = $('#game');
-    
-    switch(encounter.type) {
-      case 'story':
-        renderStoryEncounter(encounter);
-        break;
-      case 'combat':
-        renderCombatEncounter(encounter);
-        break;
-      case 'merchant':
-        renderMerchantEncounter(encounter);
-        break;
-      case 'treasure':
-        renderTreasureEncounter(encounter);
-        break;
-      case 'forge':
-        renderForgeEncounter(encounter);
-        break;
-      case 'rest':
-        renderRestEncounter(encounter);
-        break;
-      case 'boss':
-        renderBossEncounter(encounter);
-        break;
+
+    getInitialAbilities(className) {
+      const abilities = { rage: 0, spells: 0, heals: 0, sneak: 0 };
+      switch(className) {
+        case 'Bárbaro': abilities.rage = 2; break;
+        case 'Mago': abilities.spells = 3; break;
+        case 'Clérigo': abilities.heals = 3; break;
+        case 'Pícaro': abilities.sneak = 2; break;
+      }
+      return abilities;
+    }
+
+    addLog(message) {
+      this.log.push(`[${new Date().toLocaleTimeString()}] ${message}`);
+      if (this.log.length > CONFIG.MAX_LOG_ENTRIES) {
+        this.log = this.log.slice(-CONFIG.MAX_LOG_ENTRIES);
+      }
+      this.updateCombatLog();
+    }
+
+    updateCombatLog() {
+      const logElement = $('#combat-log');
+      if (logElement.length) {
+        logElement.html(this.log.slice(-4).join('<br>'));
+      }
+    }
+
+    levelUp() {
+      this.lvl++;
+      this.xp -= this.xpNext;
+      this.xpNext = Math.round(this.xpNext * CONFIG.LEVEL_UP_MULTIPLIER);
+      
+      const hpGain = Math.floor(this.cls.h / 2) + 4;
+      this.maxHP += hpGain;
+      this.hp = this.maxHP;
+      
+      // Restore abilities
+      Object.keys(this.abilities).forEach(ability => {
+        if (this.abilities[ability] < this.getMaxAbility(ability)) {
+          this.abilities[ability]++;
+        }
+      });
+
+      this.addLog(`¡NIVEL ${this.lvl}! +${hpGain} HP máximo. Habilidades restauradas.`);
+      this.showLevelUpNotification();
+    }
+
+    getMaxAbility(ability) {
+      const maxes = { rage: 5, spells: 8, heals: 6, sneak: 4 };
+      return maxes[ability] || 3;
+    }
+
+    showLevelUpNotification() {
+      const notification = $(`
+        <div class='level-up-notification'>
+          <h3>🎉 ¡NIVEL ${this.lvl}! 🎉</h3>
+          <p>Tu personaje se ha fortalecido</p>
+        </div>
+      `);
+      
+      $('body').append(notification);
+      notification.fadeIn(300).delay(2000).fadeOut(300, () => notification.remove());
     }
   }
+
+  // ================================
+  // SISTEMA DE COMBATE
+  // ================================
   
-  function renderCombatEncounter(encounter) {
-    window.currentMonster = {
-      ...encounter.monster,
-      maxHP: encounter.monster.h,
-      conditions: []
-    };
-    
-    const $game = $('#game');
-    const combatHTML = `
-      <div class='section combat-section'>
-        <h2>⚔️ ¡Combate!</h2>
-        <p class='encounter-desc'>${encounter.desc}</p>
+  class Combat {
+    static performAttack() {
+      const char = window.char;
+      const monster = window.currentMonster;
+      
+      const d20 = Math.floor(Math.random() * 20) + 1;
+      const attackBonus = this.calculateAttackBonus(char);
+      const attackRoll = d20 + attackBonus;
+      const isCritical = d20 === 20 || (d20 >= 18 && char.cls.n === 'Pícaro');
+      
+      if (attackRoll >= monster.a || isCritical) {
+        let damage = this.calculateDamage(char, isCritical);
+        monster.h = Math.max(0, monster.h - damage);
         
-        <div class='combat-grid'>
-          ${renderHeroPanel()}
-          ${renderEnemyPanel()}
-        </div>
+        const critText = isCritical ? ' ¡CRÍTICO!' : '';
+        char.addLog(`Atacas e infliges ${damage} de daño${critText} (${d20}+${attackBonus})`);
         
-        <div class='combat-log' id='combat-log'>${getCombatLogHTML()}</div>
+        if (monster.h <= 0) {
+          this.handleVictory();
+          return;
+        }
+      } else {
+        char.addLog(`Fallas el ataque (${d20}+${attackBonus} vs AC ${monster.a})`);
+      }
+      
+      setTimeout(() => this.monsterAttack(), CONFIG.ANIMATION_DELAY);
+    }
+
+    static calculateAttackBonus(char) {
+      let bonus = char.stats.str;
+      if (char.equipped.weapon) bonus += char.equipped.weapon.v;
+      return bonus;
+    }
+
+    static calculateDamage(char, isCritical) {
+      let damage = this.calculateAttackBonus(char) + Math.floor(Math.random() * 8) + 1;
+      
+      // Rage bonus
+      const rageCondition = char.conditions.find(c => c.name === 'rage');
+      if (rageCondition) damage += rageCondition.bonus;
+      
+      // Critical hit
+      if (isCritical) damage *= 2;
+      
+      return damage;
+    }
+
+    static handleVictory() {
+      const monster = window.currentMonster;
+      const xpGain = Math.round((monster.c || 1) * 25 + 10);
+      const goldGain = Math.round((monster.c || 1) * 15 + Math.random() * 10);
+      
+      window.char.xp += xpGain;
+      window.char.gold += goldGain;
+      window.char.addLog(`¡Victoria! +${xpGain} XP, +${goldGain} oro`);
+      
+      while(window.char.xp >= window.char.xpNext) {
+        window.char.levelUp();
+      }
+      
+      setTimeout(() => EncounterManager.nextEncounter(), 2000);
+    }
+
+    static monsterAttack() {
+      const char = window.char;
+      const monster = window.currentMonster;
+      
+      const d20 = Math.floor(Math.random() * 20) + 1;
+      const attackRoll = d20 + Math.floor(monster.at / 2);
+      const playerAC = this.calculateAC(char);
+      
+      if (attackRoll >= playerAC || d20 === 20) {
+        let damage = monster.at + Math.floor(Math.random() * 6);
         
-        <div class='action-panel'>
-          <div class='basic-actions'>
-            <button id='attack-btn' class='combat-btn primary'>⚔️ Atacar</button>
-            <button id='inventory-btn' class='combat-btn'>🎒 Inventario</button>
-            <button id='defend-btn' class='combat-btn'>🛡️ Defenderse</button>
+        // Armor reduction
+        if (char.equipped.armor) {
+          damage = Math.max(1, damage - Math.floor(char.equipped.armor.v / 2));
+        }
+        
+        char.hp = Math.max(0, char.hp - damage);
+        char.addLog(`${monster.n} te ataca e inflige ${damage} de daño`);
+        
+        if (char.hp <= 0) {
+          GameManager.handleGameOver();
+          return;
+        }
+      } else {
+        char.addLog(`${monster.n} falla su ataque`);
+      }
+      
+      UI.updateCombatDisplay();
+    }
+
+    static calculateAC(char) {
+      let ac = char.cls.a;
+      if (char.equipped.armor) ac += char.equipped.armor.v;
+      const defendCondition = char.conditions.find(c => c.name === 'defending');
+      if (defendCondition) ac += defendCondition.acBonus;
+      return ac;
+    }
+  }
+
+  // ================================
+  // INTERFAZ DE USUARIO
+  // ================================
+  
+  class UI {
+    static showWelcomeScreen() {
+      const $game = $('#game');
+      $game.html(`
+        <div class='section welcome-section fade-in'>
+          <div class='welcome-header'>
+            <h2>⚔️ Aventura D&D Épica ⚔️</h2>
+            <p class='welcome-subtitle'>Roguelike completo con sistema avanzado de RPG</p>
           </div>
-          <div class='special-actions'>${renderSpecialActions()}</div>
+          
+          <div class='features-grid'>
+            <div class='feature-card'><i class='fas fa-scroll'></i> Historia Épica</div>
+            <div class='feature-card'><i class='fas fa-sword'></i> Combate Estratégico</div>
+            <div class='feature-card'><i class='fas fa-backpack'></i> Sistema de Inventario</div>
+            <div class='feature-card'><i class='fas fa-magic'></i> Habilidades Especiales</div>
+            <div class='feature-card'><i class='fas fa-store'></i> Mercaderes</div>
+            <div class='feature-card'><i class='fas fa-hammer'></i> Mejora de Equipo</div>
+          </div>
+          
+          <div class='welcome-actions'>
+            <button id='start-game-btn' class='btn btn-primary'>🎮 Nueva Aventura</button>
+            <button id='continue-btn' class='btn btn-secondary'>📁 Continuar</button>
+            <button id='show-leaderboard-btn' class='btn btn-outline'>🏆 Ranking</button>
+          </div>
         </div>
-      </div>
-    `;
-    
-    $game.html(combatHTML);
-    
-    // jQuery events para combate
-    $('#attack-btn').on('click', performAttack);
-    $('#inventory-btn').on('click', showInventoryInCombat);
-    $('#defend-btn').on('click', defendAction);
-    
-    // Special abilities
-    $('#use-rage').on('click', useRage);
-    $('#cast-magic').on('click', castMagicMissile);
-    $('#divine-heal').on('click', divineHeal);
-    $('#sneak-attack').on('click', sneakAttack);
-  }
-
-  // Inventory con jQuery
-  window.showInventoryInCombat = function() {
-    const consumables = window.char.inv.filter(item => 
-      item.e === 'heal' || item.e === 'cure' || item.e === 'buff'
-    );
-    
-    if (consumables.length === 0) {
-      addLog('No tienes items consumibles.');
-      return;
+      `);
+      
+      this.bindWelcomeEvents();
     }
-    
-    const $game = $('#game');
-    const html = `
-      <div class='inventory-overlay'>
-        <div class='inventory-panel'>
-          <h3>Inventario de Combate</h3>
-          <div class='item-grid'>
-            ${consumables.map((item, i) => `
-              <div class='item-card ${item.r}' data-item-index='${window.char.inv.indexOf(item)}'>
-                <strong>${item.n}</strong>
-                <p>${item.desc}</p>
-                <small class='rarity'>${item.r}</small>
+
+    static bindWelcomeEvents() {
+      $('#start-game-btn').on('click', () => this.showCharacterSelection());
+      $('#continue-btn').on('click', () => GameManager.loadSavedGame());
+      $('#show-leaderboard-btn').on('click', () => this.showLeaderboard());
+    }
+
+    static showCharacterSelection() {
+      const $game = $('#game');
+      $game.html(`
+        <div class='section char-selection fade-in'>
+          <div class='selection-header'>
+            <h2>⚔️ Elige tu Héroe ⚔️</h2>
+            <p>Cada clase tiene habilidades únicas y estilos de juego diferentes</p>
+          </div>
+          
+          <div class='character-grid'>
+            ${CLASSES.map((cls, i) => `
+              <div class='char-card' data-class-index='${i}' style='border-color: ${cls.color}'>
+                <div class='char-header' style='background: ${cls.color}'>
+                  <h3>${cls.n}</h3>
+                </div>
+                <div class='char-body'>
+                  <p class='char-desc'>${cls.desc}</p>
+                  <div class='char-special'>
+                    <strong>Especial:</strong> ${cls.special}
+                  </div>
+                  <div class='char-stats'>
+                    HP: ${cls.h + 10} | AC: ${cls.a} | ATK: ${cls.s}
+                  </div>
+                </div>
               </div>
             `).join('')}
           </div>
-          <button id='close-inventory' class='close-btn'>Cerrar</button>
-        </div>
-      </div>
-    `;
-    
-    $game.append(html);
-    
-    // jQuery events
-    $('.item-card').on('click', function() {
-      const itemIndex = $(this).data('item-index');
-      useInventoryItem(itemIndex);
-    });
-    
-    $('#close-inventory').on('click', function() {
-      $('.inventory-overlay').remove();
-    });
-  };
-
-  // Equipment management con jQuery
-  window.showEquipment = function() {
-    const $game = $('#game');
-    const html = `
-      <div class='equipment-overlay'>
-        <div class='equipment-panel'>
-          <h3>Equipo y Inventario</h3>
           
-          <div class='equipment-slots'>
-            <h4>Equipado:</h4>
-            ${Object.entries(window.char.equipped).map(([slot, item]) => `
-              <div class='equip-slot'>
-                <strong>${slot}:</strong> 
-                ${item ? `${item.n} (+${item.v})` : 'Vacío'}
-                ${item ? `<button class='unequip-btn' data-slot='${slot}'>Desequipar</button>` : ''}
-              </div>
-            `).join('')}
+          <div class='selection-footer'>
+            <button id='back-to-menu' class='btn btn-secondary'>← Volver</button>
           </div>
-          
-          <div class='inventory-items'>
-            <h4>Inventario:</h4>
-            ${window.char.inv.map((item, i) => `
-              <div class='inv-item ${item.r}'>
-                <strong>${item.n}</strong> - ${item.desc}
-                ${item.slot ? `<button class='equip-btn' data-item-index='${i}'>Equipar</button>` : ''}
-              </div>
-            `).join('')}
-          </div>
-          
-          <button id='close-equipment' class='close-btn'>Cerrar</button>
         </div>
-      </div>
-    `;
-    
-    $game.append(html);
-    
-    // jQuery events
-    $('.equip-btn').on('click', function() {
-      const itemIndex = $(this).data('item-index');
-      equipItem(itemIndex);
-    });
-    
-    $('.unequip-btn').on('click', function() {
-      const slot = $(this).data('slot');
-      unequipItem(slot);
-    });
-    
-    $('#close-equipment').on('click', function() {
-      $('.equipment-overlay').remove();
-    });
-  };
+      `);
+      
+      this.bindCharacterSelectionEvents();
+    }
 
-  // Inicialización con jQuery
-  function initializeGame() {
-    // Cargar partida guardada si existe
-    const savedChar = GameStorage.load('current_character');
-    const savedEncounter = GameStorage.load('current_encounter');
-    
-    if (savedChar && savedEncounter !== null) {
-      const continueGame = confirm('¿Continuar partida guardada?');
-      if (continueGame) {
-        window.char = savedChar;
+    static bindCharacterSelectionEvents() {
+      $('.char-card').on('click', function() {
+        const classIndex = $(this).data('class-index');
+        GameManager.selectCharacter(classIndex);
+      });
+      
+      $('#back-to-menu').on('click', () => this.showWelcomeScreen());
+    }
+
+    // ...existing code... (resto de métodos UI)
+
+    static updateCombatDisplay() {
+      if ($('.combat-section').length) {
+        $('.hero-panel').replaceWith(this.renderHeroPanel());
+        $('.enemy-panel').replaceWith(this.renderEnemyPanel());
+      }
+    }
+
+    static renderHeroPanel() {
+      const char = window.char;
+      return `
+        <div class='hero-panel'>
+          <h3>${char.name} <span class='level-badge'>Nv.${char.lvl}</span></h3>
+          <div class='hp-bar'>
+            <div class='hp-fill' style='width: ${(char.hp/char.maxHP)*100}%'></div>
+            <span class='hp-text'>${char.hp}/${char.maxHP} HP</span>
+          </div>
+          <div class='stats-row'>
+            <span>AC: ${Combat.calculateAC(char)}</span>
+            <span>ATK: ${Combat.calculateAttackBonus(char)}</span>
+            <span>Oro: ${char.gold}</span>
+          </div>
+          ${this.renderConditions(char.conditions)}
+        </div>
+      `;
+    }
+
+    static renderEnemyPanel() {
+      const monster = window.currentMonster;
+      return `
+        <div class='enemy-panel'>
+          <h3>${monster.n}</h3>
+          <div class='hp-bar enemy'>
+            <div class='hp-fill' style='width: ${(monster.h/monster.maxHP)*100}%'></div>
+            <span class='hp-text'>${monster.h}/${monster.maxHP} HP</span>
+          </div>
+          <div class='stats-row'>
+            <span>AC: ${monster.a}</span>
+            <span>ATK: ${monster.at}</span>
+          </div>
+          ${this.renderConditions(monster.conditions)}
+        </div>
+      `;
+    }
+
+    static renderConditions(conditions) {
+      if (!conditions?.length) return '';
+      return `<div class='conditions'>
+        ${conditions.map(c => `<span class='condition ${c.name}'>${c.name} (${c.turns || '∞'})</span>`).join('')}
+      </div>`;
+    }
+  }
+
+  // ================================
+  // GESTOR PRINCIPAL DEL JUEGO
+  // ================================
+  
+  class GameManager {
+    static init() {
+      gameState.reset();
+      UI.showWelcomeScreen();
+      this.setupGlobalEvents();
+    }
+
+    static setupGlobalEvents() {
+      // ESC para pausar/volver al menú
+      $(document).on('keydown', (e) => {
+        if (e.key === 'Escape' && gameState.currentState === GAME_STATES.PLAYING) {
+          this.pauseGame();
+        }
+      });
+
+      // Prevenir pérdida de datos al cerrar
+      $(window).on('beforeunload', () => {
+        if (window.char) {
+          GameStorage.save('current_character', window.char);
+          GameStorage.save('current_encounter', gameState.currentEncounter);
+        }
+      });
+    }
+
+    static selectCharacter(classIndex) {
+      const selectedClass = CLASSES[classIndex];
+      window.char = new Character(selectedClass);
+      
+      gameState.currentState = GAME_STATES.PLAYING;
+      gameState.startAutoSave();
+      
+      window.char.addLog(`¡Aventura iniciada como ${selectedClass.n}!`);
+      EncounterManager.startEncounter();
+    }
+
+    static loadSavedGame() {
+      const savedChar = GameStorage.load('current_character');
+      const savedEncounter = GameStorage.load('current_encounter');
+      
+      if (savedChar && savedEncounter !== null) {
+        window.char = Object.assign(new Character(savedChar.cls), savedChar);
         gameState.currentEncounter = savedEncounter;
-        startStoryEncounter();
-        return;
-      }
-    }
-    
-    // Nueva partida
-    showWelcomeScreen();
-  }
-
-  // Welcome screen con jQuery
-  function showWelcomeScreen() {
-    const $game = $('#game');
-    $game.html(`
-      <div class='section welcome-section'>
-        <h2>⚔️ Aventura D&D Épica ⚔️</h2>
-        <p>Un verdadero roguelike completamente offline con sistema completo de inventario y progresión profunda.</p>
-        <div class='features-grid'>
-          <div class='feature-card'>📜 Historia Épica</div>
-          <div class='feature-card'>⚔️ Combate Estratégico</div>
-          <div class='feature-card'>🎒 Sistema de Inventario</div>
-          <div class='feature-card'>⚡ Habilidades Especiales</div>
-          <div class='feature-card'>🏪 Mercaderes</div>
-          <div class='feature-card'>🔨 Mejora de Equipo</div>
-        </div>
-        <div class='welcome-actions'>
-          <button id='start-game-btn' class='start-btn primary'>🎮 Comenzar Aventura</button>
-          <button id='show-leaderboard-btn' class='start-btn'>🏆 Ver Ranking</button>
-        </div>
-      </div>
-    `);
-    
-    // jQuery events
-    $('#start-game-btn').on('click', showCharacterSelection);
-    $('#show-leaderboard-btn').on('click', showLeaderboard);
-  }
-
-  // FUNCIONES FALTANTES - Agregar al final antes de })(jQuery);
-
-  // Helper functions
-  function renderHeroPanel() {
-    const char = window.char;
-    return `
-      <div class='hero-panel'>
-        <h3>${char.name} (Nv.${char.lvl})</h3>
-        <div class='hp-bar'>
-          <div class='hp-fill' style='width: ${(char.hp/char.maxHP)*100}%'></div>
-          <span class='hp-text'>${char.hp}/${char.maxHP} HP</span>
-        </div>
-        <p>AC: ${calculateAC()} | ATK: ${calculateAttack()}</p>
-        <div class='conditions'>${renderConditions(char.conditions)}</div>
-      </div>
-    `;
-  }
-
-  function renderEnemyPanel() {
-    const monster = window.currentMonster;
-    return `
-      <div class='enemy-panel'>
-        <h3>${monster.n}</h3>
-        <div class='hp-bar enemy'>
-          <div class='hp-fill' style='width: ${(monster.h/monster.maxHP)*100}%'></div>
-          <span class='hp-text'>${monster.h}/${monster.maxHP} HP</span>
-        </div>
-        <p>AC: ${monster.a}</p>
-        <div class='conditions'>${renderConditions(monster.conditions)}</div>
-      </div>
-    `;
-  }
-
-  function renderSpecialActions() {
-    const char = window.char;
-    let actions = [];
-    
-    if (char.abilities.rage > 0) {
-      actions.push(`<button id='use-rage' class='special-btn'>🔥 Furia (${char.abilities.rage})</button>`);
-    }
-    
-    if (char.abilities.spells > 0) {
-      actions.push(`<button id='cast-magic' class='special-btn'>✨ Misil Mágico (${char.abilities.spells})</button>`);
-    }
-    
-    if (char.abilities.heals > 0) {
-      actions.push(`<button id='divine-heal' class='special-btn'>🙏 Curación (${char.abilities.heals})</button>`);
-    }
-    
-    if (char.abilities.sneak > 0) {
-      actions.push(`<button id='sneak-attack' class='special-btn'>🗡️ Ataque Furtivo (${char.abilities.sneak})</button>`);
-    }
-    
-    return actions.join('');
-  }
-
-  function renderConditions(conditions) {
-    if (!conditions || conditions.length === 0) return '';
-    return conditions.map(c => `<span class='condition ${c.name}'>${c.name} (${c.turns || '∞'})</span>`).join(' ');
-  }
-
-  function getCombatLogHTML() {
-    const logs = window.char.log || [];
-    return logs.slice(-4).join('<br>');
-  }
-
-  function addLog(message) {
-    window.char.log = window.char.log || [];
-    window.char.log.push(message);
-    
-    if (window.char.log.length > 6) {
-      window.char.log = window.char.log.slice(-6);
-    }
-    
-    const logElement = document.getElementById('combat-log');
-    if (logElement) {
-      logElement.innerHTML = getCombatLogHTML();
-    }
-  }
-
-  // Combat functions
-  window.performAttack = function() {
-    const char = window.char;
-    const monster = window.currentMonster;
-    
-    const d20 = Math.floor(Math.random() * 20) + 1;
-    const attackRoll = d20 + calculateAttack();
-    const isCritical = d20 === 20 || (d20 >= 18 && char.cls.n === 'Pícaro');
-    
-    if (attackRoll >= monster.a || isCritical) {
-      let damage = calculateAttack() + Math.floor(Math.random() * 8) + 1;
-      
-      const rageBonus = char.conditions.find(c => c.name === 'rage')?.bonus || 0;
-      damage += rageBonus;
-      
-      if (isCritical) {
-        damage *= 2;
-        addLog(`¡CRÍTICO! Daño duplicado.`);
-      }
-      
-      monster.h = Math.max(0, monster.h - damage);
-      addLog(`¡Atacas e infliges ${damage} de daño! (${d20}+${calculateAttack()})`);
-      
-      if (monster.h <= 0) {
-        handleCombatVictory();
-        return;
-      }
-    } else {
-      addLog(`¡Fallas el ataque! (${d20}+${calculateAttack()} vs AC ${monster.a})`);
-    }
-    
-    setTimeout(() => monsterAttack(), 800);
-  };
-
-  window.defendAction = function() {
-    window.char.conditions.push({name: 'defending', turns: 1, acBonus: 3});
-    addLog('Te preparas para defenderte. +3 AC hasta tu próximo turno.');
-    setTimeout(() => monsterAttack(), 800);
-  };
-
-  function handleCombatVictory() {
-    const monster = window.currentMonster;
-    const xpGain = Math.round((monster.c || 1) * 25 + 10);
-    const goldGain = Math.round((monster.c || 1) * 15 + Math.random() * 10);
-    
-    window.char.xp += xpGain;
-    window.char.gold += goldGain;
-    
-    addLog(`¡Victoria! +${xpGain} XP, +${goldGain} oro`);
-    
-    while(window.char.xp >= window.char.xpNext) {
-      levelUpCharacter();
-    }
-    
-    setTimeout(nextEncounter, 2000);
-  }
-
-  window.nextEncounter = function() {
-    gameState.currentEncounter++;
-    startStoryEncounter();
-  };
-
-  // Equipment system
-  function calculateAC() {
-    let ac = window.char.cls.a;
-    if (window.char.equipped.armor) ac += window.char.equipped.armor.v;
-    if (window.char.equipped.boots && window.char.equipped.boots.desc.includes('esquiva')) ac += 1;
-    return ac;
-  }
-  
-  function calculateAttack() {
-    let attack = window.char.stats.str;
-    if (window.char.equipped.weapon) attack += window.char.equipped.weapon.v;
-    return attack;
-  }
-
-  window.equipItem = function(index) {
-    const item = window.char.inv[index];
-    const slot = item.slot;
-    
-    if (window.char.equipped[slot]) {
-      window.char.inv.push(window.char.equipped[slot]);
-    }
-    
-    window.char.equipped[slot] = item;
-    window.char.inv.splice(index, 1);
-    
-    addLog(`Equipas ${item.n}.`);
-    $('.equipment-overlay').remove();
-    showEquipment();
-  };
-
-  window.unequipItem = function(slot) {
-    const item = window.char.equipped[slot];
-    window.char.inv.push(item);
-    window.char.equipped[slot] = null;
-    
-    addLog(`Desequipas ${item.n}.`);
-    $('.equipment-overlay').remove();
-    showEquipment();
-  };
-
-  window.useInventoryItem = function(index) {
-    const item = window.char.inv[index];
-    
-    if (item.e === 'heal') {
-      window.char.hp = Math.min(window.char.maxHP, window.char.hp + item.v);
-      addLog(`Usas ${item.n} y recuperas ${item.v} HP.`);
-    } else if (item.e === 'cure') {
-      window.char.conditions = window.char.conditions.filter(c => c !== 'poison');
-      addLog(`Usas ${item.n} y curas el veneno.`);
-    }
-    
-    window.char.inv.splice(index, 1);
-    $('.inventory-overlay').remove();
-    setTimeout(() => monsterAttack(), 800);
-  };
-
-  // Rest encounters
-  function renderRestEncounter(encounter) {
-    const $game = $('#game');
-    $game.html(`
-      <div class='section rest-section'>
-        <h2>🏕️ ${encounter.title}</h2>
-        <p>${encounter.desc}</p>
+        gameState.currentState = GAME_STATES.PLAYING;
+        gameState.startAutoSave();
         
-        <div class='rest-options'>
-          <div class='rest-option'>
-            <h4>Descanso Rápido</h4>
-            <p>Recupera 40% HP</p>
-            <button id='quick-rest' class='rest-btn'>Descanso Rápido</button>
-          </div>
-          
-          <div class='rest-option'>
-            <h4>Descanso Completo</h4>
-            <p>Recupera 80% HP + restaura 1 habilidad</p>
-            <button id='full-rest' class='rest-btn'>Descanso Completo</button>
-          </div>
-          
-          <div class='rest-option'>
-            <h4>Meditar</h4>
-            <p>Recupera 25% HP + gana 15 XP</p>
-            <button id='meditate' class='rest-btn'>Meditar</button>
-          </div>
-        </div>
-      </div>
-    `);
-    
-    $('#quick-rest').on('click', quickRest);
-    $('#full-rest').on('click', fullRest);
-    $('#meditate').on('click', meditate);
-  }
-
-  window.quickRest = function() {
-    const heal = Math.round(window.char.maxHP * 0.4);
-    window.char.hp = Math.min(window.char.maxHP, window.char.hp + heal);
-    addLog(`Descansas rápidamente y recuperas ${heal} HP.`);
-    setTimeout(nextEncounter, 1000);
-  };
-
-  window.fullRest = function() {
-    const heal = Math.round(window.char.maxHP * 0.8);
-    window.char.hp = Math.min(window.char.maxHP, window.char.hp + heal);
-    
-    const abilities = Object.keys(window.char.abilities).filter(a => window.char.abilities[a] < getMaxAbility(a));
-    if (abilities.length > 0) {
-      const restored = abilities[Math.floor(Math.random() * abilities.length)];
-      window.char.abilities[restored]++;
-      addLog(`Descansas completamente. Recuperas ${heal} HP y restauras 1 uso de ${restored}.`);
-    } else {
-      addLog(`Descansas completamente y recuperas ${heal} HP.`);
-    }
-    
-    setTimeout(nextEncounter, 1500);
-  };
-
-  window.meditate = function() {
-    const heal = Math.round(window.char.maxHP * 0.25);
-    window.char.hp = Math.min(window.char.maxHP, window.char.hp + heal);
-    window.char.xp += 15;
-    addLog(`Meditas en silencio. Recuperas ${heal} HP y ganas 15 XP de sabiduría.`);
-    setTimeout(nextEncounter, 1000);
-  };
-
-  function getMaxAbility(ability) {
-    const maxes = { rage: 5, spells: 8, heals: 6, sneak: 4 };
-    return maxes[ability] || 3;
-  }
-
-  // Leaderboard local
-  function showLeaderboard() {
-    const leaderboard = GameStorage.getLeaderboard();
-    const $game = $('#game');
-    
-    $game.html(`
-      <div class='section leaderboard-section'>
-        <h2>🏆 Ranking Local</h2>
-        <div class='leaderboard-list'>
-          ${leaderboard.length > 0 ? leaderboard.map((entry, i) => `
-            <div class='leaderboard-entry ${i < 3 ? 'top-three' : ''}'>
-              <span class='rank'>#${i + 1}</span>
-              <span class='name'>${entry.character_name}</span>
-              <span class='class'>${entry.class_name}</span>
-              <span class='level'>Nv.${entry.final_level}</span>
-              <span class='score'>${entry.score} pts</span>
-            </div>
-          `).join('') : '<p>No hay puntuaciones guardadas</p>'}
-        </div>
-        <div class='leaderboard-actions'>
-          <button id='back-to-menu' class='leaderboard-btn'>🏠 Menu Principal</button>
-          <button id='clear-scores' class='leaderboard-btn'>🗑️ Limpiar Puntuaciones</button>
-        </div>
-      </div>
-    `);
-    
-    $('#back-to-menu').on('click', showWelcomeScreen);
-    $('#clear-scores').on('click', function() {
-      if (confirm('¿Seguro que quieres borrar todas las puntuaciones?')) {
-        GameStorage.save('leaderboard', []);
-        showLeaderboard();
+        EncounterManager.startEncounter();
+      } else {
+        alert('No hay partida guardada disponible');
       }
-    });
-  }
+    }
 
-  // Cleanup optimization
-  function optimizedCleanup() {
-    if (window.char && Object.keys(window.char.inv || {}).length > 100) {
-      window.char.inv = window.char.inv.slice(0, 50);
+    static pauseGame() {
+      gameState.currentState = GAME_STATES.PAUSED;
+      // Implementar menú de pausa
+    }
+
+    static handleGameOver() {
+      gameState.stopAutoSave();
+      GameStorage.addScore(window.char);
+      
+      const $game = $('#game');
+      $game.html(`
+        <div class='section gameover-section fade-in'>
+          <h2>💀 Game Over</h2>
+          <p>Tu aventura ha llegado a su fin...</p>
+          <div class='death-stats'>
+            <div class='stat-item'>
+              <span class='stat-label'>Nivel Alcanzado:</span>
+              <span class='stat-value'>${window.char.lvl}</span>
+            </div>
+            <div class='stat-item'>
+              <span class='stat-label'>Encuentros:</span>
+              <span class='stat-value'>${gameState.currentEncounter}</span>
+            </div>
+            <div class='stat-item'>
+              <span class='stat-label'>Oro Acumulado:</span>
+              <span class='stat-value'>${window.char.gold}</span>
+            </div>
+            <div class='stat-item'>
+              <span class='stat-label'>Score Final:</span>
+              <span class='stat-value'>${GameStorage.calculateScore(window.char)}</span>
+            </div>
+          </div>
+          <div class='game-over-actions'>
+            <button id='show-leaderboard-btn' class='btn btn-primary'>🏆 Ver Ranking</button>
+            <button id='retry-btn' class='btn btn-secondary'>🔄 Reintentar</button>
+            <button id='menu-btn' class='btn btn-outline'>🏠 Menú Principal</button>
+          </div>
+        </div>
+      `);
+      
+      $('#show-leaderboard-btn').on('click', () => UI.showLeaderboard());
+      $('#retry-btn').on('click', () => this.init());
+      $('#menu-btn').on('click', () => this.init());
     }
   }
 
-  // Ajustar el final del archivo para usar jQuery
+  // ================================
+  // GESTOR DE ENCUENTROS
+  // ================================
+  
+  class EncounterManager {
+    static startEncounter() {
+      const encounter = STORY_ENCOUNTERS[gameState.currentEncounter];
+      if (!encounter) {
+        this.showVictoryScreen();
+        return;
+      }
+      
+      switch(encounter.type) {
+        case 'story': this.renderStoryEncounter(encounter); break;
+        case 'combat': this.renderCombatEncounter(encounter); break;
+        case 'merchant': this.renderMerchantEncounter(encounter); break;
+        case 'treasure': this.renderTreasureEncounter(encounter); break;
+        case 'forge': this.renderForgeEncounter(encounter); break;
+        case 'rest': this.renderRestEncounter(encounter); break;
+        case 'boss': this.renderBossEncounter(encounter); break;
+      }
+    }
+
+    static nextEncounter() {
+      gameState.currentEncounter++;
+      this.startEncounter();
+    }
+
+    // ...existing code... (métodos de encuentros)
+  }
+
+  // ================================
+  // INICIALIZACIÓN
+  // ================================
+  
+  // Esperar a que jQuery esté listo
+  $(document).ready(() => {
+    GameManager.init();
+  });
+
+  // Exponer funciones globales necesarias
+  window.selectCharacter = (idx) => GameManager.selectCharacter(idx);
+  window.performAttack = () => Combat.performAttack();
+  window.nextEncounter = () => EncounterManager.nextEncounter();
+
 })(jQuery);

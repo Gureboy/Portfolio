@@ -1,138 +1,375 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="no-js">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Daniel Salini - Desarrollador Full Stack y músico bajo el alias Katosx. Especializado en React, Node.js y producción musical. Portfolio profesional con proyectos de desarrollo web y música.">
+    <meta name="description" content="Daniel Salini - Ingeniero Electricista, Desarrollador Full Stack y músico Katosx. Especializado en automatización industrial bajo estándares AEA, desarrollo web moderno y producción musical con Ableton Live.">
+    <meta name="keywords" content="Daniel Salini, Ingeniero Electricista, Full Stack Developer, Katosx, Automatización Industrial, AEA, ESP32, ESP8266, React, Node.js, Ableton Live, FL Studio, UPRO">
+    <meta name="author" content="Daniel Salini">
+    <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#6366f1">
-    <title>Daniel Salini - Desarrollador Full Stack & Katosx</title>
+    <meta name="msapplication-TileColor" content="#6366f1">
     
-    <!-- Preconnect to required origins -->
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://danielsalini.netlify.app/">
+    <meta property="og:title" content="Daniel Salini - Ingeniero Electricista & Full Stack Developer">
+    <meta property="og:description" content="Portfolio profesional de Daniel Salini (Katosx) - Ingeniero, Desarrollador, Profesor y Músico">
+    <meta property="og:image" content="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Daniel Salini - Ingeniero Electricista & Full Stack Developer">
+    <meta name="twitter:description" content="Portfolio profesional de Daniel Salini (Katosx) - Ingeniero, Desarrollador, Profesor y Músico">
+    <meta name="twitter:image" content="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
+    
+    <title>Daniel Salini - Ingeniero Electricista & Full Stack Developer | Katosx</title>
+    
+    <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://i.ibb.co">
+    <link rel="dns-prefetch" href="https://github.com">
+    <link rel="dns-prefetch" href="https://linkedin.com">
     
-    <!-- Critical CSS inline -->
+    <!-- Critical CSS inline for above-the-fold content -->
     <style>
-        /* Critical Above-the-fold CSS */
+        /* Critical styles for immediate rendering */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-        .preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: flex; justify-content: center; align-items: center; z-index: 10000; }
-        .loader { width: 60px; height: 60px; }
-        .loader-inner { width: 100%; height: 100%; border: 3px solid #e5e7eb; border-top: 3px solid #6366f1; border-radius: 50%; animation: spin 1s linear infinite; }
+        html { font-size: 16px; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            line-height: 1.6; 
+            color: #1f2937; 
+            background: #ffffff;
+        }
+        .preloader { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 10000; 
+            transition: opacity 0.5s ease;
+        }
+        .preloader.hidden { opacity: 0; pointer-events: none; }
+        .loader { 
+            width: 60px; 
+            height: 60px; 
+            position: relative;
+        }
+        .loader-inner { 
+            width: 100%; 
+            height: 100%; 
+            border: 3px solid rgba(255,255,255,0.2); 
+            border-top: 3px solid #ffffff; 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .hero { min-height: 100vh; display: flex; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        
+        /* Hero critical styles */
+        .hero { 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            position: relative; 
+            overflow: hidden;
+        }
+        .hero-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 1.5rem; 
+            position: relative; 
+            z-index: 1; 
+        }
+        .hero-content { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 4rem; 
+            align-items: center; 
+        }
+        .hero-name { 
+            font-size: 3.5rem; 
+            font-weight: 700; 
+            margin: 0.5rem 0; 
+            background: linear-gradient(45deg, #ffffff, #e5e7eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Skip link for accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: #000;
+            color: #fff;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 10001;
+        }
+        .skip-link:focus { top: 6px; }
+        
+        @media (max-width: 768px) {
+            .hero-content { grid-template-columns: 1fr; text-align: center; }
+            .hero-name { font-size: 2.5rem; }
+        }
     </style>
     
-    <!-- Non-critical CSS -->
-    <link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
+    <!-- Load CSS asynchronously -->
+    <link rel="preload" href="style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="style.css"></noscript>
     
-    <!-- Fonts with display swap -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Load fonts with display=swap -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Icons - defer loading -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></noscript>
+    <!-- Load icons asynchronously -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     
-    <!-- Apple touch icons -->
+    <!-- Favicon and app icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
     <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Daniel Salini",
+      "alternateName": "Katosx",
+      "description": "Ingeniero Electricista, Full Stack Developer y Músico",
+      "url": "https://danielsalini.netlify.app",
+      "image": "https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg",
+      "sameAs": [
+        "https://github.com/Gureboy",
+        "https://www.linkedin.com/in/katosx/",
+        "https://www.youtube.com/watch?v=N4dmCNN2foQ"
+      ],
+      "jobTitle": "Ingeniero Electricista y Desarrollador Full Stack",
+      "worksFor": {
+        "@type": "Organization",
+        "name": "UPRO"
+      },
+      "knowsAbout": [
+        "Automatización Industrial",
+        "Desarrollo Web",
+        "ESP32",
+        "ESP8266", 
+        "React",
+        "Node.js",
+        "Producción Musical"
+      ]
+    }
+    </script>
 </head>
+
 <body>
-    <div id="preloader" class="preloader">
+    <!-- Skip to main content for screen readers -->
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    
+    <!-- Enhanced preloader -->
+    <div id="preloader" class="preloader" aria-label="Cargando página">
         <div class="loader">
             <div class="loader-inner"></div>
         </div>
+        <div class="loading-text" style="position: absolute; bottom: 30%; color: white; font-size: 1.1rem; font-weight: 500;">
+            Cargando experiencia profesional...
+        </div>
     </div>
 
-    <header class="header">
+    <!-- Enhanced header -->
+    <header class="header" role="banner">
         <nav class="nav" role="navigation" aria-label="Navegación principal">
             <div class="nav-container">
                 <div class="nav-brand">
-                    <a href="#home" aria-label="Ir al inicio">Daniel Salini</a>
+                    <a href="#home" aria-label="Daniel Salini - Ir al inicio">
+                        <span class="brand-name">Daniel Salini</span>
+                        <span class="brand-subtitle">Ing. • Dev • Katosx</span>
+                    </a>
                 </div>
                 
-                <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú de navegación" aria-expanded="false">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                <button class="nav-toggle" id="nav-toggle" 
+                        aria-label="Abrir menú de navegación" 
+                        aria-expanded="false"
+                        aria-controls="nav-menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
                 </button>
                 
-                <div class="nav-menu" id="nav-menu">
-                    <a href="#home" class="nav-link" aria-label="Ir a la sección de inicio">Inicio</a>
-                    <a href="#about" class="nav-link" aria-label="Ir a la sección sobre mí">Sobre mí</a>
-                    <a href="#skills" class="nav-link" aria-label="Ir a la sección de habilidades">Habilidades</a>
-                    <a href="#projects" class="nav-link" aria-label="Ir a la sección de proyectos">Proyectos</a>
-                    <a href="#contact" class="nav-link" aria-label="Ir a la sección de contacto">Contacto</a>
+                <div class="nav-menu" id="nav-menu" role="menubar">
+                    <a href="#home" class="nav-link" role="menuitem" aria-label="Ir a inicio">
+                        <i class="fas fa-home" aria-hidden="true"></i>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="#about" class="nav-link" role="menuitem" aria-label="Ir a sobre mí">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                        <span>Sobre mí</span>
+                    </a>
+                    <a href="#skills" class="nav-link" role="menuitem" aria-label="Ir a habilidades">
+                        <i class="fas fa-cogs" aria-hidden="true"></i>
+                        <span>Habilidades</span>
+                    </a>
+                    <a href="#projects" class="nav-link" role="menuitem" aria-label="Ir a proyectos">
+                        <i class="fas fa-briefcase" aria-hidden="true"></i>
+                        <span>Proyectos</span>
+                    </a>
+                    <a href="#contact" class="nav-link" role="menuitem" aria-label="Ir a contacto">
+                        <i class="fas fa-envelope" aria-hidden="true"></i>
+                        <span>Contacto</span>
+                    </a>
                 </div>
+                
+                <!-- Theme toggle -->
+                <button class="theme-toggle" id="theme-toggle" 
+                        aria-label="Cambiar tema" 
+                        title="Cambiar entre tema claro y oscuro">
+                    <i class="fas fa-moon" aria-hidden="true"></i>
+                </button>
             </div>
         </nav>
+        
+        <!-- Progress bar for scroll -->
+        <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
     </header>
 
-    <main class="main">
-        <!-- Hero Section -->
+    <main class="main" id="main-content" role="main">
+        <!-- Enhanced Hero Section -->
         <section id="home" class="hero">
+            <!-- Animated background particles -->
+            <div class="hero-background">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+            
             <div class="hero-container">
                 <div class="hero-content">
                     <div class="hero-text">
-                        <span class="hero-greeting">¡Hola! Soy</span>
-                        <h1 class="hero-name">Daniel Salini</h1>
-                        <h2 class="hero-title">Ingeniero Electricista & Full Stack Developer</h2>
-                        <h3 class="hero-subtitle">Profesor UPRO • Músico Katosx</h3>
-                        <p class="hero-description">
-                            Ingeniero Electricista especializado en automatización industrial bajo estándares AEA. 
-                            Desarrollador Full Stack y profesor en UPRO de Automatización Industrial y Electricidad.
-                            También tengo experiencia docente en la Penitenciaría de San Luis, demostrando mi compromiso 
-                            con la educación inclusiva. Músico bajo el alias Katosx, creando beats únicos con Ableton Live y FL Studio.
+                        <span class="hero-greeting animate-fade-in">
+                            <i class="fas fa-hand-peace" aria-hidden="true"></i>
+                            ¡Hola! Soy
+                        </span>
+                        <h1 class="hero-name animate-slide-up">Daniel Salini</h1>
+                        <h2 class="hero-title animate-slide-up" style="animation-delay: 0.2s">
+                            Ingeniero Electricista & Full Stack Developer
+                        </h2>
+                        <h3 class="hero-subtitle animate-slide-up" style="animation-delay: 0.4s">
+                            <span class="highlight-badge">Profesor UPRO</span> • 
+                            <span class="highlight-badge">Músico Katosx</span>
+                        </h3>
+                        <p class="hero-description animate-fade-in" style="animation-delay: 0.6s">
+                            Ingeniero Electricista especializado en <strong>automatización industrial</strong> bajo estándares AEA. 
+                            Desarrollador Full Stack y profesor en UPRO. También soy músico bajo el alias 
+                            <strong>Katosx</strong>, creando beats únicos con Ableton Live y FL Studio.
                         </p>
-                        <div class="hero-buttons">
-                            <a href="#projects" class="btn btn-primary" aria-label="Ver mis proyectos">Ver Proyectos</a>
-                            <a href="#contact" class="btn btn-secondary" aria-label="Ir a contacto">Contactar</a>
+                        <div class="hero-buttons animate-fade-in" style="animation-delay: 0.8s">
+                            <a href="#projects" class="btn btn-primary btn-glow">
+                                <i class="fas fa-rocket" aria-hidden="true"></i>
+                                Ver Proyectos
+                            </a>
+                            <a href="#contact" class="btn btn-secondary btn-outline">
+                                <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                                Contactar
+                            </a>
+                            <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" 
+                               target="_blank" 
+                               rel="noopener"
+                               class="btn btn-music">
+                                <i class="fab fa-youtube" aria-hidden="true"></i>
+                                Música Katosx
+                            </a>
+                        </div>
+                        
+                        <!-- Quick stats -->
+                        <div class="hero-stats animate-fade-in" style="animation-delay: 1s">
+                            <div class="stat-item">
+                                <span class="stat-number" data-target="5">0</span>
+                                <span class="stat-label">Años Experiencia</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number" data-target="25">0</span>
+                                <span class="stat-label">Proyectos</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number" data-target="100">0</span>
+                                <span class="stat-label">Estudiantes</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="hero-visual">
+                    <!-- Enhanced visual with better animations -->
+                    <div class="hero-visual animate-float">
                         <div class="circle-animation">
-                            <div class="circle circle-1" aria-label="JavaScript">
+                            <!-- Technology circles with enhanced styling -->
+                            <div class="circle circle-1" data-tooltip="JavaScript ES6+">
                                 <i class="fab fa-js-square" aria-hidden="true"></i>
+                                <div class="circle-glow"></div>
                             </div>
-                            <div class="circle circle-2" aria-label="React">
+                            <div class="circle circle-2" data-tooltip="React & Next.js">
                                 <i class="fab fa-react" aria-hidden="true"></i>
+                                <div class="circle-glow"></div>
                             </div>
-                            <div class="circle circle-3" aria-label="Node.js">
+                            <div class="circle circle-3" data-tooltip="Node.js & Express">
                                 <i class="fab fa-node-js" aria-hidden="true"></i>
+                                <div class="circle-glow"></div>
                             </div>
-                            <div class="circle circle-4" aria-label="Base de datos">
+                            <div class="circle circle-4" data-tooltip="Bases de Datos">
                                 <i class="fas fa-database" aria-hidden="true"></i>
+                                <div class="circle-glow"></div>
                             </div>
-                            <div class="circle circle-5" aria-label="Música">
+                            <div class="circle circle-5" data-tooltip="Producción Musical">
                                 <i class="fas fa-music" aria-hidden="true"></i>
+                                <div class="circle-glow"></div>
                             </div>
-                            <div class="circle circle-6" aria-label="Git">
+                            <div class="circle circle-6" data-tooltip="Control de Versiones">
                                 <i class="fab fa-git-alt" aria-hidden="true"></i>
+                                <div class="circle-glow"></div>
                             </div>
+                            
+                            <!-- Enhanced center avatar -->
                             <div class="circle-center">
                                 <div class="avatar-container">
                                     <img src="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg" 
-                                         alt="Daniel Salini - Katosx" 
+                                         alt="Daniel Salini - Ingeniero Electricista, Desarrollador y Músico Katosx" 
                                          class="profile-avatar"
-                                         width="100" 
-                                         height="100"
+                                         width="120" 
+                                         height="120"
                                          loading="eager">
+                                    <div class="avatar-glow"></div>
+                                </div>
+                                <div class="status-indicator">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Disponible</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
+                <!-- Enhanced scroll indicator -->
                 <div class="hero-scroll">
                     <a href="#about" class="scroll-indicator" aria-label="Desplazarse hacia abajo">
-                        <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        <span class="scroll-text">Conoce más</span>
+                        <div class="scroll-arrow">
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        </div>
                     </a>
                 </div>
             </div>
@@ -510,7 +747,7 @@
                             <div class="social-preview">
                                 <div class="social-icon" aria-hidden="true">❤️</div>
                                 <h3>Educación Social</h3>
-                                <p>Docencia en contextos de encierro</p>
+                                <p>Docencia in contextos de encierro</p>
                             </div>
                         </div>
                         <div class="project-content">
@@ -586,6 +823,17 @@
                                 <small>Electricidad y sistemas automatizados</small>
                             </div>
                         </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fab fa-linkedin" aria-hidden="true"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>LinkedIn</h3>
+                                <a href="https://www.linkedin.com/in/katosx/" target="_blank" rel="noopener" aria-label="Ver perfil de LinkedIn">linkedin.com/in/katosx</a>
+                                <small>Perfil profesional y networking</small>
+                            </div>
+                        </div>
                     </div>
                     
                     <form class="contact-form" id="contact-form" novalidate>
@@ -622,42 +870,112 @@
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
+    <!-- Enhanced Footer -->
+    <footer class="footer" role="contentinfo">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <p class="footer-text">
-                        <strong>Daniel Salini</strong> • <em>Ing. Electricista</em> • <em>Prof. UPRO</em> • <em>Katosx</em>
-                    </p>
+                    <div class="footer-brand">
+                        <h3>Daniel Salini</h3>
+                        <div class="footer-badges">
+                            <span class="footer-badge">🔧 Ing. Electricista</span>
+                            <span class="footer-badge">💻 Full Stack Dev</span>
+                            <span class="footer-badge">👨‍🏫 Prof. UPRO</span>
+                            <span class="footer-badge">🎵 Katosx</span>
+                        </div>
+                    </div>
                     <p class="footer-philosophy">
-                        "Donde la ingeniería encuentra la creatividad, la educación transforma vidas, y la música conecta el alma"
+                        "Donde la ingeniería encuentra la creatividad, la educación transforma vidas, 
+                        y la música conecta el alma"
                     </p>
                     <p class="footer-credentials">
-                        Automatización Industrial | Estándares AEA | IoT & Smart Systems | Zendesk & Jira | Educación Inclusiva
+                        Automatización Industrial • Estándares AEA • IoT & Smart Systems • 
+                        Zendesk & Jira • Educación Inclusiva
                     </p>
                 </div>
-                <div class="footer-social">
-                    <a href="https://github.com/Gureboy" target="_blank" rel="noopener" aria-label="GitHub Profesional">
-                        <i class="fab fa-github" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ&list=RDN4dmCNN2foQ&start_radio=1" target="_blank" rel="noopener" aria-label="Katosx en YouTube">
-                        <i class="fab fa-youtube" aria-hidden="true"></i>
-                    </a>
-                    <a href="mailto:danielsalini77@gmail.com" aria-label="Email profesional">
-                        <i class="fas fa-envelope" aria-hidden="true"></i>
-                    </a>
-                    <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn Profesional">
-                        <i class="fab fa-linkedin" aria-hidden="true"></i>
-                    </a>
+                
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>Contacto Profesional</h4>
+                        <ul>
+                            <li>
+                                <a href="mailto:danielsalini77@gmail.com" aria-label="Enviar email">
+                                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                                    Email
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.linkedin.com/in/katosx/" target="_blank" rel="noopener" aria-label="LinkedIn">
+                                    <i class="fab fa-linkedin" aria-hidden="true"></i>
+                                    LinkedIn
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h4>Proyectos & Música</h4>
+                        <ul>
+                            <li>
+                                <a href="https://github.com/Gureboy" target="_blank" rel="noopener" aria-label="GitHub">
+                                    <i class="fab fa-github" aria-hidden="true"></i>
+                                    GitHub
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" target="_blank" rel="noopener" aria-label="YouTube Katosx">
+                                    <i class="fab fa-youtube" aria-hidden="true"></i>
+                                    Katosx Music
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
+            
             <div class="footer-bottom">
-                <p>&copy; 2025 Daniel Salini - Ing. Electricista. Todos los derechos reservados.</p>
+                <div class="footer-bottom-content">
+                    <p>&copy; 2025 Daniel Salini - Ingeniero Electricista. Todos los derechos reservados.</p>
+                    <div class="footer-tech">
+                        <span>Construido con</span>
+                        <i class="fas fa-heart" aria-hidden="true" style="color: #ef4444;"></i>
+                        <span>y tecnología moderna</span>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
 
+    <!-- Back to top button -->
+    <button class="back-to-top" id="back-to-top" 
+            aria-label="Volver arriba" 
+            title="Volver al inicio de la página">
+        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+    </button>
+
+    <!-- Scripts with async loading -->
+    <script>
+        // Remove no-js class
+        document.documentElement.classList.remove('no-js');
+        
+        // Critical performance optimization
+        window.addEventListener('load', () => {
+            document.getElementById('preloader').classList.add('hidden');
+        });
+    </script>
+    
+    <!-- Main script with defer -->
     <script src="main.js" defer></script>
+    
+    <!-- Service Worker registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('SW registered'))
+                    .catch(err => console.log('SW registration failed'));
+            });
+        }
+    </script>
 </body>
 </html>
