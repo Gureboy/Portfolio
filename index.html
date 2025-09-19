@@ -13,6 +13,9 @@
     <link rel="canonical" href="https://tu-usuario.github.io/portfolio-dnd/">
     <link href="https://fonts.cdnfonts.com/css/thegoodmonolith" rel="stylesheet">
     <link rel="stylesheet" href="circle-animations.css">
+    <!-- Preload critical resources -->
+    <link rel="preload" href="circle-animations.css" as="style">
+    <link rel="preload" href="circle-animations.js" as="script">
     <style>
         /* Extra: para overlay de datos */
         .circle-info-modal {
@@ -142,6 +145,7 @@
             cursor: pointer;
             border-radius: 8px;
             position: relative;
+            contain: layout style paint;
         }
 
         .animation-container:hover {
@@ -460,7 +464,27 @@
                 font-size: 0.8em;
             }
         }
+
+        /* Additional memory optimizations */
+        .animation-container {
+            /* ...existing code... */
+            contain: layout style paint;
+        }
+        
+        .circle-container {
+            contain: layout;
+        }
+        
+        /* Reduce repaints */
+        .dot {
+            will-change: auto;
+        }
+        
+        .dot.animating {
+            will-change: transform, opacity;
+        }
     </style>
+    <script src="i18n.js"></script>
 </head>
 <body>
     <!-- Performance indicator -->
@@ -472,68 +496,68 @@
     </div>
 
     <header>
-        <h1>Daniel Salini <span class="alias">Katosx</span></h1>
-        <div class="professional-badge">Desarrollador Fullstack & Ingeniero & Músico</div>
+        <h1><span data-i18n="main-title">Daniel Salini</span> <span class="alias" data-i18n="alias">Katosx</span></h1>
+        <div class="professional-badge" data-i18n="professional-badge">Desarrollador Fullstack & Ingeniero & Músico</div>
         <div class="skills-highlight">
-            <span class="skill-tag">🚀 Fullstack Developer</span>
-            <span class="skill-tag">⚡ PLC Programming</span>
-            <span class="skill-tag">🎵 Music Composer</span>
-            <span class="skill-tag">🎯 Problem Solver</span>
+            <span class="skill-tag" data-i18n="skill-fullstack">🚀 Fullstack Developer</span>
+            <span class="skill-tag" data-i18n="skill-plc">⚡ PLC Programming</span>
+            <span class="skill-tag" data-i18n="skill-music">🎵 Music Composer</span>
+            <span class="skill-tag" data-i18n="skill-solver">🎯 Problem Solver</span>
         </div>
-        <p class="sr-only">Portfolio profesional de Daniel Salini (Katosx) - Desarrollador fullstack, ingeniero y músico</p>
+        <p class="sr-only" data-i18n="sr-desc">Portfolio profesional de Daniel Salini (Katosx) - Desarrollador fullstack, ingeniero y músico</p>
     </header>
 
     <main class="container" role="main">
         <div class="animation-container" data-circle="0" tabindex="0" role="button" aria-label="Ver perfil profesional">
-            <div class="animation-title">Perfil Profesional</div>
+            <div class="animation-title" data-i18n="anim-title-0">Perfil Profesional</div>
             <div id="anim1" class="circle-container"></div>
         </div>
         <div class="animation-container" data-circle="1" tabindex="0" role="button" aria-label="Ver experiencia freelance">
-            <div class="animation-title">Experiencia Freelance</div>
+            <div class="animation-title" data-i18n="anim-title-1">Experiencia Freelance</div>
             <div id="anim2" class="circle-container"></div>
         </div>
         <div class="animation-container" data-circle="2" tabindex="0" role="button" aria-label="Ver experiencia como profesor UPRO">
-            <div class="animation-title">Profesor UPRO</div>
+            <div class="animation-title" data-i18n="anim-title-2">Profesor UPRO</div>
             <div id="anim3" class="circle-container"></div>
         </div>
         <div class="animation-container" data-circle="3" tabindex="0" role="button" aria-label="Ver proyectos técnicos">
-            <div class="animation-title">Proyectos Técnicos</div>
+            <div class="animation-title" data-i18n="anim-title-3">Proyectos Técnicos</div>
             <div id="anim4" class="circle-container"></div>
         </div>
         <div class="animation-container" data-circle="4" tabindex="0" role="button" aria-label="Ver experiencia en soporte">
-            <div class="animation-title">Experiencia en Soporte</div>
+            <div class="animation-title" data-i18n="anim-title-4">Experiencia en Soporte</div>
             <div id="anim5" class="circle-container"></div>
         </div>
         <div class="animation-container" data-circle="5" tabindex="0" role="button" aria-label="Ver experiencia técnica">
-            <div class="animation-title">Experiencia Técnica</div>
+            <div class="animation-title" data-i18n="anim-title-5">Experiencia Técnica</div>
             <div id="anim6" class="circle-container"></div>
         </div>
         <div class="animation-container" data-circle="6" tabindex="0" role="button" aria-label="Ver educación">
-            <div class="animation-title">Educación</div>
+            <div class="animation-title" data-i18n="anim-title-6">Educación</div>
             <div id="anim7" class="circle-container"></div>
         </div>
         <div class="animation-container" data-circle="7" tabindex="0" role="button" aria-label="Ver habilidades técnicas">
-            <div class="animation-title">Habilidades Técnicas</div>
+            <div class="animation-title" data-i18n="anim-title-7">Habilidades Técnicas</div>
             <div id="anim8" class="circle-container"></div>
         </div>
         <div class="animation-container" data-circle="8" tabindex="0" role="button" aria-label="Ver idiomas">
-            <div class="animation-title">Idiomas</div>
+            <div class="animation-title" data-i18n="anim-title-8">Idiomas</div>
             <div id="anim9" class="circle-container"></div>
         </div>
         <div class="animation-container music-hint" data-circle="9" tabindex="0" role="button" aria-label="Ver mi música y composiciones">
-            <div class="animation-title">Música & Composición</div>
+            <div class="animation-title" data-i18n="anim-title-9">Música & Composición</div>
             <div id="anim10" class="circle-container"></div>
         </div>
         <div class="animation-container easter-egg-hint" data-circle="10" tabindex="0" role="button" aria-label="Juego secreto D&D Easter Egg">
-            <div class="animation-title">About me</div>
+            <div class="animation-title" data-i18n="anim-title-10">About me</div>
             <div id="anim11" class="circle-container"></div>
         </div>
         <div class="animation-container" data-circle="11" tabindex="0" role="button" aria-label="Ver información de contacto">
-            <div class="animation-title">Contacto</div>
+            <div class="animation-title" data-i18n="anim-title-11">Contacto</div>
             <div id="anim12" class="circle-container"></div>
         </div>
         <div class="animation-container" data-circle="12" tabindex="0" role="button" aria-label="Ver más información personal">
-            <div class="animation-title">Más sobre mí</div>
+            <div class="animation-title" data-i18n="anim-title-12">Más sobre mí</div>
             <div id="anim13" class="circle-container"></div>
         </div>
     </main>
@@ -541,23 +565,23 @@
     <div id="circle-info-modal" class="circle-info-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modal-title"></div>
 
     <footer role="contentinfo">
-        <div class="main-title">Daniel Salini</div>
-        <div class="alias-footer">También conocido como Katosx</div>
-        <div class="footer-quote">
+        <div class="main-title" data-i18n="footer-main">Daniel Salini</div>
+        <div class="alias-footer" data-i18n="footer-alias">También conocido como Katosx</div>
+        <div class="footer-quote" data-i18n="footer-quote">
             "No tengo capa ni superpoderes, pero cada día me levanto y lucho con lo que tengo. Y eso, para mí, ya es ser héroe."
         </div>
         <div class="social-links">
             <a href="mailto:danielsalini77@gmail.com" class="social-link">
-                <span>📧</span> Email
+                <span>📧</span> <span data-i18n="footer-email">Email</span>
             </a>
             <a href="https://linkedin.com/in/katosx" target="_blank" class="social-link">
-                <span>💼</span> LinkedIn
+                <span>💼</span> <span data-i18n="footer-linkedin">LinkedIn</span>
             </a>
             <a href="https://github.com/Gureboy" target="_blank" class="social-link">
-                <span>💻</span> GitHub
+                <span>💻</span> <span data-i18n="footer-github">GitHub</span>
             </a>
         </div>
-        <div style="margin-top: 25px; font-size: 0.9em; color: #888;">
+        <div style="margin-top: 25px; font-size: 0.9em; color: #888;" data-i18n="footer-copyright">
             © 2025 Daniel Salini (Katosx) | Desarrollador Fullstack & Ingeniero & Músico
         </div>
     </footer>
@@ -719,41 +743,38 @@
             }
         ];
 
-        // Modal de info (actualizado para manejar contenido de música)
+        // Memory-efficient modal handling
+        let currentModal = null;
+        
         function showCircleInfo(idx) {
-            const data = CIRCLE_DATA[idx];
-            if (!data) return;
-            
-            const modal = document.getElementById('circle-info-modal');
-            const modalClass = data.isMusic ? 'circle-info-content music-modal' : 'circle-info-content';
-            
-            modal.innerHTML = `<div class='${modalClass}'>
-                <button class='close-btn' title='Cerrar modal' aria-label='Cerrar'>&times;</button>
-                <h2 id='modal-title'>${data.title}</h2>
-                <div>${data.text}</div>
-            </div>`;
-            modal.style.display = 'flex';
-            
-            // Focus trap
-            const closeBtn = modal.querySelector('.close-btn');
-            closeBtn.focus();
-            
-            const closeModal = () => {
-                modal.style.display = 'none';
-                document.querySelector(`[data-circle="${idx}"]`)?.focus();
-            };
-            
-            closeBtn.onclick = closeModal;
-            modal.onclick = (e) => e.target === modal && closeModal();
-            
-            // Escape key support
-            const handleEscape = (e) => {
-                if (e.key === 'Escape') {
-                    closeModal();
-                    document.removeEventListener('keydown', handleEscape);
-                }
-            };
-            document.addEventListener('keydown', handleEscape);
+          // Close previous modal first
+          if (currentModal) {
+            currentModal.remove();
+            currentModal = null;
+          }
+          
+          const data = CIRCLE_DATA[idx];
+          if (!data) return;
+          
+          const modal = document.createElement('div');
+          modal.className = 'circle-info-modal';
+          modal.innerHTML = `<div class='${data.isMusic ? 'circle-info-content music-modal' : 'circle-info-content'}>
+            <button class='close-btn' title='Cerrar modal' aria-label='Cerrar'>&times;</button>
+            <h2>${data.title}</h2>
+            <div>${data.text}</div>
+          </div>`;
+          
+          document.body.appendChild(modal);
+          currentModal = modal;
+          
+          const closeBtn = modal.querySelector('.close-btn');
+          const closeModal = () => {
+            modal.remove();
+            currentModal = null;
+          };
+          
+          closeBtn.onclick = closeModal;
+          modal.onclick = (e) => e.target === modal && closeModal();
         }
 
         // Función para manejar el easter egg
@@ -832,6 +853,24 @@
 
         // Initialize on load
         window.addEventListener('DOMContentLoaded', initializePortfolio);
+
+        // Initialize i18n after DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.portfolioI18n.init();
+            
+            // Update CIRCLE_DATA with translations
+            const updateCircleData = () => {
+                const lang = window.portfolioI18n.currentLang;
+                if (window.portfolioI18n.circleData[lang]) {
+                    window.CIRCLE_DATA = window.portfolioI18n.circleData[lang];
+                }
+            };
+            
+            updateCircleData();
+            
+            // Listen for language changes
+            document.addEventListener('languageChanged', updateCircleData);
+        });
     </script>
 </body>
 </html>

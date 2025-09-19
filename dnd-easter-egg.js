@@ -1,207 +1,481 @@
 // --- COMBATE POR TURNOS CLÁSICO D&D ---
-// Ultra-optimized memory-efficient version
+// Optimized with story progression and balanced encounters
 
 (function() {
   'use strict';
   
-  // Minimal data structures - reduced to essentials only
+  // Enhanced classes with progression
   const CLASSES = [
-    {n:"Bárbaro",h:12,a:15,s:3,d:1,c:2},
-    {n:"Mago",h:6,a:12,s:0,d:1,c:0,i:3,w:1},
-    {n:"Clérigo",h:8,a:14,s:1,d:0,c:2,w:3,ch:1},
-    {n:"Monje",h:8,a:15,s:1,d:3,c:1,w:2}
+    {n:"Bárbaro",h:12,a:15,s:3,d:1,c:2,desc:"Guerrero salvaje con gran resistencia"},
+    {n:"Mago",h:6,a:12,s:0,d:1,c:0,i:3,w:1,desc:"Maestro de la magia arcana"},
+    {n:"Clérigo",h:8,a:14,s:1,d:0,c:2,w:3,ch:1,desc:"Sanador divino"},
+    {n:"Monje",h:8,a:15,s:1,d:3,c:1,w:2,desc:"Maestro marcial ágil"}
   ];
   
-  const MONSTERS = [
-    {n:"Goblin",h:7,a:13,at:3,c:0.25},
-    {n:"Orco",h:15,a:13,at:5,c:0.5},
-    {n:"Ogro",h:59,a:11,at:9,c:2},
-    {n:"Dragón",h:110,a:17,at:15,c:6}
+  // Story-driven monster progression
+  const STORY_ENCOUNTERS = [
+    {type:"story",title:"El Bosque Maldito",desc:"Te adentras en un bosque oscuro. Los árboles susurran secretos antiguos."},
+    {type:"combat",monster:{n:"Goblin Explorador",h:8,a:13,at:3,c:0.25},desc:"Un pequeño goblin salta de los arbustos."},
+    {type:"story",title:"Ruinas Ancestrales",desc:"Encuentras ruinas cubiertas de musgo. Algo se mueve en las sombras."},
+    {type:"combat",monster:{n:"Esqueleto Guardián",h:12,a:14,at:4,c:0.5},desc:"Un esqueleto se alza para defender las ruinas."},
+    {type:"event",title:"Cofre Misterioso",desc:"Encuentras un cofre antiguo. ¿Lo abres?",reward:"item"},
+    {type:"story",title:"El Puente de Piedra",desc:"Un viejo puente cruza un río turbulento. Algo grande se acerca."},
+    {type:"combat",monster:{n:"Orco Berserker",h:18,a:13,at:6,c:0.75},desc:"Un orco feroz bloquea tu camino."},
+    {type:"rest",title:"Campamento Seguro",desc:"Encuentras un lugar seguro para descansar y recuperar fuerzas."},
+    {type:"story",title:"La Cueva Profunda",desc:"La entrada a una cueva se abre ante ti. El aire huele a peligro."},
+    {type:"combat",monster:{n:"Ogro de las Cavernas",h:35,a:12,at:8,c:1.5},desc:"Un ogro gigante emerge rugiendo de la oscuridad."},
+    {type:"story",title:"El Tesoro Final",desc:"Llegas al corazón de la cueva. Un brillo dorado ilumina la cámara."},
+    {type:"boss",monster:{n:"Dragón Joven",h:60,a:16,at:12,c:3},desc:"Un dragón dorado protege el tesoro ancestral."}
   ];
   
   const ITEMS = [
-    {n:"Poción",e:"h",v:10,p:15},
-    {n:"Daga",e:"a",v:2,p:8},
-    {n:"Escudo",e:"ac",v:2,p:20}
+    {n:"Poción de Curación",e:"heal",v:15,desc:"Restaura vida"},
+    {n:"Daga Élfica",e:"weapon",v:3,desc:"+3 daño de ataque"},
+    {n:"Escudo de Roble",e:"armor",v:2,desc:"+2 AC"},
+    {n:"Amuleto de Suerte",e:"luck",v:1,desc:"+1 a todas las tiradas"}
   ];
   
-  // Memory pools for object reuse
-  let logPool = [];
-  let statusPool = [];
+  let gameState = {
+    currentEncounter: 0,
+    storyMode: true
+  };
   
-  // Ultra-minimal combat render
-  window.renderCombat = function(char, mon, turn) {
+  // Story-driven encounter system
+  window.startStoryGame = function() {
+    // Character selection first
+    showCharacterSelection();
+  };
+  
+  function showCharacterSelection() {
     const g = document.getElementById('game');
-    if (!g) return;
-    
-    // Trim logs aggressively
-    if (char.log && char.log.length > 5) char.log = char.log.slice(-3);
-    
-    g.innerHTML = `<div class='section'>
-      <h2>¡Combate!</h2>
-      <div>${char.cls.n} Nv.${char.lvl} HP:${char.hp}/${char.maxHP}</div>
-      <div>${mon.n} HP:${mon.hp}/${mon.maxHP}</div>
-      <div class='log'>${(char.log||[]).join('<br>')}</div>
-      ${turn==='player'?`<div>
-        <button onclick='attack()'>⚔️</button>
-        <button onclick='useItem()'>🧪</button>
-      </div>`:''}
-    </div>`;
-  };
-  
-  // Ultra-simplified functions
-  window.attack = function() {
-    const c = window.char, m = window.mon;
-    const hit = Math.random()*20+1+(c.cls.s||0) >= m.a;
-    
-    if (hit) {
-      const dmg = (c.cls.s||0)+Math.random()*8+1;
-      m.hp = Math.max(0, m.hp-dmg);
-      addLog(c, `Daño: ${dmg}`);
-      
-      if (m.hp <= 0) {
-        victory(c, m);
-        return;
-      }
-    } else {
-      addLog(c, 'Fallas');
-    }
-    
-    setTimeout(() => monsterAttack(c, m), 500);
-  };
-  
-  window.useItem = function() {
-    const c = window.char;
-    if (!c.inv || !c.inv.length) return;
-    
-    const item = c.inv.pop();
-    if (item.e === 'h') {
-      c.hp = Math.min(c.maxHP, c.hp + item.v);
-      addLog(c, `Curas ${item.v} HP`);
-    }
-    
-    setTimeout(() => monsterAttack(c, window.mon), 500);
-  };
-  
-  function addLog(char, msg) {
-    char.log = char.log || [];
-    char.log.push(msg);
-    if (char.log.length > 5) char.log = char.log.slice(-3);
-  }
-  
-  function victory(char, mon) {
-    const xp = Math.round(mon.c * 10);
-    const gold = Math.round(mon.c * 6);
-    
-    char.xp += xp;
-    char.gold += gold;
-    
-    if (char.xp >= char.xpNext) {
-      char.lvl++;
-      char.xp = 0;
-      char.xpNext = Math.round(char.xpNext * 1.5);
-      char.maxHP += 5;
-      char.hp = char.maxHP;
-    }
-    
-    document.getElementById('game').innerHTML = `
+    g.innerHTML = `
       <div class='section'>
-        <h2>¡Victoria!</h2>
-        <p>+${xp} XP, +${gold} oro</p>
-        <button onclick='nextBattle()'>Continuar</button>
+        <h2>⚔️ Elige tu Héroe ⚔️</h2>
+        <p>Cada clase tiene habilidades únicas que afectan tu aventura:</p>
+        <div class='character-grid'>
+          ${CLASSES.map((cls, i) => `
+            <div class='char-card' onclick='selectCharacter(${i})'>
+              <h3>${cls.n}</h3>
+              <p>${cls.desc}</p>
+              <div class='stats'>
+                <small>HP: ${cls.h + 10} | AC: ${cls.a}</small>
+              </div>
+            </div>
+          `).join('')}
+        </div>
       </div>
     `;
   }
   
-  function monsterAttack(char, mon) {
-    const hit = Math.random()*20+1+Math.floor(mon.at/2) >= char.ac;
+  window.selectCharacter = function(idx) {
+    const selectedClass = CLASSES[idx];
+    window.char = {
+      cls: selectedClass,
+      name: selectedClass.n,
+      lvl: 1,
+      hp: selectedClass.h + 10,
+      maxHP: selectedClass.h + 10,
+      ac: selectedClass.a,
+      xp: 0,
+      xpNext: 50,
+      gold: 25,
+      inv: [ITEMS[0], ITEMS[0]], // Start with 2 healing potions
+      log: [],
+      stats: {
+        str: selectedClass.s || 0,
+        dex: selectedClass.d || 0,
+        con: selectedClass.c || 0,
+        int: selectedClass.i || 0,
+        wis: selectedClass.w || 0,
+        cha: selectedClass.ch || 0
+      }
+    };
     
-    if (hit) {
-      const dmg = mon.at + Math.random()*6;
-      char.hp = Math.max(0, char.hp - dmg);
-      addLog(char, `Recibes ${dmg} daño`);
-      
-      if (char.hp <= 0) {
-        document.getElementById('game').innerHTML = `
-          <div class='section'>
-            <h2>¡Game Over!</h2>
-            <button onclick='location.reload()'>Reiniciar</button>
+    gameState.currentEncounter = 0;
+    startStoryEncounter();
+  };
+  
+  function startStoryEncounter() {
+    const encounter = STORY_ENCOUNTERS[gameState.currentEncounter];
+    if (!encounter) {
+      // Victory ending
+      showVictoryScreen();
+      return;
+    }
+    
+    const g = document.getElementById('game');
+    
+    switch(encounter.type) {
+      case 'story':
+        g.innerHTML = `
+          <div class='section story-section'>
+            <h2>📜 ${encounter.title}</h2>
+            <p class='story-text'>${encounter.desc}</p>
+            <div class='char-status'>
+              <strong>${window.char.name}</strong> | Nivel ${window.char.lvl} | HP: ${window.char.hp}/${window.char.maxHP} | Oro: ${window.char.gold}
+            </div>
+            <button onclick='nextEncounter()' class='story-btn'>Continuar Aventura</button>
           </div>
         `;
+        break;
+        
+      case 'combat':
+        window.currentMonster = {
+          ...encounter.monster,
+          maxHP: encounter.monster.h
+        };
+        g.innerHTML = `
+          <div class='section combat-section'>
+            <h2>⚔️ ¡Combate!</h2>
+            <p class='encounter-desc'>${encounter.desc}</p>
+            <div class='combat-status'>
+              <div class='hero-status'>
+                <strong>${window.char.name}</strong><br>
+                Nivel ${window.char.lvl}<br>
+                HP: ${window.char.hp}/${window.char.maxHP}<br>
+                AC: ${window.char.ac}
+              </div>
+              <div class='enemy-status'>
+                <strong>${window.currentMonster.n}</strong><br>
+                HP: ${window.currentMonster.h}/${window.currentMonster.maxHP}<br>
+                AC: ${window.currentMonster.a}
+              </div>
+            </div>
+            <div class='combat-log'>${(window.char.log || []).slice(-3).join('<br>')}</div>
+            <div class='combat-actions'>
+              <button onclick='performAttack()' class='combat-btn'>⚔️ Atacar</button>
+              <button onclick='useHealingItem()' class='combat-btn'>🧪 Curar (${countHealingItems()})</button>
+              ${window.char.cls.n === 'Mago' ? '<button onclick="castSpell()" class="combat-btn">✨ Hechizo</button>' : ''}
+              ${window.char.cls.n === 'Clérigo' ? '<button onclick="divineHeal()" class="combat-btn">🙏 Curación Divina</button>' : ''}
+            </div>
+          </div>
+        `;
+        break;
+        
+      case 'event':
+        handleSpecialEvent(encounter);
+        break;
+        
+      case 'rest':
+        handleRestEvent(encounter);
+        break;
+        
+      case 'boss':
+        window.currentMonster = {
+          ...encounter.monster,
+          maxHP: encounter.monster.h,
+          isBoss: true
+        };
+        renderBossCombat(encounter);
+        break;
+    }
+  }
+  
+  function handleSpecialEvent(encounter) {
+    const g = document.getElementById('game');
+    g.innerHTML = `
+      <div class='section event-section'>
+        <h2>✨ ${encounter.title}</h2>
+        <p>${encounter.desc}</p>
+        <div class='event-choices'>
+          <button onclick='handleEventChoice(true)' class='event-btn'>Sí, abrir el cofre</button>
+          <button onclick='handleEventChoice(false)' class='event-btn'>No, es muy peligroso</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  window.handleEventChoice = function(openChest) {
+    if (openChest) {
+      if (Math.random() < 0.7) {
+        const reward = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+        window.char.inv.push(reward);
+        addLog(`¡Encuentras: ${reward.n}!`);
+      } else {
+        const damage = 5;
+        window.char.hp = Math.max(1, window.char.hp - damage);
+        addLog(`¡Era una trampa! Pierdes ${damage} HP.`);
+      }
+    } else {
+      addLog("Decides no arriesgarte. Quizás fue lo más sabio.");
+    }
+    
+    setTimeout(nextEncounter, 1500);
+  };
+  
+  function handleRestEvent(encounter) {
+    const heal = Math.round(window.char.maxHP * 0.6);
+    window.char.hp = Math.min(window.char.maxHP, window.char.hp + heal);
+    
+    const g = document.getElementById('game');
+    g.innerHTML = `
+      <div class='section rest-section'>
+        <h2>🏕️ ${encounter.title}</h2>
+        <p>${encounter.desc}</p>
+        <p class='heal-text'>Recuperas ${heal} puntos de vida.</p>
+        <div class='char-status'>
+          HP: ${window.char.hp}/${window.char.maxHP}
+        </div>
+        <button onclick='nextEncounter()' class='rest-btn'>Continuar Descansado</button>
+      </div>
+    `;
+  }
+  
+  // Enhanced combat system
+  window.performAttack = function() {
+    const char = window.char;
+    const monster = window.currentMonster;
+    
+    const d20 = Math.floor(Math.random() * 20) + 1;
+    const attackRoll = d20 + (char.stats.str || 0);
+    
+    if (attackRoll >= monster.a || d20 === 20) { // Natural 20 always hits
+      let damage = (char.stats.str || 0) + Math.floor(Math.random() * 8) + 1;
+      
+      // Class-specific bonuses
+      if (char.cls.n === 'Bárbaro') damage += 2;
+      if (char.cls.n === 'Monje' && d20 >= 18) damage *= 1.5; // Critical hit
+      
+      // Apply weapon bonuses
+      char.inv.forEach(item => {
+        if (item.e === 'weapon') damage += item.v;
+      });
+      
+      monster.h = Math.max(0, monster.h - Math.floor(damage));
+      addLog(`¡Atacas e infliges ${Math.floor(damage)} de daño! (${d20})`);
+      
+      if (monster.h <= 0) {
+        handleCombatVictory();
         return;
       }
     } else {
-      addLog(char, 'El enemigo falla');
+      addLog(`¡Fallas el ataque! (${d20} vs AC ${monster.a})`);
     }
     
-    renderCombat(char, mon, 'player');
+    setTimeout(() => monsterAttack(), 800);
+  };
+  
+  window.useHealingItem = function() {
+    const healingItems = window.char.inv.filter(item => item.e === 'heal');
+    if (healingItems.length === 0) {
+      addLog('No tienes pociones de curación.');
+      return;
+    }
+    
+    const item = healingItems[0];
+    const healAmount = item.v;
+    window.char.hp = Math.min(window.char.maxHP, window.char.hp + healAmount);
+    
+    // Remove the used item
+    const itemIndex = window.char.inv.findIndex(i => i.e === 'heal');
+    window.char.inv.splice(itemIndex, 1);
+    
+    addLog(`Usas ${item.n} y recuperas ${healAmount} HP.`);
+    setTimeout(() => monsterAttack(), 800);
+  };
+  
+  window.castSpell = function() {
+    if (window.char.cls.n !== 'Mago') return;
+    
+    const damage = 8 + window.char.lvl + (window.char.stats.int || 0);
+    window.currentMonster.h = Math.max(0, window.currentMonster.h - damage);
+    addLog(`¡Lanzas Misil Mágico e infliges ${damage} de daño!`);
+    
+    if (window.currentMonster.h <= 0) {
+      handleCombatVictory();
+      return;
+    }
+    
+    setTimeout(() => monsterAttack(), 800);
+  };
+  
+  window.divineHeal = function() {
+    if (window.char.cls.n !== 'Clérigo') return;
+    
+    const healAmount = 12 + window.char.lvl;
+    window.char.hp = Math.min(window.char.maxHP, window.char.hp + healAmount);
+    addLog(`¡Canalizas energía divina y recuperas ${healAmount} HP!`);
+    
+    setTimeout(() => monsterAttack(), 800);
+  };
+  
+  function countHealingItems() {
+    return window.char.inv.filter(item => item.e === 'heal').length;
   }
   
-  window.nextBattle = function() {
+  function monsterAttack() {
     const char = window.char;
-    char.progress = (char.progress || 0) + 1;
+    const monster = window.currentMonster;
     
-    const monIdx = Math.min(char.progress, MONSTERS.length - 1);
-    const baseMon = MONSTERS[monIdx];
+    const d20 = Math.floor(Math.random() * 20) + 1;
+    const attackRoll = d20 + Math.floor(monster.at / 2);
     
-    window.mon = {
-      n: baseMon.n,
-      hp: baseMon.h,
-      maxHP: baseMon.h,
-      a: baseMon.a,
-      at: baseMon.at,
-      c: baseMon.c
-    };
-    
-    renderCombat(char, window.mon, 'player');
-  };
-  
-  // Ultra-aggressive cleanup every 5 seconds
-  setInterval(() => {
-    if (window.char) {
-      const c = window.char;
-      if (c.log && c.log.length > 3) c.log = c.log.slice(-2);
-      if (c.inv && c.inv.length > 10) c.inv = c.inv.slice(-5);
-    }
-    
-    // Clear unused DOM
-    const logs = document.querySelectorAll('.log div');
-    if (logs.length > 5) {
-      for (let i = 0; i < logs.length - 3; i++) {
-        logs[i].remove();
+    if (attackRoll >= char.ac || d20 === 20) {
+      let damage = monster.at + Math.floor(Math.random() * 6);
+      
+      // Apply armor bonuses
+      char.inv.forEach(item => {
+        if (item.e === 'armor') damage = Math.max(1, damage - item.v);
+      });
+      
+      char.hp = Math.max(0, char.hp - damage);
+      addLog(`${monster.n} te ataca e inflige ${damage} de daño.`);
+      
+      if (char.hp <= 0) {
+        handleGameOver();
+        return;
       }
+    } else {
+      addLog(`${monster.n} falla su ataque. (${d20})`);
     }
     
-    if (window.gc) window.gc();
-  }, 5000);
+    // Re-render combat
+    startStoryEncounter();
+  }
   
-  // Initialize with minimal character
-  window.startSimpleGame = function() {
-    window.char = {
-      cls: CLASSES[0],
-      lvl: 1,
-      hp: 22,
-      maxHP: 22,
-      ac: 15,
-      xp: 0,
-      xpNext: 20,
-      gold: 20,
-      inv: [ITEMS[0], ITEMS[0]],
-      log: []
-    };
+  function handleCombatVictory() {
+    const monster = window.currentMonster;
+    const xpGain = Math.round(monster.c * 25 + 10);
+    const goldGain = Math.round(monster.c * 15 + Math.random() * 10);
     
-    nextBattle();
+    window.char.xp += xpGain;
+    window.char.gold += goldGain;
+    
+    addLog(`¡Victoria! +${xpGain} XP, +${goldGain} oro`);
+    
+    // Level up check
+    if (window.char.xp >= window.char.xpNext) {
+      levelUp();
+    }
+    
+    // Random item drop
+    if (Math.random() < 0.3) {
+      const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+      window.char.inv.push(item);
+      addLog(`¡Encuentras: ${item.n}!`);
+    }
+    
+    setTimeout(nextEncounter, 2000);
+  }
+  
+  function levelUp() {
+    window.char.lvl++;
+    window.char.xp = 0;
+    window.char.xpNext = Math.round(window.char.xpNext * 1.5);
+    
+    const hpGain = Math.floor(window.char.cls.h / 2) + 3;
+    window.char.maxHP += hpGain;
+    window.char.hp = window.char.maxHP; // Full heal on level up
+    
+    // Stat improvement
+    const statNames = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    const randomStat = statNames[Math.floor(Math.random() * statNames.length)];
+    window.char.stats[randomStat] = (window.char.stats[randomStat] || 0) + 1;
+    
+    addLog(`¡NIVEL ${window.char.lvl}! +${hpGain} HP, +1 ${randomStat.toUpperCase()}`);
+  }
+  
+  function renderBossCombat(encounter) {
+    const g = document.getElementById('game');
+    g.innerHTML = `
+      <div class='section boss-section'>
+        <h2>🐉 ¡JEFE FINAL!</h2>
+        <p class='boss-desc'>${encounter.desc}</p>
+        <div class='boss-combat-status'>
+          <div class='hero-status'>
+            <strong>${window.char.name}</strong><br>
+            Nivel ${window.char.lvl}<br>
+            HP: ${window.char.hp}/${window.char.maxHP}
+          </div>
+          <div class='boss-status'>
+            <strong>${window.currentMonster.n}</strong><br>
+            HP: ${window.currentMonster.h}/${window.currentMonster.maxHP}
+          </div>
+        </div>
+        <div class='combat-log'>${(window.char.log || []).slice(-3).join('<br>')}</div>
+        <div class='combat-actions'>
+          <button onclick='performAttack()' class='boss-btn'>⚔️ Atacar</button>
+          <button onclick='useHealingItem()' class='boss-btn'>🧪 Curar (${countHealingItems()})</button>
+          ${window.char.cls.n === 'Mago' ? '<button onclick="castSpell()" class="boss-btn">✨ Hechizo</button>' : ''}
+          ${window.char.cls.n === 'Clérigo' ? '<button onclick="divineHeal()" class="boss-btn">🙏 Curación Divina</button>' : ''}
+        </div>
+      </div>
+    `;
+  }
+  
+  function showVictoryScreen() {
+    const g = document.getElementById('game');
+    g.innerHTML = `
+      <div class='section victory-section'>
+        <h2>🏆 ¡VICTORIA ÉPICA! 🏆</h2>
+        <p>Has completado tu aventura heroicamente!</p>
+        <div class='final-stats'>
+          <h3>Estadísticas Finales:</h3>
+          <p><strong>Héroe:</strong> ${window.char.name}</p>
+          <p><strong>Nivel Alcanzado:</strong> ${window.char.lvl}</p>
+          <p><strong>Oro Obtenido:</strong> ${window.char.gold}</p>
+          <p><strong>Items Encontrados:</strong> ${window.char.inv.length}</p>
+        </div>
+        <p class='victory-text'>El dragón ha sido derrotado y el tesoro ancestral es tuyo. Tu nombre será recordado por generaciones como el héroe que salvó la tierra.</p>
+        <button onclick='location.reload()' class='victory-btn'>Nueva Aventura</button>
+      </div>
+    `;
+  }
+  
+  function handleGameOver() {
+    const g = document.getElementById('game');
+    g.innerHTML = `
+      <div class='section gameover-section'>
+        <h2>💀 Game Over</h2>
+        <p>Tu aventura ha llegado a su fin...</p>
+        <div class='death-stats'>
+          <p><strong>Nivel Alcanzado:</strong> ${window.char.lvl}</p>
+          <p><strong>Encuentros Completados:</strong> ${gameState.currentEncounter}</p>
+          <p><strong>Oro Acumulado:</strong> ${window.char.gold}</p>
+        </div>
+        <p>Pero las leyendas nunca mueren. ¡Inténtalo de nuevo!</p>
+        <button onclick='location.reload()' class='retry-btn'>Reintentar</button>
+      </div>
+    `;
+  }
+  
+  window.nextEncounter = function() {
+    gameState.currentEncounter++;
+    startStoryEncounter();
   };
+  
+  function addLog(message) {
+    window.char.log = window.char.log || [];
+    window.char.log.push(message);
+    if (window.char.log.length > 6) {
+      window.char.log = window.char.log.slice(-4);
+    }
+  }
+  
+  // Cleanup every 10 seconds
+  setInterval(() => {
+    if (window.char && window.char.log && window.char.log.length > 4) {
+      window.char.log = window.char.log.slice(-3);
+    }
+    if (window.gc) window.gc();
+  }, 10000);
   
 })();
 
-// Minimal initialization
+// Enhanced initialization
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('game').innerHTML = `
-    <div class='section'>
-      <h2>D&D Minimalista</h2>
-      <p>Versión ultra-optimizada</p>
-      <button onclick='startSimpleGame()'>Comenzar</button>
+  const g = document.getElementById('game');
+  g.innerHTML = `
+    <div class='section welcome-section'>
+      <h2>⚔️ Aventura D&D Épica ⚔️</h2>
+      <p>Embárcate en una aventura llena de combates estratégicos, progresión de personajes y una historia cautivadora.</p>
+      <div class='features'>
+        <div class='feature'>📜 Historia Inmersiva</div>
+        <div class='feature'>⚔️ Combate Táctico</div>
+        <div class='feature'>📈 Progresión Real</div>
+        <div class='feature'>🎲 Sistema d20</div>
+      </div>
+      <button onclick='startStoryGame()' class='start-btn'>Comenzar Aventura</button>
     </div>
   `;
 });

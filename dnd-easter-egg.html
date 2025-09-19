@@ -506,6 +506,7 @@
       }
     }
   </style>
+  <script src="i18n.js"></script>
 </head>
 <body>
   <!-- Performance stats -->
@@ -513,13 +514,13 @@
 
   <a href="index.html" class="back-to-portfolio">
     <span>←</span>
-    <span>Volver al Portfolio</span>
+    <span data-i18n="back-to-portfolio">Volver al Portfolio</span>
   </a>
 
   <div class="main">
     <header class="game-header">
-      <h1 class="game-title">⚔️ D&D Easter Egg ⚔️</h1>
-      <p class="game-subtitle">Roguelike D&D por Turnos Clásico</p>
+      <h1 class="game-title">⚔️ <span data-i18n="game-title">D&D Easter Egg</span> ⚔️</h1>
+      <p class="game-subtitle" data-i18n="game-subtitle">Roguelike D&D por Turnos Clásico</p>
       <div class="game-features">
         <span class="feature">Sistema d20</span>
         <span class="feature">8 Clases Jugables</span>
@@ -552,6 +553,15 @@
     </footer>
   </div>
 
+  <script>
+    // Initialize i18n for game page
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.portfolioI18n) {
+        window.portfolioI18n.init();
+      }
+    });
+  </script>
+  
   <script>
     // Performance monitoring
     const GamePerformance = {
