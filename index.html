@@ -68,122 +68,141 @@
             margin-left: 8px;
             font-size: 1em;
         }
+
+        /* Easter egg hint */
+        .easter-egg-hint {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .easter-egg-hint::after {
+            content: "🎲";
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 1.2em;
+            opacity: 0.7;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.9; }
+        }
     </style>
 </head>
 <body>
-            <h1>Daniel Salini</h1>
-            <div class="container">
-                    <div class="animation-container" data-circle="0"><div class="animation-title">Perfil Profesional</div><div id="anim1" class="circle-container"></div></div>
-                    <div class="animation-container" data-circle="1"><div class="animation-title">Experiencia Freelance</div><div id="anim2" class="circle-container"></div></div>
-                    <div class="animation-container" data-circle="2"><div class="animation-title">Profesor UPRO</div><div id="anim3" class="circle-container"></div></div>
-                <div class="animation-container" data-circle="3"><div class="animation-title">Proyectos Técnicos</div><div id="anim4" class="circle-container"></div></div>
-                <div class="animation-container" data-circle="4"><div class="animation-title">Experiencia en Soporte</div><div id="anim5" class="circle-container"></div></div>
-                <div class="animation-container" data-circle="5"><div class="animation-title">Experiencia Técnica</div><div id="anim6" class="circle-container"></div></div>
-                <div class="animation-container" data-circle="6"><div class="animation-title">Educación</div><div id="anim7" class="circle-container"></div></div>
-                <div class="animation-container" data-circle="7"><div class="animation-title">Habilidades Técnicas</div><div id="anim8" class="circle-container"></div></div>
-                <div class="animation-container" data-circle="8"><div class="animation-title">Idiomas</div><div id="anim9" class="circle-container"></div></div>
-                <div class="animation-container" data-circle="9"><div class="animation-title">About me</div><div id="anim10" class="circle-container"></div></div>
-                <div class="animation-container" data-circle="10"><div class="animation-title">Contacto</div><div id="anim11" class="circle-container"></div></div>
-                <div class="animation-container" data-circle="11"><div class="animation-title">Más sobre mí</div><div id="anim12" class="circle-container"></div></div>
-            </div>
-            <div id="circle-info-modal" class="circle-info-modal" style="display:none;"></div>
-            <footer style="margin-top: 40px; text-align: center;">
-                <div style="font-size: 1.3em; font-weight: bold;">Daniel Salini</div>
-                <div style="font-family: 'Times New Roman', Times, serif; font-size: 1.1em; margin-top: 8px; color: #ccc;">
-                    No tengo capa ni superpoderes, pero cada día me levanto y lucho con lo que tengo. Y eso, para mí, ya es ser héroe.
-                </div>
-            </footer>
-            <script src="circle-animations.js"></script>
-            <script>
-                // Datos de cada círculo (puedes personalizar más)
-                const circleData = [
-                    {
-                        title: "Perfil Profesional",
-                        text: `Desarrollador fullstack e ingeniero multidisciplinario con experiencia en programación industrial (PLC), desarrollo web frontend/backend y diseño eléctrico. Experto en resolver problemas complejos en entornos productivos, con enfoque en innovación, eficiencia y resultados cuantificables. Alta capacidad analítica, comunicación y trabajo en equipo.`
-                    },
-                    {
-                        title: "Experiencia Freelance",
-                        text: `Freelance | Desarrollador Fullstack y Consultor Eléctrico (2019-Actualidad)<br>• Diseño de esquemas eléctricos y planos unifilares bajo normas internacionales.<br>• Programación PLC Siemens y Allen-Bradley, integración SCADA.<br>• Soluciones IoT con ESP8266/ESP32.<br>• Apps web fullstack con React, Node.js, Express, MongoDB/PostgreSQL.<br>• APIs RESTful, Docker, interfaces interactivas, IA en chatbots.`
-                    },
-                    {
-                        title: "Profesor UPRO",
-                        text: `Profesor de Programación PLC y Electricidad Avanzada | UPRO (2024-Actualidad)<br>• Programación PLC Siemens, SCADA, LADDER y SCL.<br>• Electricidad avanzada, alta tensión, tableros AEA.<br>• Esquemas CAD eléctricos, enseñanza técnica.`
-                    },
-                    {
-                        title: "Proyectos Técnicos",
-                        text: `Profesor y Desarrollador de Proyectos Técnicos | UPRO Penal de San Luis (2025-Actualidad)<br>• Enseñanza de electricidad y electrónica aplicada.<br>• Desarrollo de proyectos técnicos prácticos para reinserción social.`
-                    },
-                    {
-                        title: "Experiencia en Soporte",
-                        text: `Customer Service Agent | Influx (2025)<br>• Gestión de clientes vía CRM (Zendesk).<br>• Soporte técnico y ventas.<br>• Seguimiento postventa, reducción de reclamos.`
-                    },
-                    {
-                        title: "Experiencia Técnica",
-                        text: `Trainee & Soporte Técnico | GAOTEK (2022-2023)<br>• Gestión de CRM, soporte técnico, coordinación de proyectos.<br>Administrativo y Atención al Cliente | STARTEX (2018)<br>• Control de asistencia, reportes, caja.<br>Atención al Cliente | Telefónica de Argentina (2014-2015)<br>Administrador Logístico | Alcuva (2012-2014)<br>• Rutas, permisos, servidores Windows NT.`
-                    },
-                    {
-                        title: "Educación",
-                        text: `• Curso de CCNA Cisco Networking Academy<br>• Curso de Ciberseguridad Ofensiva (Kali Purple)<br>• Curso de Desarrollo de Software Microsoft<br>• Técnico Industrial<br>• Programador Industrial PLC UPRO<br>• Ingeniería Electrónica UNSL` 
-                    },
-                    {
-                        title: "Habilidades Técnicas",
-                        text: `Lenguajes: Python, C++, HTML, PHP, JavaScript, SQL, TypeScript<br>Frameworks: React, Node.js, Express, Bootstrap, Angular, Tailwind CSS<br>Herramientas: Docker, Git, Webpack, SolidWorks, ANSYS, MATLAB, Zendesk, HubSpot<br>Áreas: Fullstack, PLC/SCADA, CAD eléctrico, ciberseguridad, IoT, soporte técnico, enseñanza, administración de servidores.`
-                    },
-                    {
-                        title: "Idiomas",
-                        text: `Español: Nativo<br>Inglés: C1 (avanzado)`
-                    },
-                    {
-                        title: "LinkedIn & GitHub",
-                        text: `
-                            <a href='https://linkedin.com/in/katosx' class='external-link' target='_blank'>LinkedIn</a><br>
-                            <a href='https://github.com/Gureboy' class='external-link' target='_blank'>GitHub</a>
-                        `,
-                        redirect: 'https://linkedin.com/in/katosx'
-                    },
-                    {
-                        title: "Más sobre mí",
-                        text: `Apasionado por la tecnología, la docencia y la innovación. Siempre en búsqueda de nuevos desafíos y oportunidades para crecer profesionalmente. ¡Gracias por visitar mi portfolio!`
-                    },
-                    {
-                        title: "¡Contáctame!",
-                        text: `¿Te interesa trabajar conmigo o tienes una propuesta?` +
-                            `<br><a href='mailto:danielsalini77@gmail.com' class='contact-btn'>Contactar por Email</a>`
-                    }
-                ];
+    <h1>Daniel Salini</h1>
+    <div class="container">
+        <div class="animation-container" data-circle="0"><div class="animation-title">Perfil Profesional</div><div id="anim1" class="circle-container"></div></div>
+        <div class="animation-container" data-circle="1"><div class="animation-title">Experiencia Freelance</div><div id="anim2" class="circle-container"></div></div>
+        <div class="animation-container" data-circle="2"><div class="animation-title">Profesor UPRO</div><div id="anim3" class="circle-container"></div></div>
+        <div class="animation-container" data-circle="3"><div class="animation-title">Proyectos Técnicos</div><div id="anim4" class="circle-container"></div></div>
+        <div class="animation-container" data-circle="4"><div class="animation-title">Experiencia en Soporte</div><div id="anim5" class="circle-container"></div></div>
+        <div class="animation-container" data-circle="5"><div class="animation-title">Experiencia Técnica</div><div id="anim6" class="circle-container"></div></div>
+        <div class="animation-container" data-circle="6"><div class="animation-title">Educación</div><div id="anim7" class="circle-container"></div></div>
+        <div class="animation-container" data-circle="7"><div class="animation-title">Habilidades Técnicas</div><div id="anim8" class="circle-container"></div></div>
+        <div class="animation-container" data-circle="8"><div class="animation-title">Idiomas</div><div id="anim9" class="circle-container"></div></div>
+        <div class="animation-container easter-egg-hint" data-circle="9"><div class="animation-title">About me</div><div id="anim10" class="circle-container"></div></div>
+        <div class="animation-container" data-circle="10"><div class="animation-title">Contacto</div><div id="anim11" class="circle-container"></div></div>
+        <div class="animation-container" data-circle="11"><div class="animation-title">Más sobre mí</div><div id="anim12" class="circle-container"></div></div>
+    </div>
+    <div id="circle-info-modal" class="circle-info-modal" style="display:none;"></div>
+    <footer style="margin-top: 40px; text-align: center;">
+        <div style="font-size: 1.3em; font-weight: bold;">Daniel Salini</div>
+        <div style="font-family: 'Times New Roman', Times, serif; font-size: 1.1em; margin-top: 8px; color: #ccc;">
+            No tengo capa ni superpoderes, pero cada día me levanto y lucho con lo que tengo. Y eso, para mí, ya es ser héroe.
+        </div>
+    </footer>
+    <script src="circle-animations.js"></script>
+    <script>
+        // Datos de cada círculo (puedes personalizar más)
+        const circleData = [
+            {
+                title: "Perfil Profesional",
+                text: `Desarrollador fullstack e ingeniero multidisciplinario con experiencia en programación industrial (PLC), desarrollo web frontend/backend y diseño eléctrico. Experto en resolver problemas complejos en entornos productivos, con enfoque en innovación, eficiencia y resultados cuantificables. Alta capacidad analítica, comunicación y trabajo en equipo.`
+            },
+            {
+                title: "Experiencia Freelance",
+                text: `Freelance | Desarrollador Fullstack y Consultor Eléctrico (2019-Actualidad)<br>• Diseño de esquemas eléctricos y planos unifilares bajo normas internacionales.<br>• Programación PLC Siemens y Allen-Bradley, integración SCADA.<br>• Soluciones IoT con ESP8266/ESP32.<br>• Apps web fullstack con React, Node.js, Express, MongoDB/PostgreSQL.<br>• APIs RESTful, Docker, interfaces interactivas, IA en chatbots.`
+            },
+            {
+                title: "Profesor UPRO",
+                text: `Profesor de Programación PLC y Electricidad Avanzada | UPRO (2024-Actualidad)<br>• Programación PLC Siemens, SCADA, LADDER y SCL.<br>• Electricidad avanzada, alta tensión, tableros AEA.<br>• Esquemas CAD eléctricos, enseñanza técnica.`
+            },
+            {
+                title: "Proyectos Técnicos",
+                text: `Profesor y Desarrollador de Proyectos Técnicos | UPRO Penal de San Luis (2025-Actualidad)<br>• Enseñanza de electricidad y electrónica aplicada.<br>• Desarrollo de proyectos técnicos prácticos para reinserción social.`
+            },
+            {
+                title: "Experiencia en Soporte",
+                text: `Customer Service Agent | Influx (2025)<br>• Gestión de clientes vía CRM (Zendesk).<br>• Soporte técnico y ventas.<br>• Seguimiento postventa, reducción de reclamos.`
+            },
+            {
+                title: "Experiencia Técnica",
+                text: `Trainee & Soporte Técnico | GAOTEK (2022-2023)<br>• Gestión de CRM, soporte técnico, coordinación de proyectos.<br>Administrativo y Atención al Cliente | STARTEX (2018)<br>• Control de asistencia, reportes, caja.<br>Atención al Cliente | Telefónica de Argentina (2014-2015)<br>Administrador Logístico | Alcuva (2012-2014)<br>• Rutas, permisos, servidores Windows NT.`
+            },
+            {
+                title: "Educación",
+                text: `• Curso de CCNA Cisco Networking Academy<br>• Curso de Ciberseguridad Ofensiva (Kali Purple)<br>• Curso de Desarrollo de Software Microsoft<br>• Técnico Industrial<br>• Programador Industrial PLC UPRO<br>• Ingeniería Electrónica UNSL` 
+            },
+            {
+                title: "Habilidades Técnicas",
+                text: `Lenguajes: Python, C++, HTML, PHP, JavaScript, SQL, TypeScript<br>Frameworks: React, Node.js, Express, Bootstrap, Angular, Tailwind CSS<br>Herramientas: Docker, Git, Webpack, SolidWorks, ANSYS, MATLAB, Zendesk, HubSpot<br>Áreas: Fullstack, PLC/SCADA, CAD eléctrico, ciberseguridad, IoT, soporte técnico, enseñanza, administración de servidores.`
+            },
+            {
+                title: "Idiomas",
+                text: `Español: Nativo<br>Inglés: C1 (avanzado)`
+            },
+            {
+                title: "D&D Easter Egg",
+                text: `¡Has encontrado mi easter egg secreto! 🎲<br><br>Como desarrollador y fan de D&D, creé un juego roguelike completo con sistema de combate por turnos, 8 clases jugables, sistema de niveles, items legendarios y mucho más.<br><br>¡Click para jugar!`,
+                isEasterEgg: true
+            },
+            {
+                title: "Contacto",
+                text: `¿Te interesa trabajar conmigo o tienes una propuesta?` +
+                    `<br><br>📧 Email: danielsalini77@gmail.com<br>💼 LinkedIn: linkedin.com/in/katosx<br>💻 GitHub: github.com/Gureboy` +
+                    `<br><br><a href='mailto:danielsalini77@gmail.com' class='contact-btn'>Contactar por Email</a>`
+            },
+            {
+                title: "Más sobre mí",
+                text: `Apasionado por la tecnología, la docencia y la innovación. Siempre en búsqueda de nuevos desafíos y oportunidades para crecer profesionalmente.<br><br>Mi filosofía: "No tengo capa ni superpoderes, pero cada día me levanto y lucho con lo que tengo. Y eso, para mí, ya es ser héroe."<br><br>¡Gracias por visitar mi portfolio!`
+            }
+        ];
 
-                // Modal de info
-                function showCircleInfo(idx) {
-                    const data = circleData[idx];
-                    if (!data) return;
-                    const modal = document.getElementById('circle-info-modal');
-                    modal.innerHTML = `<div class='circle-info-content'>
-                        <button class='close-btn' title='Cerrar'>&times;</button>
-                        <h2>${data.title}</h2>
-                        <div>${data.text}</div>
-                    </div>`;
-                    modal.style.display = 'flex';
-                    // Redirección si corresponde
-                    if (data.redirect) {
-                        setTimeout(() => { window.open(data.redirect, '_blank'); }, 1200);
-                    }
-                    modal.querySelector('.close-btn').onclick = () => {
-                        modal.style.display = 'none';
-                    };
-                    modal.onclick = (e) => {
-                        if (e.target === modal) modal.style.display = 'none';
-                    };
-                }
-                        document.querySelectorAll('.animation-container').forEach((el, idx) => {
-                            if (idx === 9) {
-                                el.onclick = () => {
-                                    window.open('dnd-easter-egg.html', '_blank');
-                                };
-                            } else {
-                                el.onclick = () => showCircleInfo(idx);
-                            }
-                        });
-            </script>
+        // Modal de info
+        function showCircleInfo(idx) {
+            const data = circleData[idx];
+            if (!data) return;
+            
+            const modal = document.getElementById('circle-info-modal');
+            modal.innerHTML = `<div class='circle-info-content'>
+                <button class='close-btn' title='Cerrar'>&times;</button>
+                <h2>${data.title}</h2>
+                <div>${data.text}</div>
+            </div>`;
+            modal.style.display = 'flex';
+            
+            modal.querySelector('.close-btn').onclick = () => {
+                modal.style.display = 'none';
+            };
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.style.display = 'none';
+            };
+        }
+
+        // Event listeners para cada círculo
+        document.querySelectorAll('.animation-container').forEach((el, idx) => {
+            if (idx === 9) { // Easter egg circle
+                el.onclick = () => {
+                    window.open('dnd-easter-egg.html', '_blank');
+                };
+            } else {
+                el.onclick = () => showCircleInfo(idx);
+            }
+        });
+    </script>
 </body>
-document.getElementById('close-node-info').onclick = () => {
+</html>
 
