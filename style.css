@@ -1164,3 +1164,122 @@ html {
     padding: 1.5rem;
   }
 }
+
+/* D&D Game Styles Adicionales */
+.rest-section .rest-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.rest-option {
+  background: var(--bg-primary);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-color);
+  text-align: center;
+  transition: var(--transition);
+}
+
+.rest-option:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.leaderboard-section {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.leaderboard-list {
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.leaderboard-entry {
+  display: grid;
+  grid-template-columns: 50px 1fr 100px 80px 100px;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.leaderboard-entry:last-child {
+  border-bottom: none;
+}
+
+.leaderboard-entry.top-three {
+  background: linear-gradient(90deg, #fef3c7, transparent);
+}
+
+.leaderboard-entry .rank {
+  font-weight: 700;
+  color: var(--primary-color);
+  text-align: center;
+}
+
+.leaderboard-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.special-btn {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+  margin: 0.25rem;
+}
+
+.special-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.condition {
+  display: inline-block;
+  background: var(--secondary-color);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  margin: 0.125rem;
+}
+
+.condition.rage {
+  background: #dc2626;
+}
+
+.condition.defending {
+  background: #2563eb;
+}
+
+.condition.curse {
+  background: #7c2d12;
+}
+
+@media (max-width: 768px) {
+  .rest-section .rest-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .leaderboard-entry {
+    grid-template-columns: 40px 1fr 60px 80px;
+    font-size: 0.875rem;
+  }
+  
+  .leaderboard-entry .class {
+    display: none;
+  }
+}
