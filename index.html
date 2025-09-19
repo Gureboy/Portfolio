@@ -485,6 +485,8 @@
         }
     </style>
     <script src="i18n.js"></script>
+    <!-- Add database API -->
+    <script src="database/api.js"></script>
 </head>
 <body>
     <!-- Performance indicator -->
@@ -870,6 +872,15 @@
             
             // Listen for language changes
             document.addEventListener('languageChanged', updateCircleData);
+        });
+
+        // Initialize database on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize i18n
+            window.portfolioI18n.init();
+            
+            // Initialize database
+            await window.neonDB.init();
         });
     </script>
 </body>

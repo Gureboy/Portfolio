@@ -129,8 +129,27 @@
     `;
   }
   
-  window.selectCharacter = function(idx) {
-    window.char = initializeCharacter(CLASSES[idx]);
+  // Enhanced character creation with database integration
+  window.selectCharacter = async function(idx) {
+    const selectedClass = CLASSES[idx];
+    
+    // Initialize database and create player
+    try {
+      await window.neonDB.init();
+      if (!window.neonDB.playerId) {
+        await window.neonDB.createPlayer(`Hero_${selectedClass.n}_${Date.now()}`);
+      }
+    } catch (error) {
+      console.warn('Database initialization failed, continuing offline:', error);
+    }
+    
+    window.char = initializeCharacter(selectedClass);
+    
+    // Start auto-save if database is available
+    if (window.neonDB.initialized) {
+      window.neonDB.startAutoSave(window.char);
+    }
+    
     gameState.currentEncounter = 0;
     startStoryEncounter();
   };
@@ -1258,7 +1277,7 @@
     `;
   }
 
-  window.playDiceGame = function() {
+  window.playDiceGame = async function() {
     if (window.char.gold >= 20) {
       window.char.gold -= 20;
       const roll1 = Math.floor(Math.random() * 6) + 1;
@@ -1266,13 +1285,29 @@
       const total = roll1 + roll2;
       
       let winnings = 0;
-      if (total === 12) winnings = 100; // Snake eyes
-      else if (total === 7 || total === 11) winnings = 60; // Lucky sevens
-      else if (total >= 8) winnings = 30; // Decent roll
+      if (total === 12) winnings = 100;
+      else if (total === 7 || total === 11) winnings = 60;
+      else if (total >= 8) winnings = 30;
       
       window.char.gold += winnings;
-      addLog(`Dados: ${roll1}+${roll2}=${total}. ${winnings > 0 ? `¡Ganas ${winnings} oro!` : 'Pierdes la apuesta.'}`);
       
+      // Log gambling if database available
+      try {
+        if (window.neonDB.initialized) {
+          await window.neonDB.apiCall('/gambling-stats', 'POST', {
+            character_id: window.neonDB.currentCharacter,
+            game_type: 'dice',
+            bet_amount: 20,
+            winnings: winnings,
+            game_result: winnings > 0 ? 'win' : 'loss',
+            details: { roll1, roll2, total }
+          });
+        }
+      } catch (error) {
+        console.warn('Failed to log gambling:', error);
+      }
+      
+      addLog(`Dados: ${roll1}+${roll2}=${total}. ${winnings > 0 ? `¡Ganas ${winnings} oro!` : 'Pierdes la apuesta.'}`);
       setTimeout(() => renderCasinoEncounter(), 1500);
     }
   };
@@ -1570,7 +1605,17 @@
     });
   }
 
-  function showAchievementUnlock(achievement) {
+  async function showAchievementUnlock(achievement) {
+    try {
+      await window.neonDB.unlockAchievement(
+        achievement.name,
+        achievement.desc,
+        window.char.name
+      );
+    } catch (error) {
+      console.warn('Failed to save achievement:', error);
+    }
+    
     const g = document.getElementById('game');
     g.innerHTML += `
       <div class='achievement-popup'>
@@ -1580,198 +1625,111 @@
         <button onclick='closeAchievement()' class='achievement-btn'>¡Genial!</button>
       </div>
     `;
-    
-    // Apply reward
-    applyAchievementReward(achievement.reward);
   }
 
-  window.closeAchievement = function() {
-    document.querySelector('.achievement-popup').remove();
-  };
-
-  function applyAchievementReward(reward) {
-    switch(reward.type) {
-      case 'item':
-        const rewardItem = ITEMS.find(i => i.n === reward.item);
-        if (rewardItem) window.char.inv.push(rewardItem);
-        break;
-      case 'gold':
-        window.char.gold += reward.amount;
-        break;
-      case 'stat':
-        if (reward.stat === 'all') {
-          Object.keys(window.char.stats).forEach(stat => {
-            window.char.stats[stat] += reward.amount;
-          });
-        } else {
-          window.char.stats[reward.stat] += reward.amount;
-        }
-        break;
-    }
-  }
-
-  // Enhanced combat with environmental effects
-  function applyEnvironmentalEffects() {
-    const environments = ['normal', 'fire', 'ice', 'lightning', 'shadow'];
-    const currentEnv = environments[gameState.currentEncounter % environments.length];
-    
-    switch(currentEnv) {
-      case 'fire':
-        if (window.char.equipped.armor?.n.includes('Cuero')) {
-          addLog('Tu armadura de cuero te protege del calor extremo.');
-        } else {
-          window.char.hp = Math.max(1, window.char.hp - 2);
-          addLog('El calor extremo te daña por 2 HP.');
-        }
-        break;
-      case 'ice':
-        if (Math.random() < 0.3) {
-          window.char.conditions.push({name: 'slow', turns: 1});
-          addLog('El frío te ralentiza.');
-        }
-        break;
-      case 'lightning':
-        if (window.char.equipped.armor?.n.includes('Malla')) {
-          window.char.hp = Math.max(1, window.char.hp - 5);
-          addLog('Tu armadura de metal conduce la electricidad. -5 HP');
-        }
-        break;
-      case 'shadow':
-        if (window.char.cls.n === 'Pícaro') {
-          addLog('Las sombras te fortalecen. +1 sigilo.');
-          window.char.abilities.sneak = Math.min(window.char.abilities.sneak + 1, 6);
-        }
-        break;
-    }
-  }
-
-  // Weather system
-  const WEATHER_EFFECTS = [
-    {name:'Soleado',effect:()=>{window.char.hp = Math.min(window.char.maxHP, window.char.hp + 1)}},
-    {name:'Lluvia',effect:()=>{if(Math.random()<0.2) window.char.conditions.push({name:'wet',turns:2})}},
-    {name:'Tormenta',effect:()=>{if(Math.random()<0.1) window.char.hp = Math.max(1, window.char.hp-3)}},
-    {name:'Niebla',effect:()=>{if(Math.random()<0.3) addLog('La niebla dificulta la visión.')}},
-  ];
-
-  function applyWeatherEffects() {
-    const weather = WEATHER_EFFECTS[Math.floor(Math.random() * WEATHER_EFFECTS.length)];
-    weather.effect();
-    if (weather.name !== 'Soleado') {
-      addLog(`Clima: ${weather.name}`);
-    }
-  }
-
-  // Integration with existing encounter system
-  function enhancedStartStoryEncounter() {
-    // Add random events
-    if (Math.random() < 0.15) {
-      const event = RANDOM_EVENTS[Math.floor(Math.random() * RANDOM_EVENTS.length)];
+  // Show leaderboard
+  async function showLeaderboard() {
+    try {
+      const leaderboard = await window.neonDB.getLeaderboard(10);
       const g = document.getElementById('game');
-      g.innerHTML = `
-        <div class='section event-section'>
-          <h2>⚡ ${event.name}</h2>
-          <p>${event.desc}</p>
-          <button onclick='triggerRandomEvent(${RANDOM_EVENTS.indexOf(event)})' class='event-btn'>Continuar</button>
+      
+      g.innerHTML += `
+        <div class='leaderboard-overlay'>
+          <div class='leaderboard-panel'>
+            <h3>🏆 Tabla de Líderes Global 🏆</h3>
+            <div class='leaderboard-list'>
+              ${leaderboard.length > 0 ? leaderboard.map((entry, i) => `
+                <div class='leaderboard-entry ${i < 3 ? 'top-three' : ''}'>
+                  <span class='rank'>#${i + 1}</span>
+                  <span class='name'>${entry.character_name || entry.name || 'Anónimo'}</span>
+                  <span class='class'>${entry.character_class || entry.class_name || 'Aventurero'}</span>
+                  <span class='level'>Nv.${entry.final_level || entry.level || 1}</span>
+                  <span class='score'>${entry.score || entry.experience || 0} pts</span>
+                </div>
+              `).join('') : '<p>No hay datos de ranking disponibles</p>'}
+            </div>
+            <button onclick='closeLeaderboard()' class='close-btn'>Cerrar</button>
+          </div>
         </div>
       `;
-      return;
+    } catch (error) {
+      console.warn('Failed to load leaderboard:', error);
+      // Show offline message
+      document.getElementById('game').innerHTML += `
+        <div class='leaderboard-overlay'>
+          <div class='leaderboard-panel'>
+            <h3>🏆 Ranking No Disponible</h3>
+            <p>El ranking global requiere conexión a la base de datos.</p>
+            <button onclick='closeLeaderboard()' class='close-btn'>Cerrar</button>
+          </div>
+        </div>
+      `;
     }
-    
-    // Add casino occasionally
-    if (Math.random() < 0.1 && gameState.currentEncounter > 3) {
-      renderCasinoEncounter();
-      return;
-    }
-    
-    // Add crafting workshop
-    if (Math.random() < 0.08 && gameState.currentEncounter > 5) {
-      renderCraftingEncounter();
-      return;
-    }
- }
-    
-    // Apply environmental and weather effects
-    applyEnvironmentalEffects();
-    applyWeatherEffects();
-    
-    // Check achievements
-    checkAdvancedAchievements();
-    
-    // ...existing startStoryEncounter logic...
   }
 
-  window.triggerRandomEvent = function(eventIndex) {
-    const event = RANDOM_EVENTS[eventIndex];
-    event.effect();
-    setTimeout(nextEncounter, 1500);
+  window.closeLeaderboard = function() {
+    const overlay = document.querySelector('.leaderboard-overlay');
+    if (overlay) overlay.remove();
   };
 
-  // Enhanced handleCombatVictory with material drops
-  function enhancedHandleCombatVictory() {
-    // ...existing victory code...
-    
-    // Add material drops
-    const drops = rollLootDrop(window.currentMonster);
-    drops.forEach(drop => {
-      if (drop.t) { // It's a material
-        window.char.materials = window.char.materials || [];
-        window.char.materials.push(drop);
-        addLog(`¡Encuentras material: ${drop.n}!`);
+  // Enhanced game over with database updates
+  async function handleGameOver() {
+    try {
+      if (window.neonDB.initialized) {
+        // Save final game state
+        await window.neonDB.apiCall('/game-sessions', 'POST', {
+          character_id: window.neonDB.currentCharacter,
+          session_outcome: 'death',
+          final_level: window.char.lvl,
+          final_encounter: gameState.currentEncounter,
+          experience_gained: window.char.xp,
+          gold_gained: window.char.gold - 50
+        });
       }
-    });
-    
-    // Apply pet bonuses if pet attacked
-    if (applyPetBonuses(window.char)) {
-      // Pet already attacked, don't need monster turn
+    } catch (error) {
+      console.warn('Failed to save final game state:', error);
     }
     
-    // ...existing code...
-  }
-
-  // Memory optimization for new features
-  function optimizedCleanup() {
-    // Limit materials array
-    if (window.char.materials && window.char.materials.length > 50) {
-      window.char.materials = window.char.materials.slice(-30);
+    // Stop auto-save
+    if (window.neonDB) {
+      window.neonDB.stopAutoSave();
     }
     
-    // Clean up achievement popups
-    const oldPopups = document.querySelectorAll('.achievement-popup');
-    if (oldPopups.length > 1) {
-      oldPopups[0].remove();
-    }
-    
-    // ...existing cleanup code...
-  }
-
-  // Replace existing functions with enhanced versions
-  window.startStoryEncounter = enhancedStartStoryEncounter;
-  window.handleCombatVictory = enhancedHandleCombatVictory;
-  
-  // Set up enhanced cleanup
-  setInterval(optimizedCleanup, 15000);
-
-  // Initialize game
-  window.startStoryGame = showCharacterSelection;
-  
-})();
-
-// Enhanced initialization with proper styling
-window.addEventListener('DOMContentLoaded', () => {
-  const g = document.getElementById('game');
-  g.innerHTML = `
-    <div class='section welcome-section'>
-      <h2>⚔️ Aventura D&D Épica ⚔️</h2>
-      <p>Un verdadero roguelike con sistema completo de inventario, equipo, habilidades especiales y progresión profunda.</p>
-      <div class='features-grid'>
-        <div class='feature-card'>📜 Historia Épica</div>
-        <div class='feature-card'>⚔️ Combate Estratégico</div>
-        <div class='feature-card'>🎒 Sistema de Inventario</div>
-        <div class='feature-card'>⚡ Habilidades Especiales</div>
-        <div class='feature-card'>🏪 Mercaderes</div>
-        <div class='feature-card'>🔨 Mejora de Equipo</div>
+    const g = document.getElementById('game');
+    g.innerHTML = `
+      <div class='section gameover-section'>
+        <h2>💀 Game Over</h2>
+        <p>Tu aventura ha llegado a su fin...</p>
+        <div class='death-stats'>
+          <p><strong>Nivel Alcanzado:</strong> ${window.char.lvl}</p>
+          <p><strong>Encuentros Completados:</strong> ${gameState.currentEncounter}</p>
+          <p><strong>Oro Acumulado:</strong> ${window.char.gold}</p>
+        </div>
+        <div class='game-over-actions'>
+          <button onclick='showLeaderboard()' class='leaderboard-btn'>🏆 Ver Ranking Global</button>
+          <button onclick='location.reload()' class='retry-btn'>🔄 Reintentar</button>
+        </div>
       </div>
-      <button onclick='startStoryGame()' class='start-btn epic'>🚀 Comenzar Épica Aventura</button>
-    </div>
-  `;
-});
+    `;
+  }
+
+  // Enhanced initialization with proper styling
+  window.addEventListener('DOMContentLoaded', () => {
+    const g = document.getElementById('game');
+    g.innerHTML = `
+      <div class='section welcome-section'>
+        <h2>⚔️ Aventura D&D Épica ⚔️</h2>
+        <p>Un verdadero roguelike con sistema completo de inventario, equipo, habilidades especiales y progresión profunda.</p>
+        <div class='features-grid'>
+          <div class='feature-card'>📜 Historia Épica</div>
+          <div class='feature-card'>⚔️ Combate Estratégico</div>
+          <div class='feature-card'>🎒 Sistema de Inventario</div>
+          <div class='feature-card'>⚡ Habilidades Especiales</div>
+          <div class='feature-card'>🏪 Mercaderes</div>
+          <div class='feature-card'>🔨 Mejora de Equipo</div>
+        </div>
+        <button onclick='startStoryGame()' class='start-btn epic'>🚀 Comenzar Épica Aventura</button>
+      </div>
+    `;
+  });
+})();
