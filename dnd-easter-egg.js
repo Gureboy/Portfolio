@@ -1,64 +1,126 @@
 // --- COMBATE POR TURNOS CLÁSICO D&D ---
-// Optimized with story progression and balanced encounters
+// Complete roguelike with full inventory, equipment, and deeper mechanics
 
 (function() {
   'use strict';
   
-  // Enhanced classes with progression
+  // Enhanced classes with unique abilities
   const CLASSES = [
-    {n:"Bárbaro",h:12,a:15,s:3,d:1,c:2,desc:"Guerrero salvaje con gran resistencia"},
-    {n:"Mago",h:6,a:12,s:0,d:1,c:0,i:3,w:1,desc:"Maestro de la magia arcana"},
-    {n:"Clérigo",h:8,a:14,s:1,d:0,c:2,w:3,ch:1,desc:"Sanador divino"},
-    {n:"Monje",h:8,a:15,s:1,d:3,c:1,w:2,desc:"Maestro marcial ágil"}
+    {n:"Bárbaro",h:12,a:15,s:3,d:1,c:2,desc:"Guerrero salvaje con gran resistencia",special:"Furia (+3 daño por 3 turnos)"},
+    {n:"Mago",h:6,a:12,s:0,d:1,c:0,i:3,w:1,desc:"Maestro de la magia arcana",special:"Hechizos poderosos"},
+    {n:"Clérigo",h:8,a:14,s:1,d:0,c:2,w:3,ch:1,desc:"Sanador divino",special:"Curación divina"},
+    {n:"Pícaro",h:8,a:13,s:1,d:3,c:1,w:1,desc:"Ágil y sigiloso",special:"Ataque furtivo"}
   ];
   
-  // Story-driven monster progression
-  const STORY_ENCOUNTERS = [
-    {type:"story",title:"El Bosque Maldito",desc:"Te adentras en un bosque oscuro. Los árboles susurran secretos antiguos."},
-    {type:"combat",monster:{n:"Goblin Explorador",h:8,a:13,at:3,c:0.25},desc:"Un pequeño goblin salta de los arbustos."},
-    {type:"story",title:"Ruinas Ancestrales",desc:"Encuentras ruinas cubiertas de musgo. Algo se mueve en las sombras."},
-    {type:"combat",monster:{n:"Esqueleto Guardián",h:12,a:14,at:4,c:0.5},desc:"Un esqueleto se alza para defender las ruinas."},
-    {type:"event",title:"Cofre Misterioso",desc:"Encuentras un cofre antiguo. ¿Lo abres?",reward:"item"},
-    {type:"story",title:"El Puente de Piedra",desc:"Un viejo puente cruza un río turbulento. Algo grande se acerca."},
-    {type:"combat",monster:{n:"Orco Berserker",h:18,a:13,at:6,c:0.75},desc:"Un orco feroz bloquea tu camino."},
-    {type:"rest",title:"Campamento Seguro",desc:"Encuentras un lugar seguro para descansar y recuperar fuerzas."},
-    {type:"story",title:"La Cueva Profunda",desc:"La entrada a una cueva se abre ante ti. El aire huele a peligro."},
-    {type:"combat",monster:{n:"Ogro de las Cavernas",h:35,a:12,at:8,c:1.5},desc:"Un ogro gigante emerge rugiendo de la oscuridad."},
-    {type:"story",title:"El Tesoro Final",desc:"Llegas al corazón de la cueva. Un brillo dorado ilumina la cámara."},
-    {type:"boss",monster:{n:"Dragón Joven",h:60,a:16,at:12,c:3},desc:"Un dragón dorado protege el tesoro ancestral."}
-  ];
-  
+  // Expanded item system with rarities
   const ITEMS = [
-    {n:"Poción de Curación",e:"heal",v:15,desc:"Restaura vida"},
-    {n:"Daga Élfica",e:"weapon",v:3,desc:"+3 daño de ataque"},
-    {n:"Escudo de Roble",e:"armor",v:2,desc:"+2 AC"},
-    {n:"Amuleto de Suerte",e:"luck",v:1,desc:"+1 a todas las tiradas"}
+    // Consumables
+    {n:"Poción Menor",e:"heal",v:15,r:"common",p:20,desc:"Restaura 15 HP"},
+    {n:"Poción Mayor",e:"heal",v:30,r:"uncommon",p:50,desc:"Restaura 30 HP"},
+    {n:"Elixir Supremo",e:"heal",v:60,r:"rare",p:120,desc:"Restaura 60 HP"},
+    {n:"Antídoto",e:"cure",v:1,r:"common",p:25,desc:"Cura veneno"},
+    
+    // Weapons
+    {n:"Daga Oxidada",e:"weapon",v:1,r:"common",p:15,desc:"+1 daño",slot:"weapon"},
+    {n:"Espada Corta",e:"weapon",v:3,r:"common",p:40,desc:"+3 daño",slot:"weapon"},
+    {n:"Espada Élfica",e:"weapon",v:5,r:"uncommon",p:80,desc:"+5 daño, +1 precisión",slot:"weapon"},
+    {n:"Martillo de Guerra",e:"weapon",v:7,r:"rare",p:150,desc:"+7 daño, aturde enemigos",slot:"weapon"},
+    {n:"Hoja Dracónica",e:"weapon",v:10,r:"legendary",p:300,desc:"+10 daño, daño de fuego",slot:"weapon"},
+    
+    // Armor
+    {n:"Túnica Raída",e:"armor",v:1,r:"common",p:20,desc:"+1 AC",slot:"armor"},
+    {n:"Armadura de Cuero",e:"armor",v:2,r:"common",p:45,desc:"+2 AC",slot:"armor"},
+    {n:"Cota de Malla",e:"armor",v:4,r:"uncommon",p:90,desc:"+4 AC",slot:"armor"},
+    {n:"Armadura Élfica",e:"armor",v:6,r:"rare",p:180,desc:"+6 AC, +1 esquiva",slot:"armor"},
+    
+    // Accessories
+    {n:"Anillo de Fuerza",e:"accessory",v:2,r:"uncommon",p:60,desc:"+2 STR",slot:"ring",stat:"str"},
+    {n:"Amuleto de Agilidad",e:"accessory",v:2,r:"uncommon",p:60,desc:"+2 DEX",slot:"amulet",stat:"dex"},
+    {n:"Corona de Sabiduría",e:"accessory",v:3,r:"rare",p:100,desc:"+3 INT",slot:"head",stat:"int"},
+    {n:"Botas Veloces",e:"accessory",v:1,r:"common",p:35,desc:"+1 esquiva",slot:"boots"}
+  ];
+  
+  // Enhanced story with more variety
+  const STORY_ENCOUNTERS = [
+    {type:"story",title:"El Bosque Maldito",desc:"Te adentras en un bosque oscuro donde las sombras cobran vida."},
+    {type:"combat",monster:{n:"Goblin Explorador",h:8,a:13,at:3,c:0.25},desc:"Un goblin te embosca desde los arbustos."},
+    {type:"merchant",title:"Mercader Errante",desc:"Un mercader ofrece sus mercancías en el camino."},
+    {type:"story",title:"Ruinas Ancestrales",desc:"Ruinas cubiertas de musgo guardan secretos olvidados."},
+    {type:"combat",monster:{n:"Esqueleto Guardián",h:15,a:14,at:4,c:0.5},desc:"Un esqueleto protege las ruinas milenarias."},
+    {type:"treasure",title:"Cámara del Tesoro",desc:"Una cámara secreta repleta de tesoros te espera."},
+    {type:"story",title:"El Puente Traicionero",desc:"Un puente de cuerda cruza un abismo mortal."},
+    {type:"combat",monster:{n:"Orco Berserker",h:25,a:13,at:6,c:0.75},desc:"Un orco feroz bloquea tu paso con furia."},
+    {type:"rest",title:"Santuario Sagrado",desc:"Un lugar sagrado donde puedes descansar y meditar."},
+    {type:"story",title:"La Torre del Mago",desc:"Una torre misteriosa se alza ante ti, irradiando magia."},
+    {type:"combat",monster:{n:"Golem de Piedra",h:40,a:15,at:7,c:1.2},desc:"Un golem ancestral despierta para defenderse."},
+    {type:"forge",title:"Forja Mágica",desc:"Una forja ancestral puede mejorar tu equipo."},
+    {type:"story",title:"Las Catacumbas Profundas",desc:"Desciendes a las profundidades donde el mal acecha."},
+    {type:"combat",monster:{n:"Liche Menor",h:50,a:16,at:9,c:2},desc:"Un hechicero no-muerto te desafía con magia oscura."},
+    {type:"story",title:"El Corazón del Dungeon",desc:"Llegas al núcleo del dungeon donde reside el mal primordial."},
+    {type:"boss",monster:{n:"Señor Dragón",h:80,a:18,at:15,c:4},desc:"El señor dragón despierta para defender su tesoro."}
   ];
   
   let gameState = {
     currentEncounter: 0,
-    storyMode: true
+    storyMode: true,
+    shopLevel: 1
   };
   
-  // Story-driven encounter system
-  window.startStoryGame = function() {
-    // Character selection first
-    showCharacterSelection();
-  };
+  // Equipment system
+  function initializeCharacter(selectedClass) {
+    return {
+      cls: selectedClass,
+      name: selectedClass.n,
+      lvl: 1,
+      hp: selectedClass.h + 10,
+      maxHP: selectedClass.h + 10,
+      ac: selectedClass.a,
+      xp: 0,
+      xpNext: 50,
+      gold: 50,
+      inv: [ITEMS[0], ITEMS[0]], // Start with 2 minor potions
+      equipped: {
+        weapon: null,
+        armor: null,
+        ring: null,
+        amulet: null,
+        head: null,
+        boots: null
+      },
+      log: [],
+      stats: {
+        str: selectedClass.s || 0,
+        dex: selectedClass.d || 0,
+        con: selectedClass.c || 0,
+        int: selectedClass.i || 0,
+        wis: selectedClass.w || 0,
+        cha: selectedClass.ch || 0
+      },
+      conditions: [],
+      abilities: {
+        rage: selectedClass.n === 'Bárbaro' ? 2 : 0,
+        spells: selectedClass.n === 'Mago' ? 3 : 0,
+        heals: selectedClass.n === 'Clérigo' ? 3 : 0,
+        sneak: selectedClass.n === 'Pícaro' ? 2 : 0
+      }
+    };
+  }
   
+  // Enhanced character selection
   function showCharacterSelection() {
     const g = document.getElementById('game');
     g.innerHTML = `
-      <div class='section'>
+      <div class='section char-selection'>
         <h2>⚔️ Elige tu Héroe ⚔️</h2>
-        <p>Cada clase tiene habilidades únicas que afectan tu aventura:</p>
+        <p>Cada clase tiene habilidades especiales y estilos de juego únicos:</p>
         <div class='character-grid'>
           ${CLASSES.map((cls, i) => `
             <div class='char-card' onclick='selectCharacter(${i})'>
               <h3>${cls.n}</h3>
-              <p>${cls.desc}</p>
-              <div class='stats'>
-                <small>HP: ${cls.h + 10} | AC: ${cls.a}</small>
+              <p class='char-desc'>${cls.desc}</p>
+              <p class='char-special'><strong>Especial:</strong> ${cls.special}</p>
+              <div class='char-stats'>
+                <small>HP: ${cls.h + 10} | AC: ${cls.a} | ATK: ${cls.s}</small>
               </div>
             </div>
           `).join('')}
@@ -68,37 +130,15 @@
   }
   
   window.selectCharacter = function(idx) {
-    const selectedClass = CLASSES[idx];
-    window.char = {
-      cls: selectedClass,
-      name: selectedClass.n,
-      lvl: 1,
-      hp: selectedClass.h + 10,
-      maxHP: selectedClass.h + 10,
-      ac: selectedClass.a,
-      xp: 0,
-      xpNext: 50,
-      gold: 25,
-      inv: [ITEMS[0], ITEMS[0]], // Start with 2 healing potions
-      log: [],
-      stats: {
-        str: selectedClass.s || 0,
-        dex: selectedClass.d || 0,
-        con: selectedClass.c || 0,
-        int: selectedClass.i || 0,
-        wis: selectedClass.w || 0,
-        cha: selectedClass.ch || 0
-      }
-    };
-    
+    window.char = initializeCharacter(CLASSES[idx]);
     gameState.currentEncounter = 0;
     startStoryEncounter();
   };
   
+  // Enhanced encounter system
   function startStoryEncounter() {
     const encounter = STORY_ENCOUNTERS[gameState.currentEncounter];
     if (!encounter) {
-      // Victory ending
       showVictoryScreen();
       return;
     }
@@ -107,375 +147,1631 @@
     
     switch(encounter.type) {
       case 'story':
-        g.innerHTML = `
-          <div class='section story-section'>
-            <h2>📜 ${encounter.title}</h2>
-            <p class='story-text'>${encounter.desc}</p>
-            <div class='char-status'>
-              <strong>${window.char.name}</strong> | Nivel ${window.char.lvl} | HP: ${window.char.hp}/${window.char.maxHP} | Oro: ${window.char.gold}
-            </div>
-            <button onclick='nextEncounter()' class='story-btn'>Continuar Aventura</button>
-          </div>
-        `;
+        renderStoryEncounter(encounter);
         break;
-        
       case 'combat':
-        window.currentMonster = {
-          ...encounter.monster,
-          maxHP: encounter.monster.h
-        };
-        g.innerHTML = `
-          <div class='section combat-section'>
-            <h2>⚔️ ¡Combate!</h2>
-            <p class='encounter-desc'>${encounter.desc}</p>
-            <div class='combat-status'>
-              <div class='hero-status'>
-                <strong>${window.char.name}</strong><br>
-                Nivel ${window.char.lvl}<br>
-                HP: ${window.char.hp}/${window.char.maxHP}<br>
-                AC: ${window.char.ac}
-              </div>
-              <div class='enemy-status'>
-                <strong>${window.currentMonster.n}</strong><br>
-                HP: ${window.currentMonster.h}/${window.currentMonster.maxHP}<br>
-                AC: ${window.currentMonster.a}
-              </div>
-            </div>
-            <div class='combat-log'>${(window.char.log || []).slice(-3).join('<br>')}</div>
-            <div class='combat-actions'>
-              <button onclick='performAttack()' class='combat-btn'>⚔️ Atacar</button>
-              <button onclick='useHealingItem()' class='combat-btn'>🧪 Curar (${countHealingItems()})</button>
-              ${window.char.cls.n === 'Mago' ? '<button onclick="castSpell()" class="combat-btn">✨ Hechizo</button>' : ''}
-              ${window.char.cls.n === 'Clérigo' ? '<button onclick="divineHeal()" class="combat-btn">🙏 Curación Divina</button>' : ''}
-            </div>
-          </div>
-        `;
+        renderCombatEncounter(encounter);
         break;
-        
-      case 'event':
-        handleSpecialEvent(encounter);
+      case 'merchant':
+        renderMerchantEncounter(encounter);
         break;
-        
+      case 'treasure':
+        renderTreasureEncounter(encounter);
+        break;
+      case 'forge':
+        renderForgeEncounter(encounter);
+        break;
       case 'rest':
-        handleRestEvent(encounter);
+        renderRestEncounter(encounter);
         break;
-        
       case 'boss':
-        window.currentMonster = {
-          ...encounter.monster,
-          maxHP: encounter.monster.h,
-          isBoss: true
-        };
-        renderBossCombat(encounter);
+        renderBossEncounter(encounter);
         break;
     }
   }
   
-  function handleSpecialEvent(encounter) {
+  function renderCombatEncounter(encounter) {
+    window.currentMonster = {
+      ...encounter.monster,
+      maxHP: encounter.monster.h,
+      conditions: []
+    };
+    
     const g = document.getElementById('game');
     g.innerHTML = `
-      <div class='section event-section'>
-        <h2>✨ ${encounter.title}</h2>
-        <p>${encounter.desc}</p>
-        <div class='event-choices'>
-          <button onclick='handleEventChoice(true)' class='event-btn'>Sí, abrir el cofre</button>
-          <button onclick='handleEventChoice(false)' class='event-btn'>No, es muy peligroso</button>
+      <div class='section combat-section'>
+        <h2>⚔️ ¡Combate!</h2>
+        <p class='encounter-desc'>${encounter.desc}</p>
+        
+        <div class='combat-grid'>
+          <div class='hero-panel'>
+            <h3>${window.char.name} (Nv.${window.char.lvl})</h3>
+            <div class='hp-bar'>
+              <div class='hp-fill' style='width: ${(window.char.hp/window.char.maxHP)*100}%'></div>
+              <span class='hp-text'>${window.char.hp}/${window.char.maxHP} HP</span>
+            </div>
+            <p>AC: ${calculateAC()} | ATK: ${calculateAttack()}</p>
+            <div class='conditions'>${renderConditions(window.char.conditions)}</div>
+          </div>
+          
+          <div class='enemy-panel'>
+            <h3>${window.currentMonster.n}</h3>
+            <div class='hp-bar enemy'>
+              <div class='hp-fill' style='width: ${(window.currentMonster.h/window.currentMonster.maxHP)*100}%'></div>
+              <span class='hp-text'>${window.currentMonster.h}/${window.currentMonster.maxHP} HP</span>
+            </div>
+            <p>AC: ${window.currentMonster.a}</p>
+            <div class='conditions'>${renderConditions(window.currentMonster.conditions)}</div>
+          </div>
+        </div>
+        
+        <div class='combat-log'>${(window.char.log || []).slice(-4).join('<br>')}</div>
+        
+        <div class='action-panel'>
+          <div class='basic-actions'>
+            <button onclick='performAttack()' class='combat-btn primary'>⚔️ Atacar</button>
+            <button onclick='showInventoryInCombat()' class='combat-btn'>🎒 Inventario</button>
+            <button onclick='defendAction()' class='combat-btn'>🛡️ Defenderse</button>
+          </div>
+          
+          <div class='special-actions'>
+            ${renderSpecialActions()}
+          </div>
         </div>
       </div>
     `;
   }
   
-  window.handleEventChoice = function(openChest) {
-    if (openChest) {
-      if (Math.random() < 0.7) {
-        const reward = ITEMS[Math.floor(Math.random() * ITEMS.length)];
-        window.char.inv.push(reward);
-        addLog(`¡Encuentras: ${reward.n}!`);
-      } else {
-        const damage = 5;
-        window.char.hp = Math.max(1, window.char.hp - damage);
-        addLog(`¡Era una trampa! Pierdes ${damage} HP.`);
-      }
-    } else {
-      addLog("Decides no arriesgarte. Quizás fue lo más sabio.");
+  function renderSpecialActions() {
+    const char = window.char;
+    let actions = [];
+    
+    if (char.abilities.rage > 0) {
+      actions.push(`<button onclick='useRage()' class='special-btn'>🔥 Furia (${char.abilities.rage})</button>`);
     }
     
-    setTimeout(nextEncounter, 1500);
+    if (char.abilities.spells > 0) {
+      actions.push(`<button onclick='castMagicMissile()' class='special-btn'>✨ Misil Mágico (${char.abilities.spells})</button>`);
+    }
+    
+    if (char.abilities.heals > 0) {
+      actions.push(`<button onclick='divineHeal()' class='special-btn'>🙏 Curación (${char.abilities.heals})</button>`);
+    }
+    
+    if (char.abilities.sneak > 0) {
+      actions.push(`<button onclick='sneakAttack()' class='special-btn'>🗡️ Ataque Furtivo (${char.abilities.sneak})</button>`);
+    }
+    
+    return actions.join('');
+  }
+  
+  // Inventory system
+  window.showInventoryInCombat = function() {
+    const consumables = window.char.inv.filter(item => 
+      item.e === 'heal' || item.e === 'cure' || item.e === 'buff'
+    );
+    
+    if (consumables.length === 0) {
+      addLog('No tienes items consumibles.');
+      return;
+    }
+    
+    const g = document.getElementById('game');
+    g.innerHTML += `
+      <div class='inventory-overlay'>
+        <div class='inventory-panel'>
+          <h3>Inventario de Combate</h3>
+          <div class='item-grid'>
+            ${consumables.map((item, i) => `
+              <div class='item-card ${item.r}' onclick='useInventoryItem(${window.char.inv.indexOf(item)})'>
+                <strong>${item.n}</strong>
+                <p>${item.desc}</p>
+                <small class='rarity'>${item.r}</small>
+              </div>
+            `).join('')}
+          </div>
+          <button onclick='closeCombatInventory()' class='close-btn'>Cerrar</button>
+        </div>
+      </div>
+    `;
   };
   
-  function handleRestEvent(encounter) {
-    const heal = Math.round(window.char.maxHP * 0.6);
-    window.char.hp = Math.min(window.char.maxHP, window.char.hp + heal);
+  window.closeCombatInventory = function() {
+    document.querySelector('.inventory-overlay').remove();
+  };
+  
+  window.useInventoryItem = function(index) {
+    const item = window.char.inv[index];
+    
+    if (item.e === 'heal') {
+      window.char.hp = Math.min(window.char.maxHP, window.char.hp + item.v);
+      addLog(`Usas ${item.n} y recuperas ${item.v} HP.`);
+    } else if (item.e === 'cure') {
+      window.char.conditions = window.char.conditions.filter(c => c !== 'poison');
+      addLog(`Usas ${item.n} y curas el veneno.`);
+    }
+    
+    window.char.inv.splice(index, 1);
+    closeCombatInventory();
+    setTimeout(() => monsterAttack(), 800);
+  };
+  
+  // Equipment system
+  function calculateAC() {
+    let ac = window.char.cls.a;
+    if (window.char.equipped.armor) ac += window.char.equipped.armor.v;
+    if (window.char.equipped.boots && window.char.equipped.boots.desc.includes('esquiva')) ac += 1;
+    return ac;
+  }
+  
+  function calculateAttack() {
+    let attack = window.char.stats.str;
+    if (window.char.equipped.weapon) attack += window.char.equipped.weapon.v;
+    return attack;
+  }
+  
+  // Merchant encounter
+  function renderMerchantEncounter(encounter) {
+    const availableItems = generateMerchantStock();
     
     const g = document.getElementById('game');
     g.innerHTML = `
-      <div class='section rest-section'>
-        <h2>🏕️ ${encounter.title}</h2>
+      <div class='section merchant-section'>
+        <h2>🏪 ${encounter.title}</h2>
         <p>${encounter.desc}</p>
-        <p class='heal-text'>Recuperas ${heal} puntos de vida.</p>
-        <div class='char-status'>
-          HP: ${window.char.hp}/${window.char.maxHP}
+        <p class='gold-display'>Oro disponible: <strong>${window.char.gold}</strong></p>
+        
+        <div class='merchant-stock'>
+          ${availableItems.map((item, i) => `
+            <div class='merchant-item ${item.r}'>
+              <div class='item-info'>
+                <strong>${item.n}</strong>
+                <p>${item.desc}</p>
+                <div class='item-stats'>
+                  <span class='price'>${item.p} oro</span>
+                  <span class='rarity'>${item.r}</span>
+                </div>
+              </div>
+              <button onclick='buyItem(${i})' class='buy-btn' 
+                ${window.char.gold < item.p ? 'disabled' : ''}>
+                Comprar
+              </button>
+            </div>
+          `).join('')}
         </div>
-        <button onclick='nextEncounter()' class='rest-btn'>Continuar Descansado</button>
+        
+        <div class='merchant-actions'>
+          <button onclick='showEquipment()' class='merchant-btn'>🎒 Ver Equipo</button>
+          <button onclick='nextEncounter()' class='merchant-btn'>Continuar</button>
+        </div>
       </div>
     `;
+    
+    window.merchantStock = availableItems;
   }
   
-  // Enhanced combat system
+  function generateMerchantStock() {
+    const stock = [];
+    const level = Math.min(Math.floor(gameState.currentEncounter / 3) + 1, 5);
+    
+    // Always include consumables
+    stock.push(ITEMS.find(i => i.n === 'Poción Menor'));
+    stock.push(ITEMS.find(i => i.n === 'Poción Mayor'));
+    
+    // Add random equipment based on level
+    const equipment = ITEMS.filter(i => i.slot && i.r !== 'legendary');
+    for (let i = 0; i < 3; i++) {
+      const randomItem = equipment[Math.floor(Math.random() * equipment.length)];
+      if (!stock.includes(randomItem)) {
+        stock.push(randomItem);
+      }
+    }
+    
+    return stock;
+  }
+  
+  window.buyItem = function(index) {
+    const item = window.merchantStock[index];
+    if (window.char.gold >= item.p) {
+      window.char.gold -= item.p;
+      window.char.inv.push(item);
+      addLog(`Compras ${item.n} por ${item.p} oro.`);
+      
+      // Update display
+      document.querySelector('.gold-display strong').textContent = window.char.gold;
+      document.querySelectorAll('.buy-btn')[index].disabled = true;
+      document.querySelectorAll('.buy-btn')[index].textContent = 'Comprado';
+    }
+  };
+  
+  // Equipment management
+  window.showEquipment = function() {
+    const g = document.getElementById('game');
+    g.innerHTML += `
+      <div class='equipment-overlay'>
+        <div class='equipment-panel'>
+          <h3>Equipo y Inventario</h3>
+          
+          <div class='equipment-slots'>
+            <h4>Equipado:</h4>
+            ${Object.entries(window.char.equipped).map(([slot, item]) => `
+              <div class='equip-slot'>
+                <strong>${slot}:</strong> 
+                ${item ? `${item.n} (+${item.v})` : 'Vacío'}
+                ${item ? `<button onclick='unequipItem("${slot}")' class='unequip-btn'>Desequipar</button>` : ''}
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class='inventory-items'>
+            <h4>Inventario:</h4>
+            ${window.char.inv.map((item, i) => `
+              <div class='inv-item ${item.r}'>
+                <strong>${item.n}</strong> - ${item.desc}
+                ${item.slot ? `<button onclick='equipItem(${i})' class='equip-btn'>Equipar</button>` : ''}
+              </div>
+            `).join('')}
+          </div>
+          
+          <button onclick='closeEquipment()' class='close-btn'>Cerrar</button>
+        </div>
+      </div>
+    `;
+  };
+  
+  window.equipItem = function(index) {
+    const item = window.char.inv[index];
+    const slot = item.slot;
+    
+    // Unequip current item if any
+    if (window.char.equipped[slot]) {
+      window.char.inv.push(window.char.equipped[slot]);
+    }
+    
+    // Equip new item
+    window.char.equipped[slot] = item;
+    window.char.inv.splice(index, 1);
+    
+    addLog(`Equipas ${item.n}.`);
+    closeEquipment();
+    showEquipment();
+  };
+  
+  window.unequipItem = function(slot) {
+    const item = window.char.equipped[slot];
+    window.char.inv.push(item);
+    window.char.equipped[slot] = null;
+    
+    addLog(`Desequipas ${item.n}.`);
+    closeEquipment();
+    showEquipment();
+  };
+  
+  window.closeEquipment = function() {
+    document.querySelector('.equipment-overlay').remove();
+  };
+  
+  // Special abilities
+  window.useRage = function() {
+    if (window.char.abilities.rage > 0) {
+      window.char.abilities.rage--;
+      window.char.conditions.push({name: 'rage', turns: 3, bonus: 3});
+      addLog('¡Entras en FURIA! +3 daño por 3 turnos.');
+      setTimeout(() => monsterAttack(), 800);
+    }
+  };
+  
+  window.castMagicMissile = function() {
+    if (window.char.abilities.spells > 0) {
+      window.char.abilities.spells--;
+      const damage = 12 + window.char.stats.int + window.char.lvl;
+      window.currentMonster.h = Math.max(0, window.currentMonster.h - damage);
+      addLog(`¡Lanzas Misil Mágico e infliges ${damage} de daño certero!`);
+      
+      if (window.currentMonster.h <= 0) {
+        handleCombatVictory();
+        return;
+      }
+      setTimeout(() => monsterAttack(), 800);
+    }
+  };
+  
+  window.sneakAttack = function() {
+    if (window.char.abilities.sneak > 0) {
+      window.char.abilities.sneak--;
+      const d20 = Math.floor(Math.random() * 20) + 1;
+      const attackRoll = d20 + window.char.stats.dex + 2; // Sneak bonus
+      
+      if (attackRoll >= window.currentMonster.a) {
+        let damage = calculateAttack() + Math.floor(Math.random() * 8) + window.char.lvl * 2;
+        window.currentMonster.h = Math.max(0, window.currentMonster.h - damage);
+        addLog(`¡Ataque furtivo! Infliges ${damage} de daño desde las sombras.`);
+        
+        if (window.currentMonster.h <= 0) {
+          handleCombatVictory();
+          return;
+        }
+      } else {
+        addLog('Tu ataque furtivo falla.');
+      }
+      setTimeout(() => monsterAttack(), 800);
+    }
+  };
+  
+  function addLog(message) {
+    window.char.log = window.char.log || [];
+    window.char.log.push(message);
+    if (window.char.log.length > 8) {
+      window.char.log = window.char.log.slice(-6);
+    }
+  }
+  
+  function renderConditions(conditions) {
+    if (!conditions || conditions.length === 0) return '';
+    return conditions.map(c => `<span class='condition ${c.name}'>${c.name} (${c.turns || '∞'})</span>`).join(' ');
+  }
+  
+  // Combat mechanics improvements
   window.performAttack = function() {
     const char = window.char;
     const monster = window.currentMonster;
     
     const d20 = Math.floor(Math.random() * 20) + 1;
-    const attackRoll = d20 + (char.stats.str || 0);
+    const attackRoll = d20 + calculateAttack() + (char.equipped.weapon?.precision || 0);
     
-    if (attackRoll >= monster.a || d20 === 20) { // Natural 20 always hits
-      let damage = (char.stats.str || 0) + Math.floor(Math.random() * 8) + 1;
+    // Critical hit system (natural 20 or high roll)
+    const isCritical = d20 === 20 || (d20 >= 18 && char.cls.n === 'Pícaro');
+    
+    if (attackRoll >= monster.a || isCritical) {
+      let damage = calculateAttack() + Math.floor(Math.random() * 8) + 1;
       
-      // Class-specific bonuses
-      if (char.cls.n === 'Bárbaro') damage += 2;
-      if (char.cls.n === 'Monje' && d20 >= 18) damage *= 1.5; // Critical hit
+      // Apply rage bonus
+      const rageBonus = char.conditions.find(c => c.name === 'rage')?.bonus || 0;
+      damage += rageBonus;
       
-      // Apply weapon bonuses
-      char.inv.forEach(item => {
-        if (item.e === 'weapon') damage += item.v;
-      });
+      // Critical hit doubles damage
+      if (isCritical) {
+        damage *= 2;
+        addLog(`¡CRÍTICO! Daño duplicado.`);
+      }
       
-      monster.h = Math.max(0, monster.h - Math.floor(damage));
-      addLog(`¡Atacas e infliges ${Math.floor(damage)} de daño! (${d20})`);
+      // Special weapon effects
+      if (char.equipped.weapon?.n === 'Martillo de Guerra' && Math.random() < 0.3) {
+        monster.conditions.push({name: 'stun', turns: 1});
+        addLog('¡El martillo aturde al enemigo!');
+      }
+      
+      if (char.equipped.weapon?.n === 'Hoja Dracónica') {
+        const fireDamage = 5;
+        damage += fireDamage;
+        addLog(`¡Daño de fuego adicional: ${fireDamage}!`);
+      }
+      
+      monster.h = Math.max(0, monster.h - damage);
+      addLog(`¡Atacas e infliges ${damage} de daño! (${d20}+${calculateAttack()})`);
       
       if (monster.h <= 0) {
         handleCombatVictory();
         return;
       }
     } else {
-      addLog(`¡Fallas el ataque! (${d20} vs AC ${monster.a})`);
+      addLog(`¡Fallas el ataque! (${d20}+${calculateAttack()} vs AC ${monster.a})`);
     }
     
     setTimeout(() => monsterAttack(), 800);
   };
-  
-  window.useHealingItem = function() {
-    const healingItems = window.char.inv.filter(item => item.e === 'heal');
-    if (healingItems.length === 0) {
-      addLog('No tienes pociones de curación.');
-      return;
-    }
-    
-    const item = healingItems[0];
-    const healAmount = item.v;
-    window.char.hp = Math.min(window.char.maxHP, window.char.hp + healAmount);
-    
-    // Remove the used item
-    const itemIndex = window.char.inv.findIndex(i => i.e === 'heal');
-    window.char.inv.splice(itemIndex, 1);
-    
-    addLog(`Usas ${item.n} y recuperas ${healAmount} HP.`);
+
+  // Defend action implementation
+  window.defendAction = function() {
+    char.conditions.push({name: 'defending', turns: 1, acBonus: 3});
+    addLog('Te preparas para defenderte. +3 AC hasta tu próximo turno.');
     setTimeout(() => monsterAttack(), 800);
   };
-  
-  window.castSpell = function() {
-    if (window.char.cls.n !== 'Mago') return;
-    
-    const damage = 8 + window.char.lvl + (window.char.stats.int || 0);
-    window.currentMonster.h = Math.max(0, window.currentMonster.h - damage);
-    addLog(`¡Lanzas Misil Mágico e infliges ${damage} de daño!`);
-    
-    if (window.currentMonster.h <= 0) {
-      handleCombatVictory();
-      return;
-    }
-    
-    setTimeout(() => monsterAttack(), 800);
-  };
-  
+
+  // Enhanced divine heal with scaling
   window.divineHeal = function() {
-    if (window.char.cls.n !== 'Clérigo') return;
-    
-    const healAmount = 12 + window.char.lvl;
-    window.char.hp = Math.min(window.char.maxHP, window.char.hp + healAmount);
-    addLog(`¡Canalizas energía divina y recuperas ${healAmount} HP!`);
-    
-    setTimeout(() => monsterAttack(), 800);
+    if (window.char.abilities.heals > 0) {
+      window.char.abilities.heals--;
+      const healAmount = 15 + window.char.lvl * 2 + (window.char.stats.wis * 2);
+      window.char.hp = Math.min(window.char.maxHP, window.char.hp + healAmount);
+      
+      // Bonus: remove one negative condition
+      const negConditions = window.char.conditions.filter(c => ['poison', 'curse', 'weakness'].includes(c.name));
+      if (negConditions.length > 0) {
+        const removed = negConditions[0];
+        window.char.conditions = window.char.conditions.filter(c => c !== removed);
+        addLog(`¡La luz divina purifica ${removed.name}!`);
+      }
+      
+      addLog(`¡Curación divina restaura ${healAmount} HP!`);
+      setTimeout(() => monsterAttack(), 800);
+    }
   };
-  
-  function countHealingItems() {
-    return window.char.inv.filter(item => item.e === 'heal').length;
-  }
-  
+
+  // Monster AI improvements
   function monsterAttack() {
     const char = window.char;
     const monster = window.currentMonster;
     
+    // Check if monster is stunned
+    if (monster.conditions.find(c => c.name === 'stun')) {
+      monster.conditions = monster.conditions.filter(c => c.name !== 'stun');
+      addLog(`${monster.n} está aturdido y pierde su turno.`);
+      updateConditions();
+      startStoryEncounter();
+      return;
+    }
+    
     const d20 = Math.floor(Math.random() * 20) + 1;
     const attackRoll = d20 + Math.floor(monster.at / 2);
+    const currentAC = calculateAC() + (char.conditions.find(c => c.name === 'defending')?.acBonus || 0);
     
-    if (attackRoll >= char.ac || d20 === 20) {
+    if (attackRoll >= currentAC || d20 === 20) {
       let damage = monster.at + Math.floor(Math.random() * 6);
       
-      // Apply armor bonuses
-      char.inv.forEach(item => {
-        if (item.e === 'armor') damage = Math.max(1, damage - item.v);
-      });
+      // Apply armor reduction
+      if (char.equipped.armor) {
+        const reduction = Math.floor(char.equipped.armor.v / 2);
+        damage = Math.max(1, damage - reduction);
+      }
+      
+      // Monster special attacks based on type
+      if (monster.n.includes('Dragón') && Math.random() < 0.3) {
+        damage += 10;
+        addLog(`¡${monster.n} usa aliento de fuego!`);
+      }
+      
+      if (monster.n.includes('Liche') && Math.random() < 0.2) {
+        char.conditions.push({name: 'curse', turns: 3, debuff: -2});
+        addLog(`¡${monster.n} te maldice!`);
+      }
       
       char.hp = Math.max(0, char.hp - damage);
-      addLog(`${monster.n} te ataca e inflige ${damage} de daño.`);
+      addLog(`${monster.n} te ataca e inflige ${damage} de daño. (${d20}+${Math.floor(monster.at/2)} vs AC ${currentAC})`);
       
       if (char.hp <= 0) {
         handleGameOver();
         return;
       }
     } else {
-      addLog(`${monster.n} falla su ataque. (${d20})`);
+      addLog(`${monster.n} falla su ataque. (${d20}+${Math.floor(monster.at/2)} vs AC ${currentAC})`);
     }
     
-    // Re-render combat
+    updateConditions();
     startStoryEncounter();
   }
-  
-  function handleCombatVictory() {
-    const monster = window.currentMonster;
-    const xpGain = Math.round(monster.c * 25 + 10);
-    const goldGain = Math.round(monster.c * 15 + Math.random() * 10);
+
+  // Condition management system
+  function updateConditions() {
+    // Update player conditions
+    window.char.conditions = window.char.conditions.map(c => {
+      if (c.turns) c.turns--;
+      return c;
+    }).filter(c => !c.turns || c.turns > 0);
     
-    window.char.xp += xpGain;
-    window.char.gold += goldGain;
+    // Update monster conditions
+    if (window.currentMonster) {
+      window.currentMonster.conditions = window.currentMonster.conditions.map(c => {
+        if (c.turns) c.turns--;
+        return c;
+      }).filter(c => !c.turns || c.turns > 0);
+    }
+  }
+
+  // Treasure encounter implementation
+  function renderTreasureEncounter(encounter) {
+    const g = document.getElementById('game');
+    const treasures = generateTreasureRewards();
     
-    addLog(`¡Victoria! +${xpGain} XP, +${goldGain} oro`);
+    g.innerHTML = `
+      <div class='section treasure-section'>
+        <h2>💰 ${encounter.title}</h2>
+        <p>${encounter.desc}</p>
+        <div class='treasure-rewards'>
+          <h3>¡Tesoros encontrados!</h3>
+          ${treasures.map((reward, i) => `
+            <div class='treasure-item ${reward.type}'>
+              <strong>${reward.name}</strong>
+              <p>${reward.desc}</p>
+              <button onclick='takeTreasure(${i})' class='treasure-btn'>Tomar</button>
+            </div>
+          `).join('')}
+        </div>
+        <div class='treasure-choice'>
+          <p><em>Puedes elegir solo uno. ¡Elige sabiamente!</em></p>
+        </div>
+      </div>
+    `;
     
-    // Level up check
-    if (window.char.xp >= window.char.xpNext) {
-      levelUp();
+    window.treasureRewards = treasures;
+  }
+
+  function generateTreasureRewards() {
+    const level = Math.floor(gameState.currentEncounter / 4) + 1;
+    const rewards = [];
+    
+    // Gold reward
+    const goldAmount = (50 + level * 25) + Math.floor(Math.random() * 50);
+    rewards.push({
+      type: 'gold',
+      name: `${goldAmount} Monedas de Oro`,
+      desc: 'Oro puro que brilla bajo la luz',
+      value: goldAmount
+    });
+    
+    // Rare item
+    const rareItems = ITEMS.filter(i => i.r === 'rare' || i.r === 'uncommon');
+    const randomItem = rareItems[Math.floor(Math.random() * rareItems.length)];
+    rewards.push({
+      type: 'item',
+      name: randomItem.n,
+      desc: randomItem.desc,
+      item: randomItem
+    });
+    
+    // Stat boost
+    const stats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+    const randomStat = stats[Math.floor(Math.random() * stats.length)];
+    rewards.push({
+      type: 'stat',
+      name: `Cristal de ${randomStat.toUpperCase()}`,
+      desc: `Aumenta permanentemente tu ${randomStat.toUpperCase()} en +1`,
+      stat: randomStat
+    });
+    
+    return rewards;
+  }
+
+  window.takeTreasure = function(index) {
+    const reward = window.treasureRewards[index];
+    
+    switch(reward.type) {
+      case 'gold':
+        window.char.gold += reward.value;
+        addLog(`¡Obtienes ${reward.value} de oro!`);
+        break;
+      case 'item':
+        window.char.inv.push(reward.item);
+        addLog(`¡Obtienes ${reward.item.n}!`);
+        break;
+      case 'stat':
+        window.char.stats[reward.stat]++;
+        addLog(`¡Tu ${reward.stat.toUpperCase()} aumenta permanentemente!`);
+        break;
     }
     
-    // Random item drop
-    if (Math.random() < 0.3) {
-      const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
-      window.char.inv.push(item);
-      addLog(`¡Encuentras: ${item.n}!`);
+    setTimeout(nextEncounter, 1500);
+  };
+
+  // Forge encounter for item enhancement
+  function renderForgeEncounter(encounter) {
+    const upgradeable = window.char.inv.filter(item => item.slot && !item.enhanced);
+    
+    const g = document.getElementById('game');
+    g.innerHTML = `
+      <div class='section forge-section'>
+        <h2>🔨 ${encounter.title}</h2>
+        <p>${encounter.desc}</p>
+        <p class='forge-cost'>Costo de mejora: 100 oro por item</p>
+        <p>Oro disponible: <strong>${window.char.gold}</strong></p>
+        
+        ${upgradeable.length > 0 ? `
+          <div class='forge-items'>
+            <h3>Items que puedes mejorar:</h3>
+            ${upgradeable.map((item, i) => `
+              <div class='forge-item ${item.r}'>
+                <div class='item-details'>
+                  <strong>${item.n}</strong>
+                  <p>Actual: ${item.desc}</p>
+                  <p class='enhancement'>Mejorado: +${item.v + 2} ${item.e} (era +${item.v})</p>
+                </div>
+                <button onclick='enhanceItem(${window.char.inv.indexOf(item)})' 
+                  class='enhance-btn' ${window.char.gold < 100 ? 'disabled' : ''}>
+                  Mejorar (100 oro)
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        ` : '<p>No tienes items que puedan ser mejorados.</p>'}
+        
+        <button onclick='nextEncounter()' class='forge-btn'>Continuar sin mejorar</button>
+      </div>
+    `;
+  }
+
+  window.enhanceItem = function(index) {
+    if (window.char.gold >= 100) {
+      const item = window.char.inv[index];
+      window.char.gold -= 100;
+      
+      item.v += 2;
+      item.enhanced = true;
+      item.n = item.n + ' +';
+      item.desc = item.desc.replace(/\+\d+/, `+${item.v}`);
+      
+      addLog(`¡${item.n} ha sido mejorado! Ahora otorga +${item.v} ${item.e}`);
+      
+      // Re-render forge
+      renderForgeEncounter({title: 'Forja Mágica', desc: 'La forja brilla con poder arcano.'});
     }
+  };
+
+  // Story encounter with choices
+  function renderStoryEncounter(encounter) {
+    const g = document.getElementById('game');
     
-    setTimeout(nextEncounter, 2000);
+    // Add story choices for more interactivity
+    const hasChoices = Math.random() < 0.4; // 40% chance for choice events
+    
+    if (hasChoices) {
+      const choices = generateStoryChoices();
+      g.innerHTML = `
+        <div class='section story-section'>
+          <h2>📜 ${encounter.title}</h2>
+          <p class='story-text'>${encounter.desc}</p>
+          <div class='story-choices'>
+            ${choices.map((choice, i) => `
+              <button onclick='makeStoryChoice(${i})' class='choice-btn'>
+                ${choice.text}
+              </button>
+            `).join('')}
+          </div>
+          <div class='char-status'>
+            <strong>${window.char.name}</strong> | Nivel ${window.char.lvl} | 
+            HP: ${window.char.hp}/${window.char.maxHP} | Oro: ${window.char.gold}
+          </div>
+        </div>
+      `;
+      window.storyChoices = choices;
+    } else {
+      g.innerHTML = `
+        <div class='section story-section'>
+          <h2>📜 ${encounter.title}</h2>
+          <p class='story-text'>${encounter.desc}</p>
+          <div class='char-status'>
+            <strong>${window.char.name}</strong> | Nivel ${window.char.lvl} | 
+            HP: ${window.char.hp}/${window.char.maxHP} | Oro: ${window.char.gold}
+          </div>
+          <button onclick='nextEncounter()' class='story-btn'>Continuar Aventura</button>
+        </div>
+      `;
+    }
   }
-  
-  function levelUp() {
-    window.char.lvl++;
-    window.char.xp = 0;
-    window.char.xpNext = Math.round(window.char.xpNext * 1.5);
+
+  function generateStoryChoices() {
+    const choices = [
+      {
+        text: "🗡️ Actuar con valentía",
+        effect: () => {
+          if (Math.random() < 0.7) {
+            const goldGain = 15 + Math.random() * 10;
+            window.char.gold += Math.floor(goldGain);
+            addLog(`Tu valentía es recompensada con ${Math.floor(goldGain)} oro.`);
+          } else {
+            const damage = 5;
+            window.char.hp = Math.max(1, window.char.hp - damage);
+            addLog(`Tu imprudencia te cuesta ${damage} HP.`);
+          }
+        }
+      },
+      {
+        text: "🧠 Usar tu intelecto",
+        effect: () => {
+          const intCheck = Math.random() * 20 + window.char.stats.int;
+          if (intCheck >= 15) {
+            window.char.xp += 10;
+            addLog('Tu sabiduría te otorga 10 XP adicional.');
+          } else {
+            addLog('Tu análisis no revela nada útil.');
+          }
+        }
+      },
+      {
+        text: "🤝 Ser diplomático",
+        effect: () => {
+          const chaCheck = Math.random() * 20 + window.char.stats.cha;
+          if (chaCheck >= 12) {
+            const heal = 10;
+            window.char.hp = Math.min(window.char.maxHP, window.char.hp + heal);
+            addLog(`Tu carisma te ayuda a encontrar ayuda. Recuperas ${heal} HP.`);
+          } else {
+            addLog('Tus palabras no tienen el efecto deseado.');
+          }
+        }
+      }
+    ];
     
-    const hpGain = Math.floor(window.char.cls.h / 2) + 3;
-    window.char.maxHP += hpGain;
-    window.char.hp = window.char.maxHP; // Full heal on level up
-    
-    // Stat improvement
-    const statNames = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
-    const randomStat = statNames[Math.floor(Math.random() * statNames.length)];
-    window.char.stats[randomStat] = (window.char.stats[randomStat] || 0) + 1;
-    
-    addLog(`¡NIVEL ${window.char.lvl}! +${hpGain} HP, +1 ${randomStat.toUpperCase()}`);
+    return choices.slice(0, 2 + Math.floor(Math.random() * 2)); // 2-3 choices
   }
-  
-  function renderBossCombat(encounter) {
+
+  window.makeStoryChoice = function(index) {
+    const choice = window.storyChoices[index];
+    choice.effect();
+    setTimeout(nextEncounter, 1500);
+  };
+
+  // Boss encounter with phases
+  function renderBossEncounter(encounter) {
+    window.currentMonster = {
+      ...encounter.monster,
+      maxHP: encounter.monster.h,
+      conditions: [],
+      isBoss: true,
+      phase: 1,
+      maxPhases: 3
+    };
+    
     const g = document.getElementById('game');
     g.innerHTML = `
       <div class='section boss-section'>
         <h2>🐉 ¡JEFE FINAL!</h2>
+        <div class='boss-phase'>Fase ${window.currentMonster.phase} de ${window.currentMonster.maxPhases}</div>
         <p class='boss-desc'>${encounter.desc}</p>
+        
         <div class='boss-combat-status'>
           <div class='hero-status'>
-            <strong>${window.char.name}</strong><br>
-            Nivel ${window.char.lvl}<br>
-            HP: ${window.char.hp}/${window.char.maxHP}
+            <h3>${window.char.name} (Nv.${window.char.lvl})</h3>
+            <div class='hp-bar'>
+              <div class='hp-fill' style='width: ${(window.char.hp/window.char.maxHP)*100}%'></div>
+              <span class='hp-text'>${window.char.hp}/${window.char.maxHP} HP</span>
+            </div>
+            <p>AC: ${calculateAC()} | ATK: ${calculateAttack()}</p>
           </div>
+          
           <div class='boss-status'>
-            <strong>${window.currentMonster.n}</strong><br>
-            HP: ${window.currentMonster.h}/${window.currentMonster.maxHP}
+            <h3>${window.currentMonster.n}</h3>
+            <div class='boss-hp-bar'>
+              <div class='hp-fill boss' style='width: ${(window.currentMonster.h/window.currentMonster.maxHP)*100}%'></div>
+              <span class='hp-text'>${window.currentMonster.h}/${window.currentMonster.maxHP} HP</span>
+            </div>
+            <p>AC: ${window.currentMonster.a} | Fase: ${window.currentMonster.phase}</p>
           </div>
         </div>
-        <div class='combat-log'>${(window.char.log || []).slice(-3).join('<br>')}</div>
-        <div class='combat-actions'>
-          <button onclick='performAttack()' class='boss-btn'>⚔️ Atacar</button>
-          <button onclick='useHealingItem()' class='boss-btn'>🧪 Curar (${countHealingItems()})</button>
-          ${window.char.cls.n === 'Mago' ? '<button onclick="castSpell()" class="boss-btn">✨ Hechizo</button>' : ''}
-          ${window.char.cls.n === 'Clérigo' ? '<button onclick="divineHeal()" class="boss-btn">🙏 Curación Divina</button>' : ''}
+        
+        <div class='combat-log'>${(window.char.log || []).slice(-4).join('<br>')}</div>
+        
+        <div class='boss-actions'>
+          ${renderBossActions()}
         </div>
       </div>
     `;
   }
-  
-  function showVictoryScreen() {
+
+  function renderBossActions() {
+    return `
+      <div class='action-grid'>
+        <button onclick='performBossAttack()' class='boss-action primary'>⚔️ Ataque Total</button>
+        <button onclick='showInventoryInCombat()' class='boss-action'>🎒 Inventario</button>
+        <button onclick='defendAction()' class='boss-action'>🛡️ Defenderse</button>
+        ${renderSpecialActions()}
+      </div>
+    `;
+  }
+
+  window.performBossAttack = function() {
+    // Enhanced attack for boss fights
+    const d20 = Math.floor(Math.random() * 20) + 1;
+    const attackRoll = d20 + calculateAttack();
+    const isCritical = d20 === 20;
+    
+    if (attackRoll >= window.currentMonster.a || isCritical) {
+      let damage = calculateAttack() + Math.floor(Math.random() * 10) + 3; // Higher damage vs boss
+      
+      if (isCritical) damage *= 2;
+      
+      // Apply all bonuses
+      const rageBonus = window.char.conditions.find(c => c.name === 'rage')?.bonus || 0;
+      damage += rageBonus;
+      
+      window.currentMonster.h = Math.max(0, window.currentMonster.h - damage);
+      addLog(`¡Golpeas al jefe con ${damage} de daño!${isCritical ? ' ¡CRÍTICO!' : ''}`);
+      
+      // Check for phase transition
+      const healthPercentage = window.currentMonster.h / window.currentMonster.maxHP;
+      if (healthPercentage <= 0.66 && window.currentMonster.phase === 1) {
+        window.currentMonster.phase = 2;
+        addLog('¡El jefe entra en su segunda fase! Se vuelve más peligroso.');
+        window.currentMonster.at += 3;
+      } else if (healthPercentage <= 0.33 && window.currentMonster.phase === 2) {
+        window.currentMonster.phase = 3;
+        addLog('¡FASE FINAL! El jefe desata todo su poder.');
+        window.currentMonster.at += 5;
+      }
+      
+      if (window.currentMonster.h <= 0) {
+        handleBossVictory();
+        return;
+      }
+    } else {
+      addLog(`Tu ataque falla contra el poderoso jefe.`);
+    }
+    
+    setTimeout(() => bossAttack(), 1000);
+  };
+
+  function bossAttack() {
+    const monster = window.currentMonster;
+    const d20 = Math.floor(Math.random() * 20) + 1;
+    
+    // Boss has enhanced attacks based on phase
+    let attackBonus = Math.floor(monster.at / 2) + (monster.phase - 1) * 2;
+    const attackRoll = d20 + attackBonus;
+    const currentAC = calculateAC() + (window.char.conditions.find(c => c.name === 'defending')?.acBonus || 0);
+    
+    if (attackRoll >= currentAC || d20 === 20) {
+      let damage = monster.at + Math.floor(Math.random() * 8) + monster.phase * 2;
+      
+      // Phase-specific attacks
+      if (monster.phase >= 2 && Math.random() < 0.4) {
+        damage += 8;
+        addLog(`¡${monster.n} usa un ataque devastador!`);
+      }
+      
+      if (monster.phase === 3 && Math.random() < 0.3) {
+        window.char.conditions.push({name: 'curse', turns: 2});
+        addLog(`¡${monster.n} te maldice con magia oscura!`);
+      }
+      
+      window.char.hp = Math.max(0, window.char.hp - damage);
+      addLog(`${monster.n} te ataca con furia e inflige ${damage} de daño.`);
+      
+      if (window.char.hp <= 0) {
+        handleGameOver();
+        return;
+      }
+    } else {
+      addLog(`${monster.n} falla su poderoso ataque.`);
+    }
+    
+    updateConditions();
+    renderBossEncounter({monster: monster, desc: `El ${monster.n} ruge con poder ancestral.`});
+  }
+
+  function handleBossVictory() {
+    const xpGain = 100 + window.char.lvl * 10;
+    const goldGain = 200 + Math.floor(Math.random() * 100);
+    
+    window.char.xp += xpGain;
+    window.char.gold += goldGain;
+    
+    // Guaranteed legendary item drop
+    const legendaryItems = ITEMS.filter(i => i.r === 'legendary');
+    const legendaryReward = legendaryItems[Math.floor(Math.random() * legendaryItems.length)];
+    window.char.inv.push(legendaryReward);
+    
     const g = document.getElementById('game');
     g.innerHTML = `
-      <div class='section victory-section'>
+      <div class='section boss-victory'>
         <h2>🏆 ¡VICTORIA ÉPICA! 🏆</h2>
-        <p>Has completado tu aventura heroicamente!</p>
-        <div class='final-stats'>
-          <h3>Estadísticas Finales:</h3>
-          <p><strong>Héroe:</strong> ${window.char.name}</p>
-          <p><strong>Nivel Alcanzado:</strong> ${window.char.lvl}</p>
-          <p><strong>Oro Obtenido:</strong> ${window.char.gold}</p>
-          <p><strong>Items Encontrados:</strong> ${window.char.inv.length}</p>
+        <p>Has derrotado al temible jefe final en una batalla legendaria.</p>
+        <div class='victory-rewards'>
+          <h3>Recompensas Épicas:</h3>
+          <p>📈 <strong>+${xpGain} XP</strong></p>
+          <p>💰 <strong>+${goldGain} oro</strong></p>
+          <p>⭐ <strong>Item Legendario:</strong> ${legendaryReward.n}</p>
         </div>
-        <p class='victory-text'>El dragón ha sido derrotado y el tesoro ancestral es tuyo. Tu nombre será recordado por generaciones como el héroe que salvó la tierra.</p>
-        <button onclick='location.reload()' class='victory-btn'>Nueva Aventura</button>
+        <button onclick='nextEncounter()' class='victory-btn epic'>Continuar la Leyenda</button>
+      </div>
+    `;
+    
+    // Auto level up check
+    setTimeout(() => {
+      while(window.char.xp >= window.char.xpNext) {
+        levelUpCharacter();
+      }
+    }, 1000);
+  }
+
+  function levelUpCharacter() {
+    window.char.lvl++;
+    window.char.xp -= window.char.xpNext;
+    window.char.xpNext = Math.round(window.char.xpNext * 1.5);
+    
+    const hpGain = Math.floor(window.char.cls.h / 2) + 4;
+    window.char.maxHP += hpGain;
+    window.char.hp = window.char.maxHP; // Full heal on level up
+    
+    // Player chooses stat to improve
+    showStatSelection(hpGain);
+  }
+
+  function showStatSelection(hpGain) {
+    const g = document.getElementById('game');
+    g.innerHTML += `
+      <div class='levelup-overlay'>
+        <div class='levelup-panel'>
+          <h2>🎉 ¡NIVEL ${window.char.lvl}! 🎉</h2>
+          <p>+${hpGain} HP máximo (curación completa)</p>
+          <p>Elige un atributo para mejorar:</p>
+          <div class='stat-choices'>
+            ${['str', 'dex', 'con', 'int', 'wis', 'cha'].map(stat => `
+              <button onclick='improveStat("${stat}")' class='stat-btn'>
+                ${stat.toUpperCase()}: ${window.char.stats[stat]} → ${window.char.stats[stat] + 1}
+              </button>
+            `).join('')}
+          </div>
+        </div>
       </div>
     `;
   }
-  
-  function handleGameOver() {
+
+  window.improveStat = function(stat) {
+    window.char.stats[stat]++;
+    addLog(`¡NIVEL ${window.char.lvl}! ${stat.toUpperCase()} mejorado a ${window.char.stats[stat]}`);
+    
+    // Restore abilities on level up
+    if (window.char.cls.n === 'Bárbaro') window.char.abilities.rage = Math.min(window.char.abilities.rage + 1, 5);
+    if (window.char.cls.n === 'Mago') window.char.abilities.spells = Math.min(window.char.abilities.spells + 1, 8);
+    if (window.char.cls.n === 'Clérigo') window.char.abilities.heals = Math.min(window.char.abilities.heals + 1, 6);
+    if (window.char.cls.n === 'Pícaro') window.char.abilities.sneak = Math.min(window.char.abilities.sneak + 1, 4);
+    
+    document.querySelector('.levelup-overlay').remove();
+  };
+
+  // Rest encounter with choices
+  function renderRestEncounter(encounter) {
     const g = document.getElementById('game');
     g.innerHTML = `
-      <div class='section gameover-section'>
-        <h2>💀 Game Over</h2>
-        <p>Tu aventura ha llegado a su fin...</p>
-        <div class='death-stats'>
-          <p><strong>Nivel Alcanzado:</strong> ${window.char.lvl}</p>
-          <p><strong>Encuentros Completados:</strong> ${gameState.currentEncounter}</p>
-          <p><strong>Oro Acumulado:</strong> ${window.char.gold}</p>
+      <div class='section rest-section'>
+        <h2>🏕️ ${encounter.title}</h2>
+        <p>${encounter.desc}</p>
+        
+        <div class='rest-options'>
+          <div class='rest-option'>
+            <h4>Descanso Rápido</h4>
+            <p>Recupera 40% HP</p>
+            <button onclick='quickRest()' class='rest-btn'>Descanso Rápido</button>
+          </div>
+          
+          <div class='rest-option'>
+            <h4>Descanso Completo</h4>
+            <p>Recupera 80% HP + restaura 1 habilidad</p>
+            <button onclick='fullRest()' class='rest-btn'>Descanso Completo</button>
+          </div>
+          
+          <div class='rest-option'>
+            <h4>Meditar</h4>
+            <p>Recupera 25% HP + gana 15 XP</p>
+            <button onclick='meditate()' class='rest-btn'>Meditar</button>
+          </div>
         </div>
-        <p>Pero las leyendas nunca mueren. ¡Inténtalo de nuevo!</p>
-        <button onclick='location.reload()' class='retry-btn'>Reintentar</button>
       </div>
     `;
   }
-  
+
+  window.quickRest = function() {
+    const heal = Math.round(window.char.maxHP * 0.4);
+    window.char.hp = Math.min(window.char.maxHP, window.char.hp + heal);
+    addLog(`Descansas rápidamente y recuperas ${heal} HP.`);
+    setTimeout(nextEncounter, 1000);
+  };
+
+  window.fullRest = function() {
+    const heal = Math.round(window.char.maxHP * 0.8);
+    window.char.hp = Math.min(window.char.maxHP, window.char.hp + heal);
+    
+    // Restore one random ability
+    const abilities = Object.keys(window.char.abilities).filter(a => window.char.abilities[a] < getMaxAbility(a));
+    if (abilities.length > 0) {
+      const restored = abilities[Math.floor(Math.random() * abilities.length)];
+      window.char.abilities[restored]++;
+      addLog(`Descansas completamente. Recuperas ${heal} HP y restauras 1 uso de ${restored}.`);
+    } else {
+      addLog(`Descansas completamente y recuperas ${heal} HP.`);
+    }
+    
+    setTimeout(nextEncounter, 1500);
+  };
+
+  window.meditate = function() {
+    const heal = Math.round(window.char.maxHP * 0.25);
+    window.char.hp = Math.min(window.char.maxHP, window.char.hp + heal);
+    window.char.xp += 15;
+    addLog(`Meditas en silencio. Recuperas ${heal} HP y ganas 15 XP de sabiduría.`);
+    setTimeout(nextEncounter, 1000);
+  };
+
+  function getMaxAbility(ability) {
+    const maxes = { rage: 5, spells: 8, heals: 6, sneak: 4 };
+    return maxes[ability] || 3;
+  }
+
   window.nextEncounter = function() {
     gameState.currentEncounter++;
     startStoryEncounter();
   };
-  
-  function addLog(message) {
-    window.char.log = window.char.log || [];
-    window.char.log.push(message);
-    if (window.char.log.length > 6) {
-      window.char.log = window.char.log.slice(-4);
+
+  // Add crafting materials and recipes
+  const MATERIALS = [
+    {n:"Hierro",t:"metal",r:"common",desc:"Material básico para forjar"},
+    {n:"Mithril",t:"metal",r:"rare",desc:"Metal élfico ligero y resistente"},
+    {n:"Gema Arcana",t:"magic",r:"uncommon",desc:"Cristal imbuido con magia"},
+    {n:"Escama Dragón",t:"special",r:"legendary",desc:"Escama de dragón antigua"},
+    {n:"Esencia Sombra",t:"essence",r:"rare",desc:"Poder de las sombras concentrado"}
+  ];
+
+  const RECIPES = [
+    {name:"Espada Forjada",materials:[{n:"Hierro",q:2},{n:"Gema Arcana",q:1}],result:{n:"Espada Mágica",e:"weapon",v:6,r:"rare",desc:"+6 ATK, efecto mágico"}},
+    {name:"Armadura Élfica",materials:[{n:"Mithril",q:3}],result:{n:"Cota Mithril",e:"armor",v:5,r:"rare",desc:"+5 AC, +1 DEX"}},
+    {name:"Amuleto Poder",materials:[{n:"Gema Arcana",q:2},{n:"Esencia Sombra",q:1}],result:{n:"Amuleto Supremo",e:"accessory",v:3,r:"legendary",desc:"+3 a todos los stats"}}
+  ];
+
+  // Enhanced loot system with material drops
+  function rollLootDrop(monster) {
+    const drops = [];
+    
+    // Regular item drop
+    if (Math.random() < 0.3) {
+      const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+      drops.push(item);
+    }
+    
+    // Material drop based on monster type
+    if (Math.random() < 0.4) {
+      let material;
+      if (monster.n.includes('Dragón')) {
+        material = MATERIALS.find(m => m.n === 'Escama Dragón');
+      } else if (monster.n.includes('Golem')) {
+        material = MATERIALS.find(m => m.n === 'Hierro');
+      } else if (monster.n.includes('Liche')) {
+        material = MATERIALS.find(m => m.n === 'Esencia Sombra');
+      } else {
+        material = MATERIALS[Math.floor(Math.random() * 3)]; // Common materials
+      }
+      drops.push(material);
+    }
+    
+    return drops;
+  }
+
+  // Gambling/Casino encounter
+  function renderCasinoEncounter() {
+    const g = document.getElementById('game');
+    g.innerHTML = `
+      <div class='section casino-section'>
+        <h2>🎰 Casino Mágico</h2>
+        <p>Un casino flotante aparece mágicamente. Los dados brillan con poder arcano.</p>
+        <p class='gold-display'>Oro disponible: <strong>${window.char.gold}</strong></p>
+        
+        <div class='casino-games'>
+          <div class='casino-game'>
+            <h4>🎲 Dados del Destino</h4>
+            <p>Apuesta 20 oro - Gana hasta 100 oro</p>
+            <button onclick='playDiceGame()' class='casino-btn' ${window.char.gold < 20 ? 'disabled' : ''}>Jugar (20 oro)</button>
+          </div>
+          
+          <div class='casino-game'>
+            <h4>🃏 Cartas Arcanas</h4>
+            <p>Apuesta 50 oro - Gana item raro o pierde todo</p>
+            <button onclick='playCardGame()' class='casino-btn' ${window.char.gold < 50 ? 'disabled' : ''}>Jugar (50 oro)</button>
+          </div>
+          
+          <div class='casino-game'>
+            <h4>🎰 Tragamonedas Épico</h4>
+            <p>Apuesta 100 oro - Jackpot: item legendario</p>
+            <button onclick='playSlotMachine()' class='casino-btn' ${window.char.gold < 100 ? 'disabled' : ''}>Jugar (100 oro)</button>
+          </div>
+        </div>
+        
+        <button onclick='nextEncounter()' class='casino-btn'>Abandonar Casino</button>
+      </div>
+    `;
+  }
+
+  window.playDiceGame = function() {
+    if (window.char.gold >= 20) {
+      window.char.gold -= 20;
+      const roll1 = Math.floor(Math.random() * 6) + 1;
+      const roll2 = Math.floor(Math.random() * 6) + 1;
+      const total = roll1 + roll2;
+      
+      let winnings = 0;
+      if (total === 12) winnings = 100; // Snake eyes
+      else if (total === 7 || total === 11) winnings = 60; // Lucky sevens
+      else if (total >= 8) winnings = 30; // Decent roll
+      
+      window.char.gold += winnings;
+      addLog(`Dados: ${roll1}+${roll2}=${total}. ${winnings > 0 ? `¡Ganas ${winnings} oro!` : 'Pierdes la apuesta.'}`);
+      
+      setTimeout(() => renderCasinoEncounter(), 1500);
+    }
+  };
+
+  window.playCardGame = function() {
+    if (window.char.gold >= 50) {
+      window.char.gold -= 50;
+      const card = Math.floor(Math.random() * 13) + 1; // 1-13
+      
+      if (card >= 11) { // Jack, Queen, King
+        const rareItems = ITEMS.filter(i => i.r === 'rare');
+        const prize = rareItems[Math.floor(Math.random() * rareItems.length)];
+        window.char.inv.push(prize);
+        addLog(`¡Carta alta! Ganas: ${prize.n}`);
+      } else if (card >= 8) {
+        window.char.gold += 75;
+        addLog(`¡Buena carta! Recuperas 75 oro.`);
+      } else {
+        addLog(`Carta baja (${card}). Pierdes la apuesta.`);
+      }
+      
+      setTimeout(() => renderCasinoEncounter(), 1500);
+    }
+  };
+
+  window.playSlotMachine = function() {
+    if (window.char.gold >= 100) {
+      window.char.gold -= 100;
+      const reel1 = Math.floor(Math.random() * 5);
+      const reel2 = Math.floor(Math.random() * 5);
+      const reel3 = Math.floor(Math.random() * 5);
+      
+      const symbols = ['🍒','🍋','⭐','💎','👑'];
+      
+      if (reel1 === reel2 && reel2 === reel3) {
+        if (reel1 === 4) { // Triple crown - JACKPOT
+          const legendaryItems = ITEMS.filter(i => i.r === 'legendary');
+          const jackpot = legendaryItems[Math.floor(Math.random() * legendaryItems.length)];
+          window.char.inv.push(jackpot);
+          addLog(`¡¡¡JACKPOT!!! ${symbols[reel1]}${symbols[reel2]}${symbols[reel3]} - Ganas: ${jackpot.n}`);
+        } else { // Other triples
+          window.char.gold += 200;
+          addLog(`¡Triple! ${symbols[reel1]}${symbols[reel2]}${symbols[reel3]} - Ganas 200 oro.`);
+        }
+      } else if (reel1 === reel2 || reel2 === reel3 || reel1 === reel3) {
+        window.char.gold += 50;
+        addLog(`¡Par! ${symbols[reel1]}${symbols[reel2]}${symbols[reel3]} - Recuperas 50 oro.`);
+      } else {
+        addLog(`${symbols[reel1]}${symbols[reel2]}${symbols[reel3]} - Sin premio.`);
+      }
+      
+      setTimeout(() => renderCasinoEncounter(), 1500);
+    }
+  };
+
+  // Pet/Companion system enhancement
+  const PETS = [
+    {n:"Dragoncito",desc:"Pequeño dragón que ocasionalmente escupe fuego",bonus:"fire_breath",rarity:"legendary"},
+    {n:"Lobo Sombra",desc:"Lobo que aumenta tu sigilo",bonus:"stealth",rarity:"rare"},
+    {n:"Búho Sabio",desc:"Te otorga sabiduría adicional",bonus:"wisdom",rarity:"uncommon"},
+    {n:"Gato de Suerte",desc:"Mejora tus probabilidades de crítico",bonus:"luck",rarity:"common"}
+  ];
+
+  function applyPetBonuses(char) {
+    if (!char.pet) return;
+    
+    switch(char.pet.bonus) {
+      case 'fire_breath':
+        if (Math.random() < 0.15) {
+          const damage = 8;
+          window.currentMonster.h = Math.max(0, window.currentMonster.h - damage);
+          addLog(`¡${char.pet.n} escupe fuego por ${damage} de daño!`);
+          return true; // Pet attacked
+        }
+        break;
+      case 'stealth':
+        char.stats.dex += 1; // Temporary bonus
+        break;
+      case 'wisdom':
+        char.xp += 2; // Small XP bonus per turn
+        break;
+      case 'luck':
+        // Handled in attack calculation
+        break;
+    }
+    return false;
+  }
+
+  // Dungeon events system
+  const RANDOM_EVENTS = [
+    {
+      name: "Tormenta Mágica",
+      desc: "Una tormenta mágica azota el área",
+      effect: () => {
+        if (Math.random() < 0.5) {
+          window.char.hp = Math.max(1, window.char.hp - 8);
+          addLog('La tormenta te daña por 8 HP.');
+        } else {
+          window.char.abilities.spells = Math.min(window.char.abilities.spells + 1, 8);
+          addLog('La magia de la tormenta restaura 1 hechizo.');
+        }
+      }
+    },
+    {
+      name: "Encuentro con Fantasma",
+      desc: "Un fantasma aparece y te ofrece un trato",
+      effect: () => {
+        if (window.char.gold >= 30) {
+          window.char.gold -= 30;
+          const heal = 25;
+          window.char.hp = Math.min(window.char.maxHP, window.char.hp + heal);
+          addLog(`Pagas 30 oro al fantasma y recuperas ${heal} HP.`);
+        } else {
+          addLog('El fantasma se va decepcionado por tu pobreza.');
+        }
+      }
+    },
+    {
+      name: "Fuente Mística",
+      desc: "Encuentras una fuente que brilla con magia",
+      effect: () => {
+        const choice = confirm("¿Beber de la fuente mística? (Puede ser beneficioso o peligroso)");
+        if (choice) {
+          if (Math.random() < 0.6) {
+            const statBoost = ['str','dex','con','int','wis','cha'][Math.floor(Math.random()*6)];
+            window.char.stats[statBoost]++;
+            addLog(`¡La fuente mejora tu ${statBoost.toUpperCase()} permanentemente!`);
+          } else {
+            window.char.hp = Math.max(1, window.char.hp - 10);
+            addLog('La fuente estaba maldita. Pierdes 10 HP.');
+          }
+        }
+      }
+    }
+  ];
+
+  // Crafting system integration
+  function renderCraftingEncounter() {
+    window.char.materials = window.char.materials || [];
+    
+    const g = document.getElementById('game');
+    g.innerHTML = `
+      <div class='section crafting-section'>
+        <h2>🔨 Taller de Crafteo</h2>
+        <p>Un maestro artesano te permite crear items únicos.</p>
+        
+        <div class='materials-inventory'>
+          <h4>Materiales disponibles:</h4>
+          ${window.char.materials.length > 0 ? 
+            window.char.materials.map((mat,i) => `<span class='material ${mat.r}'>${mat.n}</span>`).join(' ') 
+            : '<p>No tienes materiales de crafteo.</p>'}
+        </div>
+        
+        <div class='recipes-list'>
+          <h4>Recetas disponibles:</h4>
+          ${RECIPES.map((recipe, i) => `
+            <div class='recipe-card'>
+              <h5>${recipe.name}</h5>
+              <p>Requiere: ${recipe.materials.map(m => `${m.q}x ${m.n}`).join(', ')}</p>
+              <p>Resultado: ${recipe.result.n} (${recipe.result.desc})</p>
+              <button onclick='craftItem(${i})' class='craft-btn' 
+                ${canCraft(recipe) ? '' : 'disabled'}>
+                Craftear
+              </button>
+            </div>
+          `).join('')}
+        </div>
+        
+        <button onclick='nextEncounter()' class='craft-btn'>Salir del taller</button>
+      </div>
+    `;
+  }
+
+  function canCraft(recipe) {
+    return recipe.materials.every(req => {
+      const owned = window.char.materials.filter(m => m.n === req.n).length;
+      return owned >= req.q;
+    });
+  }
+
+  window.craftItem = function(recipeIndex) {
+    const recipe = RECIPES[recipeIndex];
+    if (canCraft(recipe)) {
+      // Remove materials
+      recipe.materials.forEach(req => {
+        for (let i = 0; i < req.q; i++) {
+          const matIndex = window.char.materials.findIndex(m => m.n === req.n);
+          if (matIndex !== -1) {
+            window.char.materials.splice(matIndex, 1);
+          }
+        }
+      });
+      
+      // Add crafted item
+      window.char.inv.push(recipe.result);
+      addLog(`¡Has crafteado: ${recipe.result.n}!`);
+      
+      renderCraftingEncounter(); // Refresh display
+    }
+  };
+
+  // Boss abilities system
+  const BOSS_ABILITIES = {
+    'Señor Dragón': [
+      {
+        name: 'Aliento Devastador',
+        cooldown: 3,
+        effect: (char) => {
+          const damage = 20 + Math.floor(Math.random() * 10);
+          char.hp = Math.max(0, char.hp - damage);
+          addLog(`¡El dragón usa Aliento Devastador por ${damage} de daño!`);
+        }
+      },
+      {
+        name: 'Rugido Aterrador',
+        cooldown: 4,
+        effect: (char) => {
+          char.conditions.push({name: 'fear', turns: 2});
+          addLog('¡El rugido del dragón te aterroriza!');
+        }
+      }
+    ]
+  };
+
+  // Enhanced monster AI with abilities
+  function enhancedMonsterAttack() {
+    const char = window.char;
+    const monster = window.currentMonster;
+    
+    // Boss special abilities
+    if (monster.isBoss && monster.abilities) {
+      const availableAbilities = monster.abilities.filter(a => !a.onCooldown);
+      if (availableAbilities.length > 0 && Math.random() < 0.4) {
+        const ability = availableAbilities[Math.floor(Math.random() * availableAbilities.length)];
+        ability.effect(char);
+        ability.onCooldown = ability.cooldown;
+        
+        // Reduce all cooldowns
+        monster.abilities.forEach(a => {
+          if (a.onCooldown) a.onCooldown--;
+        });
+        
+        if (char.hp <= 0) {
+          handleGameOver();
+          return;
+        }
+        
+        updateConditions();
+        renderBossEncounter({monster: monster, desc: `El ${monster.n} desata su poder.`});
+        return;
+      }
+    }
+    
+    // Regular attack logic...
+    // ...existing monsterAttack code...
+  }
+
+  // Achievement system expansion
+  const ADVANCED_ACHIEVEMENTS = [
+    {id:'rich',req:'gold',val:1000,name:'Millonario',desc:'Acumula 1000 de oro',reward:{type:'item',item:'Anillo de Fortuna'}},
+    {id:'crafter',req:'crafted',val:5,name:'Maestro Artesano',desc:'Craftea 5 items',reward:{type:'recipe',recipe:'Super Forja'}},
+    {id:'gambler',req:'gambles_won',val:3,name:'Rey del Casino',desc:'Gana 3 apuestas',reward:{type:'gold',amount:500}},
+    {id:'collector',req:'materials',val:10,name:'Coleccionista',desc:'Recolecta 10 materiales diferentes',reward:{type:'stat',stat:'all',amount:1}}
+  ];
+
+  function checkAdvancedAchievements() {
+    window.char.achievements = window.char.achievements || [];
+    window.char.stats_tracker = window.char.stats_tracker || {};
+    
+    ADVANCED_ACHIEVEMENTS.forEach(ach => {
+      if (!window.char.achievements.includes(ach.id)) {
+        let qualified = false;
+        
+        switch(ach.req) {
+          case 'gold':
+            qualified = window.char.gold >= ach.val;
+            break;
+          case 'crafted':
+            qualified = (window.char.stats_tracker.crafted || 0) >= ach.val;
+            break;
+          case 'gambles_won':
+            qualified = (window.char.stats_tracker.gambles_won || 0) >= ach.val;
+            break;
+          case 'materials':
+            const uniqueMaterials = new Set(window.char.materials?.map(m => m.n) || []);
+            qualified = uniqueMaterials.size >= ach.val;
+            break;
+        }
+        
+        if (qualified) {
+          window.char.achievements.push(ach.id);
+          showAchievementUnlock(ach);
+        }
+      }
+    });
+  }
+
+  function showAchievementUnlock(achievement) {
+    const g = document.getElementById('game');
+    g.innerHTML += `
+      <div class='achievement-popup'>
+        <h3>🏆 ¡Logro Desbloqueado!</h3>
+        <h4>${achievement.name}</h4>
+        <p>${achievement.desc}</p>
+        <button onclick='closeAchievement()' class='achievement-btn'>¡Genial!</button>
+      </div>
+    `;
+    
+    // Apply reward
+    applyAchievementReward(achievement.reward);
+  }
+
+  window.closeAchievement = function() {
+    document.querySelector('.achievement-popup').remove();
+  };
+
+  function applyAchievementReward(reward) {
+    switch(reward.type) {
+      case 'item':
+        const rewardItem = ITEMS.find(i => i.n === reward.item);
+        if (rewardItem) window.char.inv.push(rewardItem);
+        break;
+      case 'gold':
+        window.char.gold += reward.amount;
+        break;
+      case 'stat':
+        if (reward.stat === 'all') {
+          Object.keys(window.char.stats).forEach(stat => {
+            window.char.stats[stat] += reward.amount;
+          });
+        } else {
+          window.char.stats[reward.stat] += reward.amount;
+        }
+        break;
     }
   }
-  
-  // Cleanup every 10 seconds
-  setInterval(() => {
-    if (window.char && window.char.log && window.char.log.length > 4) {
-      window.char.log = window.char.log.slice(-3);
+
+  // Enhanced combat with environmental effects
+  function applyEnvironmentalEffects() {
+    const environments = ['normal', 'fire', 'ice', 'lightning', 'shadow'];
+    const currentEnv = environments[gameState.currentEncounter % environments.length];
+    
+    switch(currentEnv) {
+      case 'fire':
+        if (window.char.equipped.armor?.n.includes('Cuero')) {
+          addLog('Tu armadura de cuero te protege del calor extremo.');
+        } else {
+          window.char.hp = Math.max(1, window.char.hp - 2);
+          addLog('El calor extremo te daña por 2 HP.');
+        }
+        break;
+      case 'ice':
+        if (Math.random() < 0.3) {
+          window.char.conditions.push({name: 'slow', turns: 1});
+          addLog('El frío te ralentiza.');
+        }
+        break;
+      case 'lightning':
+        if (window.char.equipped.armor?.n.includes('Malla')) {
+          window.char.hp = Math.max(1, window.char.hp - 5);
+          addLog('Tu armadura de metal conduce la electricidad. -5 HP');
+        }
+        break;
+      case 'shadow':
+        if (window.char.cls.n === 'Pícaro') {
+          addLog('Las sombras te fortalecen. +1 sigilo.');
+          window.char.abilities.sneak = Math.min(window.char.abilities.sneak + 1, 6);
+        }
+        break;
     }
-    if (window.gc) window.gc();
-  }, 10000);
+  }
+
+  // Weather system
+  const WEATHER_EFFECTS = [
+    {name:'Soleado',effect:()=>{window.char.hp = Math.min(window.char.maxHP, window.char.hp + 1)}},
+    {name:'Lluvia',effect:()=>{if(Math.random()<0.2) window.char.conditions.push({name:'wet',turns:2})}},
+    {name:'Tormenta',effect:()=>{if(Math.random()<0.1) window.char.hp = Math.max(1, window.char.hp-3)}},
+    {name:'Niebla',effect:()=>{if(Math.random()<0.3) addLog('La niebla dificulta la visión.')}},
+  ];
+
+  function applyWeatherEffects() {
+    const weather = WEATHER_EFFECTS[Math.floor(Math.random() * WEATHER_EFFECTS.length)];
+    weather.effect();
+    if (weather.name !== 'Soleado') {
+      addLog(`Clima: ${weather.name}`);
+    }
+  }
+
+  // Integration with existing encounter system
+  function enhancedStartStoryEncounter() {
+    // Add random events
+    if (Math.random() < 0.15) {
+      const event = RANDOM_EVENTS[Math.floor(Math.random() * RANDOM_EVENTS.length)];
+      const g = document.getElementById('game');
+      g.innerHTML = `
+        <div class='section event-section'>
+          <h2>⚡ ${event.name}</h2>
+          <p>${event.desc}</p>
+          <button onclick='triggerRandomEvent(${RANDOM_EVENTS.indexOf(event)})' class='event-btn'>Continuar</button>
+        </div>
+      `;
+      return;
+    }
+    
+    // Add casino occasionally
+    if (Math.random() < 0.1 && gameState.currentEncounter > 3) {
+      renderCasinoEncounter();
+      return;
+    }
+    
+    // Add crafting workshop
+    if (Math.random() < 0.08 && gameState.currentEncounter > 5) {
+      renderCraftingEncounter();
+      return;
+    }
+ }
+    
+    // Apply environmental and weather effects
+    applyEnvironmentalEffects();
+    applyWeatherEffects();
+    
+    // Check achievements
+    checkAdvancedAchievements();
+    
+    // ...existing startStoryEncounter logic...
+  }
+
+  window.triggerRandomEvent = function(eventIndex) {
+    const event = RANDOM_EVENTS[eventIndex];
+    event.effect();
+    setTimeout(nextEncounter, 1500);
+  };
+
+  // Enhanced handleCombatVictory with material drops
+  function enhancedHandleCombatVictory() {
+    // ...existing victory code...
+    
+    // Add material drops
+    const drops = rollLootDrop(window.currentMonster);
+    drops.forEach(drop => {
+      if (drop.t) { // It's a material
+        window.char.materials = window.char.materials || [];
+        window.char.materials.push(drop);
+        addLog(`¡Encuentras material: ${drop.n}!`);
+      }
+    });
+    
+    // Apply pet bonuses if pet attacked
+    if (applyPetBonuses(window.char)) {
+      // Pet already attacked, don't need monster turn
+    }
+    
+    // ...existing code...
+  }
+
+  // Memory optimization for new features
+  function optimizedCleanup() {
+    // Limit materials array
+    if (window.char.materials && window.char.materials.length > 50) {
+      window.char.materials = window.char.materials.slice(-30);
+    }
+    
+    // Clean up achievement popups
+    const oldPopups = document.querySelectorAll('.achievement-popup');
+    if (oldPopups.length > 1) {
+      oldPopups[0].remove();
+    }
+    
+    // ...existing cleanup code...
+  }
+
+  // Replace existing functions with enhanced versions
+  window.startStoryEncounter = enhancedStartStoryEncounter;
+  window.handleCombatVictory = enhancedHandleCombatVictory;
+  
+  // Set up enhanced cleanup
+  setInterval(optimizedCleanup, 15000);
+
+  // Initialize game
+  window.startStoryGame = showCharacterSelection;
   
 })();
 
-// Enhanced initialization
+// Enhanced initialization with proper styling
 window.addEventListener('DOMContentLoaded', () => {
   const g = document.getElementById('game');
   g.innerHTML = `
     <div class='section welcome-section'>
       <h2>⚔️ Aventura D&D Épica ⚔️</h2>
-      <p>Embárcate en una aventura llena de combates estratégicos, progresión de personajes y una historia cautivadora.</p>
-      <div class='features'>
-        <div class='feature'>📜 Historia Inmersiva</div>
-        <div class='feature'>⚔️ Combate Táctico</div>
-        <div class='feature'>📈 Progresión Real</div>
-        <div class='feature'>🎲 Sistema d20</div>
+      <p>Un verdadero roguelike con sistema completo de inventario, equipo, habilidades especiales y progresión profunda.</p>
+      <div class='features-grid'>
+        <div class='feature-card'>📜 Historia Épica</div>
+        <div class='feature-card'>⚔️ Combate Estratégico</div>
+        <div class='feature-card'>🎒 Sistema de Inventario</div>
+        <div class='feature-card'>⚡ Habilidades Especiales</div>
+        <div class='feature-card'>🏪 Mercaderes</div>
+        <div class='feature-card'>🔨 Mejora de Equipo</div>
       </div>
-      <button onclick='startStoryGame()' class='start-btn'>Comenzar Aventura</button>
+      <button onclick='startStoryGame()' class='start-btn epic'>🚀 Comenzar Épica Aventura</button>
     </div>
   `;
 });
