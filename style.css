@@ -502,6 +502,36 @@ body {
   color: white;
 }
 
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Improve contrast ratios */
+.hero-description {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.footer-philosophy {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.contact-details a {
+  color: #374151;
+}
+
+.contact-details a:hover {
+  color: var(--primary-color);
+}
+
 /* Responsive Design para Circle Animation */
 @media (max-width: 1024px) {
   .hero-content {
@@ -895,7 +925,7 @@ body {
 
 .footer-philosophy {
   font-style: italic;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
 }
 
@@ -958,7 +988,7 @@ body {
 }
 
 .contact-details a {
-  color: var(--text-secondary);
+  color: #374151;
   text-decoration: none;
   transition: var(--transition);
 }

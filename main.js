@@ -261,56 +261,56 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
-    // Mobile performance optimization
-    if (window.innerWidth <= 768) {
-        // Disable parallax on mobile
-        const style = document.createElement('style');
-        style.textContent = `
-            .hero { transform: none !important; }
-            .project-card { transform: none !important; }
-        `;
-        document.head.appendChild(style);
+
+// Mobile performance optimization
+if (window.innerWidth <= 768) {
+    // Disable parallax on mobile
+    const style = document.createElement('style');
+    style.textContent = `
+        .hero { transform: none !important; }
+        .project-card { transform: none !important; }
+    `;
+    document.head.appendChild(style);
+}
+
+// Initialize tooltips for skill items
+document.querySelectorAll('.skill-item').forEach(item => {
+    const level = item.querySelector('.skill-level');
+    if (level) {
+        const percentage = level.dataset.level;
+        item.title = `Nivel de competencia: ${percentage}%`;
     }
-
-    // Initialize tooltips for skill items
-    document.querySelectorAll('.skill-item').forEach(item => {
-        const level = item.querySelector('.skill-level');
-        if (level) {
-            const percentage = level.dataset.level;
-            item.title = `Nivel de competencia: ${percentage}%`;
-        }
-    });
-
-    // Add social media sharing functionality
-    function shareProject(projectName, projectUrl) {
-        if (navigator.share) {
-            navigator.share({
-                title: `Proyecto: ${projectName}`,
-                text: `Echa un vistazo a este increíble proyecto de Daniel Salini`,
-                url: projectUrl
-            });
-        } else {
-            // Fallback for browsers that don't support Web Share API
-            const text = `Echa un vistazo a este proyecto: ${projectName} - ${projectUrl}`;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text);
-                alert('¡Enlace copiado al portapapeles!');
-            }
-        }
-    }
-
-    // Initialize intersection observer for fade-in animations
-    const fadeElements = document.querySelectorAll('.fade-in');
-    const fadeObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    });
-
-    fadeElements.forEach(el => fadeObserver.observe(el));
 });
+
+// Add social media sharing functionality
+function shareProject(projectName, projectUrl) {
+    if (navigator.share) {
+        navigator.share({
+            title: `Proyecto: ${projectName}`,
+            text: `Echa un vistazo a este increíble proyecto de Daniel Salini`,
+            url: projectUrl
+        });
+    } else {
+        // Fallback for browsers that don't support Web Share API
+        const text = `Echa un vistazo a este proyecto: ${projectName} - ${projectUrl}`;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text);
+            alert('¡Enlace copiado al portapapeles!');
+        }
+    }
+}
+
+// Initialize intersection observer for fade-in animations
+const fadeElements = document.querySelectorAll('.fade-in');
+const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+});
+
+fadeElements.forEach(el => fadeObserver.observe(el));
 
 // Utility functions
 function debounce(func, wait, immediate) {

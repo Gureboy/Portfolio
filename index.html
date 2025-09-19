@@ -3,10 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Daniel Salini - Desarrollador Full Stack y músico bajo el alias Katosx. Especializado en React, Node.js y producción musical. Portfolio profesional con proyectos de desarrollo web y música.">
+    <meta name="theme-color" content="#6366f1">
     <title>Daniel Salini - Desarrollador Full Stack & Katosx</title>
-    <link rel="stylesheet" href="style.css">
+    
+    <!-- Preconnect to required origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://i.ibb.co">
+    
+    <!-- Critical CSS inline -->
+    <style>
+        /* Critical Above-the-fold CSS */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        .preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: flex; justify-content: center; align-items: center; z-index: 10000; }
+        .loader { width: 60px; height: 60px; }
+        .loader-inner { width: 100%; height: 100%; border: 3px solid #e5e7eb; border-top: 3px solid #6366f1; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hero { min-height: 100vh; display: flex; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    </style>
+    
+    <!-- Non-critical CSS -->
+    <link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="style.css"></noscript>
+    
+    <!-- Fonts with display swap -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Icons - defer loading -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></noscript>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple touch icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
 </head>
 <body>
     <div id="preloader" class="preloader">
@@ -16,24 +51,24 @@
     </div>
 
     <header class="header">
-        <nav class="nav">
+        <nav class="nav" role="navigation" aria-label="Navegación principal">
             <div class="nav-container">
                 <div class="nav-brand">
-                    <a href="#home">Daniel Salini</a>
+                    <a href="#home" aria-label="Ir al inicio">Daniel Salini</a>
                 </div>
                 
-                <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú de navegación" aria-expanded="false">
                     <span></span>
                     <span></span>
                     <span></span>
                 </button>
                 
                 <div class="nav-menu" id="nav-menu">
-                    <a href="#home" class="nav-link">Inicio</a>
-                    <a href="#about" class="nav-link">Sobre mí</a>
-                    <a href="#skills" class="nav-link">Habilidades</a>
-                    <a href="#projects" class="nav-link">Proyectos</a>
-                    <a href="#contact" class="nav-link">Contacto</a>
+                    <a href="#home" class="nav-link" aria-label="Ir a la sección de inicio">Inicio</a>
+                    <a href="#about" class="nav-link" aria-label="Ir a la sección sobre mí">Sobre mí</a>
+                    <a href="#skills" class="nav-link" aria-label="Ir a la sección de habilidades">Habilidades</a>
+                    <a href="#projects" class="nav-link" aria-label="Ir a la sección de proyectos">Proyectos</a>
+                    <a href="#contact" class="nav-link" aria-label="Ir a la sección de contacto">Contacto</a>
                 </div>
             </div>
         </nav>
@@ -54,34 +89,39 @@
                             para crear proyectos únicos.
                         </p>
                         <div class="hero-buttons">
-                            <a href="#projects" class="btn btn-primary">Ver Proyectos</a>
-                            <a href="#contact" class="btn btn-secondary">Contactar</a>
+                            <a href="#projects" class="btn btn-primary" aria-label="Ver mis proyectos">Ver Proyectos</a>
+                            <a href="#contact" class="btn btn-secondary" aria-label="Ir a contacto">Contactar</a>
                         </div>
                     </div>
                     
                     <div class="hero-visual">
                         <div class="circle-animation">
-                            <div class="circle circle-1">
-                                <i class="fab fa-js-square"></i>
+                            <div class="circle circle-1" aria-label="JavaScript">
+                                <i class="fab fa-js-square" aria-hidden="true"></i>
                             </div>
-                            <div class="circle circle-2">
-                                <i class="fab fa-react"></i>
+                            <div class="circle circle-2" aria-label="React">
+                                <i class="fab fa-react" aria-hidden="true"></i>
                             </div>
-                            <div class="circle circle-3">
-                                <i class="fab fa-node-js"></i>
+                            <div class="circle circle-3" aria-label="Node.js">
+                                <i class="fab fa-node-js" aria-hidden="true"></i>
                             </div>
-                            <div class="circle circle-4">
-                                <i class="fas fa-database"></i>
+                            <div class="circle circle-4" aria-label="Base de datos">
+                                <i class="fas fa-database" aria-hidden="true"></i>
                             </div>
-                            <div class="circle circle-5">
-                                <i class="fas fa-music"></i>
+                            <div class="circle circle-5" aria-label="Música">
+                                <i class="fas fa-music" aria-hidden="true"></i>
                             </div>
-                            <div class="circle circle-6">
-                                <i class="fab fa-git-alt"></i>
+                            <div class="circle circle-6" aria-label="Git">
+                                <i class="fab fa-git-alt" aria-hidden="true"></i>
                             </div>
                             <div class="circle-center">
                                 <div class="avatar-container">
-                                    <img src="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg" alt="Daniel Salini - Katosx" class="profile-avatar">
+                                    <img src="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg" 
+                                         alt="Daniel Salini - Katosx" 
+                                         class="profile-avatar"
+                                         width="100" 
+                                         height="100"
+                                         loading="eager">
                                 </div>
                             </div>
                         </div>
@@ -89,8 +129,8 @@
                 </div>
                 
                 <div class="hero-scroll">
-                    <a href="#about" class="scroll-indicator">
-                        <i class="fas fa-chevron-down"></i>
+                    <a href="#about" class="scroll-indicator" aria-label="Desplazarse hacia abajo">
+                        <i class="fas fa-chevron-down" aria-hidden="true"></i>
                     </a>
                 </div>
             </div>
@@ -119,7 +159,7 @@
                         </p>
                         
                         <div class="about-philosophy">
-                            <h4>💭 Mi Filosofía</h4>
+                            <h3>💭 Mi Filosofía</h3>
                             <blockquote>
                                 "La creatividad no tiene límites cuando combinas pasión, tecnología y música. 
                                 Cada línea de código es como una nota musical."
@@ -144,7 +184,11 @@
                     
                     <div class="about-image">
                         <div class="image-wrapper">
-                            <img src="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg" alt="Daniel Salini - Katosx">
+                            <img src="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg" 
+                                 alt="Daniel Salini - Katosx trabajando"
+                                 width="400" 
+                                 height="400"
+                                 loading="lazy">
                         </div>
                         <div class="alias-badge">
                             <span class="alias">🎵 Katosx</span>
@@ -167,19 +211,19 @@
                         <h3 class="category-title">💻 Desarrollo</h3>
                         <div class="skills-list">
                             <div class="skill-item">
-                                <i class="fab fa-js-square"></i>
+                                <i class="fab fa-js-square" aria-hidden="true"></i>
                                 <span>JavaScript</span>
-                                <div class="skill-level" data-level="95"></div>
+                                <div class="skill-level" data-level="95" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <div class="skill-item">
-                                <i class="fab fa-react"></i>
+                                <i class="fab fa-react" aria-hidden="true"></i>
                                 <span>React</span>
-                                <div class="skill-level" data-level="90"></div>
+                                <div class="skill-level" data-level="90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <div class="skill-item">
-                                <i class="fab fa-node-js"></i>
+                                <i class="fab fa-node-js" aria-hidden="true"></i>
                                 <span>Node.js</span>
-                                <div class="skill-level" data-level="85"></div>
+                                <div class="skill-level" data-level="85" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>
                     </div>
@@ -188,14 +232,14 @@
                         <h3 class="category-title">🎵 Música (Katosx)</h3>
                         <div class="skills-list">
                             <div class="skill-item">
-                                <i class="fas fa-music"></i>
+                                <i class="fas fa-music" aria-hidden="true"></i>
                                 <span>Producción Musical</span>
-                                <div class="skill-level" data-level="90"></div>
+                                <div class="skill-level" data-level="90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <div class="skill-item">
-                                <i class="fas fa-headphones"></i>
+                                <i class="fas fa-headphones" aria-hidden="true"></i>
                                 <span>Mezcla</span>
-                                <div class="skill-level" data-level="85"></div>
+                                <div class="skill-level" data-level="85" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>
                     </div>
@@ -204,14 +248,14 @@
                         <h3 class="category-title">🛠️ Herramientas</h3>
                         <div class="skills-list">
                             <div class="skill-item">
-                                <i class="fab fa-git-alt"></i>
+                                <i class="fab fa-git-alt" aria-hidden="true"></i>
                                 <span>Git</span>
-                                <div class="skill-level" data-level="90"></div>
+                                <div class="skill-level" data-level="90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <div class="skill-item">
-                                <i class="fas fa-sliders-h"></i>
+                                <i class="fas fa-sliders-h" aria-hidden="true"></i>
                                 <span>FL Studio</span>
-                                <div class="skill-level" data-level="85"></div>
+                                <div class="skill-level" data-level="85" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </div>
                     </div>
@@ -228,16 +272,16 @@
                 </div>
                 
                 <div class="projects-grid">
-                    <div class="project-card featured">
+                    <article class="project-card featured">
                         <div class="project-image">
                             <div class="music-project-preview">
-                                <div class="music-icon">🎵</div>
-                                <h4>Katosx - Beats & Music</h4>
+                                <div class="music-icon" aria-hidden="true">🎵</div>
+                                <h3>Katosx - Beats & Music</h3>
                                 <p>Mi faceta musical donde creo beats e instrumentales únicos</p>
                             </div>
                         </div>
                         <div class="project-content">
-                            <h3 class="project-title">Katosx Music Project</h3>
+                            <h4 class="project-title">Katosx Music Project</h4>
                             <p class="project-description">
                                 Mi alias musical donde exploro diferentes géneros. 
                                 Producción desde beat-making hasta composiciones completas.
@@ -248,14 +292,18 @@
                                 <span class="tag music">Original</span>
                             </div>
                         </div>
-                    </div>
+                    </article>
                     
-                    <div class="project-card">
+                    <article class="project-card">
                         <div class="project-image">
-                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400" alt="Web Development">
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop&auto=format" 
+                                 alt="Aplicación web moderna" 
+                                 width="400" 
+                                 height="250"
+                                 loading="lazy">
                         </div>
                         <div class="project-content">
-                            <h3 class="project-title">Aplicaciones Web</h3>
+                            <h4 class="project-title">Aplicaciones Web</h4>
                             <p class="project-description">
                                 Desarrollo de aplicaciones web modernas y escalables.
                             </p>
@@ -264,7 +312,7 @@
                                 <span class="tag">Node.js</span>
                             </div>
                         </div>
-                    </div>
+                    </article>
                 </div>
             </div>
         </section>
@@ -281,44 +329,47 @@
                     <div class="contact-info">
                         <div class="contact-item">
                             <div class="contact-icon">
-                                <i class="fas fa-envelope"></i>
+                                <i class="fas fa-envelope" aria-hidden="true"></i>
                             </div>
                             <div class="contact-details">
                                 <h3>Email</h3>
-                                <a href="mailto:daniel.salini@ejemplo.com">daniel.salini@ejemplo.com</a>
+                                <a href="mailto:daniel.salini@ejemplo.com" aria-label="Enviar email a Daniel Salini">daniel.salini@ejemplo.com</a>
                             </div>
                         </div>
                         
                         <div class="contact-item">
                             <div class="contact-icon">
-                                <i class="fab fa-github"></i>
+                                <i class="fab fa-github" aria-hidden="true"></i>
                             </div>
                             <div class="contact-details">
                                 <h3>GitHub</h3>
-                                <a href="https://github.com/Gureboy" target="_blank">github.com/Gureboy</a>
+                                <a href="https://github.com/Gureboy" target="_blank" rel="noopener" aria-label="Ver perfil de GitHub de Daniel Salini">github.com/Gureboy</a>
                             </div>
                         </div>
                         
                         <div class="contact-item music-contact">
                             <div class="contact-icon">
-                                <i class="fas fa-music"></i>
+                                <i class="fas fa-music" aria-hidden="true"></i>
                             </div>
                             <div class="contact-details">
                                 <h3>Katosx Music</h3>
-                                <a href="#" target="_blank">Katosx en Plataformas</a>
+                                <a href="#" target="_blank" rel="noopener" aria-label="Escuchar música de Katosx">Katosx en Plataformas</a>
                             </div>
                         </div>
                     </div>
                     
-                    <form class="contact-form" id="contact-form">
+                    <form class="contact-form" id="contact-form" novalidate>
                         <div class="form-group">
-                            <input type="text" id="name" name="name" placeholder="Tu nombre" required>
+                            <label for="name" class="sr-only">Nombre</label>
+                            <input type="text" id="name" name="name" placeholder="Tu nombre" required aria-required="true">
                         </div>
                         <div class="form-group">
-                            <input type="email" id="email" name="email" placeholder="Tu email" required>
+                            <label for="email" class="sr-only">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Tu email" required aria-required="true">
                         </div>
                         <div class="form-group">
-                            <textarea id="message" name="message" placeholder="Cuéntame sobre tu proyecto..." rows="5" required></textarea>
+                            <label for="message" class="sr-only">Mensaje</label>
+                            <textarea id="message" name="message" placeholder="Cuéntame sobre tu proyecto..." rows="5" required aria-required="true"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
                     </form>
@@ -340,14 +391,14 @@
                     </p>
                 </div>
                 <div class="footer-social">
-                    <a href="https://github.com/Gureboy" target="_blank">
-                        <i class="fab fa-github"></i>
+                    <a href="https://github.com/Gureboy" target="_blank" rel="noopener" aria-label="GitHub de Daniel Salini">
+                        <i class="fab fa-github" aria-hidden="true"></i>
                     </a>
-                    <a href="#" target="_blank">
-                        <i class="fas fa-music"></i>
+                    <a href="#" target="_blank" rel="noopener" aria-label="Música de Katosx">
+                        <i class="fas fa-music" aria-hidden="true"></i>
                     </a>
-                    <a href="mailto:daniel.salini@ejemplo.com">
-                        <i class="fas fa-envelope"></i>
+                    <a href="mailto:daniel.salini@ejemplo.com" aria-label="Enviar email">
+                        <i class="fas fa-envelope" aria-hidden="true"></i>
                     </a>
                 </div>
             </div>
@@ -357,6 +408,6 @@
         </div>
     </footer>
 
-    <script src="main.js"></script>
+    <script src="main.js" defer></script>
 </body>
 </html>
