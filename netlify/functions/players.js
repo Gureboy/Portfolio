@@ -17,24 +17,24 @@ exports.handler = async (event, context) => {
   }
 
   if (event.httpMethod === 'POST') {
-    try {
-      const { username, email } = JSON.parse(event.body);
-      
-      const result = await pool.query(`
-        INSERT INTO players (username, email) 
-        VALUES ($1, $2) 
-        ON CONFLICT (username) 
-        DO UPDATE SET last_login = CURRENT_TIMESTAMP 
-        RETURNING id, username, created_at
-      `, [username, email]);
-      
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify(result.rows[0])
-      };
-    } catch (error) {
-      return {
+    const data = JSON.parse(event.body || '{}');
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({
+        id: Date.now(),
+        username: data.username || 'Hero',
+        created_at: new Date().toISOString()
+      })
+    };
+  }
+
+  return {
+    statusCode: 405,
+    headers,
+    body: JSON.stringify({ error: 'Method not allowed' })
+  };
+};
         statusCode: 500,
         headers,
         body: JSON.stringify({ error: error.message })

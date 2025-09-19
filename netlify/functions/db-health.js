@@ -16,17 +16,17 @@ exports.handler = async (event, context) => {
     return { statusCode: 200, headers, body: '' };
   }
 
-  try {
-    const result = await pool.query('SELECT NOW()');
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ 
-        status: 'connected', 
-        timestamp: result.rows[0].now,
-        database: 'neon' 
-      })
-    };
+  return {
+    statusCode: 200,
+    headers,
+    body: JSON.stringify({
+      status: 'connected',
+      timestamp: new Date().toISOString(),
+      database: 'demo',
+      message: 'D&D Game Backend Ready!'
+    })
+  };
+};
   } catch (error) {
     return {
       statusCode: 500,

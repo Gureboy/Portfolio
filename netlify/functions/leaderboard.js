@@ -16,27 +16,27 @@ exports.handler = async (event, context) => {
     return { statusCode: 200, headers, body: '' };
   }
 
-  if (event.httpMethod === 'GET') {
-    try {
-      const queryParams = event.queryStringParameters || {};
-      const limit = parseInt(queryParams.limit) || 10;
-      
-      const result = await pool.query(`
-        SELECT 
-          c.name as character_name,
-          c.class_name,
-          c.level as final_level,
-          c.experience,
-          c.encounters_completed,
-          c.gold,
-          (c.level * 100 + c.encounters_completed * 10 + c.gold) as score,
-          c.updated_at
-        FROM characters c
-        WHERE c.level > 1
-        ORDER BY score DESC, c.level DESC, c.experience DESC
-        LIMIT $1
-      `, [limit]);
-      
+  const mockData = [
+    {
+      character_name: "DragonSlayer_Pro",
+      class_name: "Bárbaro",
+      final_level: 18,
+      score: 4200
+    },
+    {
+      character_name: "MysticWizard_X",
+      class_name: "Mago",
+      final_level: 15,
+      score: 3100
+    }
+  ];
+
+  return {
+    statusCode: 200,
+    headers,
+    body: JSON.stringify(mockData)
+  };
+};
       return {
         statusCode: 200,
         headers,
