@@ -132,16 +132,35 @@ document.addEventListener('DOMContentLoaded', function() {
             const name = formData.get('name');
             const email = formData.get('email');
             const message = formData.get('message');
+            const projectType = formData.get('project-type');
             
             // Simple validation
-            if (!name || !email || !message) {
+            if (!name || !email || !message || !projectType) {
                 alert('Por favor, completa todos los campos.');
                 return;
             }
             
-            // Here you would typically send the data to a server
-            // For now, we'll just show a success message
-            alert('¡Gracias por tu mensaje! Te responderé pronto.');
+            // Create email content
+            const subject = `Consulta ${projectType} - ${name}`;
+            const body = `Hola Daniel,
+
+Mi nombre es ${name} y me contacto contigo por:
+
+Tipo de consulta: ${projectType}
+Email: ${email}
+
+Mensaje:
+${message}
+
+Saludos,
+${name}`;
+
+            // Open email client
+            const mailtoLink = `mailto:danielsalini77@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoLink;
+            
+            // Show success message
+            alert('¡Gracias por tu consulta! Se abrirá tu cliente de email para enviar el mensaje.');
             this.reset();
         });
     }
