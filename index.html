@@ -3,1010 +3,392 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daniel Salini (Katosx) - Portfolio Profesional</title>
-    <meta name="description" content="Daniel Salini (Katosx) - Desarrollador fullstack, ingeniero multidisciplinario y músico especializado en PLC, desarrollo web y diseño eléctrico.">
-    <meta name="keywords" content="desarrollador fullstack, PLC, JavaScript, Python, React, Node.js, electricidad industrial, Katosx, Daniel Salini, compositor musical">
-    <meta name="author" content="Daniel Salini (Katosx)">
-    <meta property="og:title" content="Daniel Salini (Katosx) - Portfolio Profesional">
-    <meta property="og:description" content="Desarrollador fullstack e ingeniero con experiencia en PLC, web y diseño eléctrico">
-    <meta property="og:type" content="website">
-    <link rel="canonical" href="https://tu-usuario.github.io/portfolio-dnd/">
-    <link href="https://fonts.cdnfonts.com/css/thegoodmonolith" rel="stylesheet">
-    <link rel="stylesheet" href="circle-animations.css">
-    <!-- Preload critical resources -->
-    <link rel="preload" href="circle-animations.css" as="style">
-    <link rel="preload" href="circle-animations.js" as="script">
-    <style>
-        /* Extra: para overlay de datos */
-        .circle-info-modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: opacity 0.3s ease;
-            backdrop-filter: blur(5px);
-        }
-
-        .circle-info-content {
-            background: linear-gradient(135deg, #181818 0%, #2d2d2d 100%);
-            color: #fff;
-            border-radius: 16px;
-            padding: 32px 24px 24px 24px;
-            min-width: 320px;
-            max-width: min(90vw, 600px);
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            position: relative;
-            font-family: 'TheGoodMonolith', monospace;
-            border: 1px solid #444;
-            animation: modalSlideIn 0.3s ease-out;
-            line-height: 1.6;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .circle-info-content h2 {
-            margin: 0 0 15px 0;
-            font-size: 1.4em;
-            color: #ff7a00;
-            border-bottom: 2px solid #ff7a00;
-            padding-bottom: 8px;
-        }
-
-        .circle-info-content .close-btn {
-            position: absolute;
-            top: 12px; right: 18px;
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: #fff;
-            font-size: 1.5em;
-            cursor: pointer;
-            border-radius: 50%;
-            width: 30px; height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-
-        .circle-info-content .close-btn:hover {
-            background: rgba(255,122,0,0.2);
-        }
-
-        .circle-info-content .contact-btn {
-            display: inline-block;
-            margin-top: 18px;
-            background: #ff7a00;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 22px;
-            font-size: 1em;
-            font-family: inherit;
-            cursor: pointer;
-            font-weight: bold;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
-
-        .circle-info-content .contact-btn:hover {
-            background: #ff9a3c;
-        }
-
-        .circle-info-content .external-link {
-            color: #7fd7ff;
-            text-decoration: underline;
-        }
-
-        /* Easter egg hint */
-        .easter-egg-hint {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .easter-egg-hint::after {
-            content: "🎲";
-            position: absolute;
-            top: 5px; right: 5px;
-            font-size: 1.4em;
-            opacity: 0.7;
-            animation: 
-                pulse 2s infinite,
-                bounce 3s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.9; }
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
-        }
-
-        /* Mejoras de accesibilidad y UX */
-        .animation-container {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            border-radius: 8px;
-            position: relative;
-            contain: layout style paint;
-        }
-
-        .animation-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-
-        .animation-container:focus {
-            outline: 2px solid #ff7a00;
-            outline-offset: 2px;
-        }
-
-        /* Loading indicator */
-        .loading-indicator {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            color: #ff7a00;
-            font-size: 1.2em;
-            z-index: 1001;
-            display: none;
-            text-align: center;
-        }
-
-        .spinner {
-            border: 3px solid #333;
-            border-top: 3px solid #ff7a00;
-            border-radius: 50%;
-            width: 40px; height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive improvements */
-        @media (max-width: 768px) {
-            .circle-info-content {
-                margin: 20px;
-                padding: 24px 20px 20px 20px;
-                max-height: 70vh;
-            }
-            
-            .circle-info-content h2 {
-                font-size: 1.2em;
-            }
-
-            .alias {
-                display: block;
-                margin: 10px 0;
-                font-size: 0.7em;
-            }
-
-            .skills-highlight {
-                justify-content: center;
-                gap: 8px;
-            }
-
-            .social-links {
-                flex-direction: column;
-                align-items: center;
-                gap: 10px;
-            }
-        }
-
-        /* Accessibility improvements */
-        .sr-only {
-            position: absolute;
-            width: 1px; height: 1px;
-            padding: 0; margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        /* Enhanced header with alias */
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            position: relative;
-        }
-
-        header h1 {
-            font-size: clamp(2.2em, 5vw, 3.5em);
-            background: linear-gradient(45deg, #ff7a00, #ffb366, #ff7a00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(255, 122, 0, 0.4);
-            margin-bottom: 10px;
-            position: relative;
-        }
-
-        .alias {
-            display: inline-block;
-            font-size: 0.6em;
-            color: #7fd7ff;
-            font-weight: normal;
-            margin-left: 15px;
-            position: relative;
-            top: -5px;
-            opacity: 0.9;
-            font-style: italic;
-        }
-
-        .alias::before {
-            content: "(";
-            opacity: 0.7;
-        }
-        
-        .alias::after {
-            content: ")";
-            opacity: 0.7;
-        }
-
-        /* Professional badge */
-        .professional-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #ff7a00, #e06800);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 25px;
-            font-size: 0.9em;
-            font-weight: 600;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(255, 122, 0, 0.3);
-            animation: subtlePulse 3s infinite ease-in-out;
-        }
-
-        @keyframes subtlePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
-
-        /* Skills highlight */
-        .skills-highlight {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 15px;
-            font-size: 0.85em;
-        }
-
-        .skill-tag {
-            background: rgba(127, 215, 255, 0.1);
-            color: #7fd7ff;
-            padding: 4px 12px;
-            border-radius: 15px;
-            border: 1px solid rgba(127, 215, 255, 0.3);
-            font-weight: 500;
-        }
-
-        /* Enhanced footer with alias */
-        footer .main-title {
-            font-size: 1.4em;
-            font-weight: bold;
-            color: #ff7a00;
-            margin-bottom: 5px;
-        }
-
-        footer .alias-footer {
-            font-size: 0.9em;
-            color: #7fd7ff;
-            font-style: italic;
-            margin-bottom: 15px;
-        }
-
-        /* Improved modal content */
-        .circle-info-content {
-            /* ...existing code... */
-            line-height: 1.6;
-        }
-
-        .circle-info-content p {
-            margin-bottom: 15px;
-        }
-
-        .circle-info-content ul {
-            margin: 15px 0;
-            padding-left: 20px;
-        }
-
-        .circle-info-content li {
-            margin-bottom: 8px;
-        }
-
-        /* Enhanced music modal */
-        .music-modal {
-            max-width: min(95vw, 850px);
-        }
-
-        .music-description {
-            background: rgba(127, 215, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border-left: 4px solid #7fd7ff;
-        }
-
-        /* Social links enhancement */
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .social-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #7fd7ff;
-            text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            background: rgba(127, 215, 255, 0.1);
-            border: 1px solid rgba(127, 215, 255, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .social-link:hover {
-            background: #7fd7ff;
-            color: #181818;
-            transform: translateY(-2px);
-        }
-
-        /* Performance indicator */
-        .performance-stats {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.8);
-            color: #7fd7ff;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.8em;
-            font-family: monospace;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 999;
-        }
-
-        .performance-stats.show {
-            opacity: 1;
-        }
-
-        /* Loading screen */
-        #loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            z-index: 1000;
-            flex-direction: column;
-        }
-
-        #loading .spinner {
-            border: 4px solid #ff7a00;
-            border-top: 4px solid transparent;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .circle-info-content {
-                margin: 10px;
-                padding: 20px;
-                max-height: 80vh;
-            }
-
-            .circle-info-content h2 {
-                font-size: 1.3em;
-            }
-
-            .alias {
-                display: block;
-                margin: 8px 0;
-                font-size: 0.7em;
-            }
-
-            .skills-highlight {
-                justify-content: center;
-                gap: 10px;
-            }
-
-            .social-links {
-                flex-direction: column;
-                align-items: center;
-                gap: 12px;
-            }
-
-            footer .main-title {
-                font-size: 1.2em;
-            }
-
-            footer .alias-footer {
-                font-size: 0.8em;
-            }
-        }
-
-        /* Additional memory optimizations */
-        .animation-container {
-            /* ...existing code... */
-            contain: layout style paint;
-        }
-        
-        .circle-container {
-            contain: layout;
-        }
-        
-        /* Reduce repaints */
-        .dot {
-            will-change: auto;
-        }
-        
-        .dot.animating {
-            will-change: transform, opacity;
-        }
-
-        /* Auth styles */
-        .auth-section {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid #333;
-        }
-        
-        .auth-tab {
-            flex: 1;
-            padding: 1rem;
-            background: none;
-            border: none;
-            color: #ccc;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .auth-tab.active {
-            color: #fff;
-            background: #333;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #fff;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #444;
-            background: #222;
-            color: #fff;
-            border-radius: 4px;
-        }
-        
-        .auth-btn {
-            width: 100%;
-            padding: 1rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-        
-        .auth-btn.primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .error-message {
-            color: #ff6b6b;
-            margin-top: 1rem;
-            text-align: center;
-        }
-        
-        .auth-benefits {
-            margin-top: 2rem;
-            padding: 1rem;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-        }
-        
-        .auth-benefits ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .auth-benefits li {
-            margin: 0.5rem 0;
-            padding-left: 1rem;
-        }
-        
-        .user-welcome {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-        }
-        
-        .logout-btn {
-            padding: 0.5rem 1rem;
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        .leaderboard-entry.current-user {
-            background: rgba(102, 126, 234, 0.3);
-            border-left: 4px solid #667eea;
-        }
-        
-        .you-label {
-            background: #667eea;
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-        }
-        
-        .welcome-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-    </style>
-    <script src="i18n.js"></script>
-    <!-- Add authentication -->
-    <script src="auth/stack-auth.js"></script>
-    <script src="database/api.js"></script>
-    <script src="dnd-easter-egg.js"></script>
+    <title>Daniel Salini - Desarrollador Full Stack</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Performance indicator -->
-    <div id="performance-stats" class="performance-stats"></div>
-
-    <div class="loading-indicator" id="loading">
-        <div class="spinner"></div>
-        <div>Cargando portfolio...</div>
+    <div id="preloader" class="preloader">
+        <div class="loader">
+            <div class="loader-inner"></div>
+        </div>
     </div>
 
-    <header>
-        <h1><span data-i18n="main-title">Daniel Salini</span> <span class="alias" data-i18n="alias">Katosx</span></h1>
-        <div class="professional-badge" data-i18n="professional-badge">Desarrollador Fullstack & Ingeniero & Músico</div>
-        <div class="skills-highlight">
-            <span class="skill-tag" data-i18n="skill-fullstack">🚀 Fullstack Developer</span>
-            <span class="skill-tag" data-i18n="skill-plc">⚡ PLC Programming</span>
-            <span class="skill-tag" data-i18n="skill-music">🎵 Music Composer</span>
-            <span class="skill-tag" data-i18n="skill-solver">🎯 Problem Solver</span>
-        </div>
-        <p class="sr-only" data-i18n="sr-desc">Portfolio profesional de Daniel Salini (Katosx) - Desarrollador fullstack, ingeniero y músico</p>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <a href="#home">Daniel Salini</a>
+                </div>
+                
+                <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                
+                <div class="nav-menu" id="nav-menu">
+                    <a href="#home" class="nav-link">Inicio</a>
+                    <a href="#about" class="nav-link">Sobre mí</a>
+                    <a href="#skills" class="nav-link">Habilidades</a>
+                    <a href="#projects" class="nav-link">Proyectos</a>
+                    <a href="#contact" class="nav-link">Contacto</a>
+                    <button class="game-btn" id="game-trigger">🎮 Juego</button>
+                </div>
+            </div>
+        </nav>
     </header>
 
-    <main class="container" role="main">
-        <div class="animation-container" data-circle="0" tabindex="0" role="button" aria-label="Ver perfil profesional">
-            <div class="animation-title" data-i18n="anim-title-0">Perfil Profesional</div>
-            <div id="anim1" class="circle-container"></div>
-        </div>
-        <div class="animation-container" data-circle="1" tabindex="0" role="button" aria-label="Ver experiencia freelance">
-            <div class="animation-title" data-i18n="anim-title-1">Experiencia Freelance</div>
-            <div id="anim2" class="circle-container"></div>
-        </div>
-        <div class="animation-container" data-circle="2" tabindex="0" role="button" aria-label="Ver experiencia como profesor UPRO">
-            <div class="animation-title" data-i18n="anim-title-2">Profesor UPRO</div>
-            <div id="anim3" class="circle-container"></div>
-        </div>
-        <div class="animation-container" data-circle="3" tabindex="0" role="button" aria-label="Ver proyectos técnicos">
-            <div class="animation-title" data-i18n="anim-title-3">Proyectos Técnicos</div>
-            <div id="anim4" class="circle-container"></div>
-        </div>
-        <div class="animation-container" data-circle="4" tabindex="0" role="button" aria-label="Ver experiencia en soporte">
-            <div class="animation-title" data-i18n="anim-title-4">Experiencia en Soporte</div>
-            <div id="anim5" class="circle-container"></div>
-        </div>
-        <div class="animation-container" data-circle="5" tabindex="0" role="button" aria-label="Ver experiencia técnica">
-            <div class="animation-title" data-i18n="anim-title-5">Experiencia Técnica</div>
-            <div id="anim6" class="circle-container"></div>
-        </div>
-        <div class="animation-container" data-circle="6" tabindex="0" role="button" aria-label="Ver educación">
-            <div class="animation-title" data-i18n="anim-title-6">Educación</div>
-            <div id="anim7" class="circle-container"></div>
-        </div>
-        <div class="animation-container" data-circle="7" tabindex="0" role="button" aria-label="Ver habilidades técnicas">
-            <div class="animation-title" data-i18n="anim-title-7">Habilidades Técnicas</div>
-            <div id="anim8" class="circle-container"></div>
-        </div>
-        <div class="animation-container" data-circle="8" tabindex="0" role="button" aria-label="Ver idiomas">
-            <div class="animation-title" data-i18n="anim-title-8">Idiomas</div>
-            <div id="anim9" class="circle-container"></div>
-        </div>
-        <div class="animation-container music-hint" data-circle="9" tabindex="0" role="button" aria-label="Ver mi música y composiciones">
-            <div class="animation-title" data-i18n="anim-title-9">Música & Composición</div>
-            <div id="anim10" class="circle-container"></div>
-        </div>
-        <div class="animation-container easter-egg-hint" data-circle="10" tabindex="0" role="button" aria-label="Juego secreto D&D Easter Egg">
-            <div class="animation-title" data-i18n="anim-title-10">About me</div>
-            <div id="anim11" class="circle-container"></div>
-        </div>
-        <div class="animation-container" data-circle="11" tabindex="0" role="button" aria-label="Ver información de contacto">
-            <div class="animation-title" data-i18n="anim-title-11">Contacto</div>
-            <div id="anim12" class="circle-container"></div>
-        </div>
-        <div class="animation-container" data-circle="12" tabindex="0" role="button" aria-label="Ver más información personal">
-            <div class="animation-title" data-i18n="anim-title-12">Más sobre mí</div>
-            <div id="anim13" class="circle-container"></div>
-        </div>
+    <main class="main">
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <span class="hero-greeting">¡Hola! Soy</span>
+                        <h1 class="hero-name">Daniel Salini</h1>
+                        <h2 class="hero-title">Desarrollador Full Stack</h2>
+                        <p class="hero-description">
+                            Especializado en crear experiencias web modernas y escalables. 
+                            Apasionado por la tecnología, la innovación y resolver problemas complejos.
+                        </p>
+                        <div class="hero-buttons">
+                            <a href="#projects" class="btn btn-primary">Ver Proyectos</a>
+                            <a href="#contact" class="btn btn-secondary">Contactar</a>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-image">
+                        <div class="hero-avatar">
+                            <img src="https://avatars.githubusercontent.com/u/your-github?v=4" alt="Daniel Salini" class="avatar">
+                            <div class="avatar-glow"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-scroll">
+                    <a href="#about" class="scroll-indicator">
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section about">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Sobre mí</h2>
+                    <p class="section-subtitle">Conoce más sobre mi experiencia y pasión por el desarrollo</p>
+                </div>
+                
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>
+                            Soy un desarrollador Full Stack con experiencia en tecnologías modernas. 
+                            Me especializo en crear aplicaciones web robustas y escalables, desde el frontend 
+                            hasta el backend y la infraestructura.
+                        </p>
+                        <p>
+                            Mi enfoque se centra en escribir código limpio, mantener las mejores prácticas 
+                            y crear experiencias de usuario excepcionales. Siempre estoy aprendiendo 
+                            nuevas tecnologías y mejorando mis habilidades.
+                        </p>
+                        
+                        <div class="about-stats">
+                            <div class="stat">
+                                <span class="stat-number">3+</span>
+                                <span class="stat-label">Años de Experiencia</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">15+</span>
+                                <span class="stat-label">Proyectos Completados</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">10+</span>
+                                <span class="stat-label">Tecnologías</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="about-image">
+                        <div class="image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500" alt="Desarrollo web">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="section skills">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Habilidades Técnicas</h2>
+                    <p class="section-subtitle">Tecnologías y herramientas que domino</p>
+                </div>
+                
+                <div class="skills-grid">
+                    <div class="skill-category">
+                        <h3 class="category-title">Frontend</h3>
+                        <div class="skills-list">
+                            <div class="skill-item">
+                                <i class="fab fa-react"></i>
+                                <span>React</span>
+                                <div class="skill-level" data-level="90"></div>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fab fa-js-square"></i>
+                                <span>JavaScript</span>
+                                <div class="skill-level" data-level="95"></div>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fab fa-css3-alt"></i>
+                                <span>CSS3</span>
+                                <div class="skill-level" data-level="90"></div>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fab fa-html5"></i>
+                                <span>HTML5</span>
+                                <div class="skill-level" data-level="95"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="skill-category">
+                        <h3 class="category-title">Backend</h3>
+                        <div class="skills-list">
+                            <div class="skill-item">
+                                <i class="fab fa-node-js"></i>
+                                <span>Node.js</span>
+                                <div class="skill-level" data-level="85"></div>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fas fa-database"></i>
+                                <span>PostgreSQL</span>
+                                <div class="skill-level" data-level="80"></div>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fab fa-python"></i>
+                                <span>Python</span>
+                                <div class="skill-level" data-level="75"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="skill-category">
+                        <h3 class="category-title">Herramientas</h3>
+                        <div class="skills-list">
+                            <div class="skill-item">
+                                <i class="fab fa-git-alt"></i>
+                                <span>Git</span>
+                                <div class="skill-level" data-level="90"></div>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fab fa-aws"></i>
+                                <span>AWS</span>
+                                <div class="skill-level" data-level="70"></div>
+                            </div>
+                            <div class="skill-item">
+                                <i class="fab fa-docker"></i>
+                                <span>Docker</span>
+                                <div class="skill-level" data-level="75"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="section projects">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Mis Proyectos</h2>
+                    <p class="section-subtitle">Algunos de mis trabajos más destacados</p>
+                </div>
+                
+                <div class="projects-grid">
+                    <div class="project-card">
+                        <div class="project-image">
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400" alt="E-commerce Platform">
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="#" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">E-commerce Platform</h3>
+                            <p class="project-description">
+                                Plataforma de comercio electrónico completa con React, Node.js y PostgreSQL.
+                                Incluye carrito de compras, pagos y panel de administración.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">React</span>
+                                <span class="tag">Node.js</span>
+                                <span class="tag">PostgreSQL</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card featured">
+                        <div class="project-image">
+                            <div class="game-preview" id="game-preview">
+                                <div class="game-icon">🎮</div>
+                                <h4>Juego D&D Épico</h4>
+                                <p>Roguelike completo con sistema de inventario, combate por turnos y ranking global</p>
+                                <button class="play-btn" id="play-game-btn">Jugar Ahora</button>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">D&D Adventure Game</h3>
+                            <p class="project-description">
+                                Juego de rol épico con mecánicas de D&D, sistema de inventario completo,
+                                base de datos en tiempo real y ranking global de jugadores.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">JavaScript</span>
+                                <span class="tag">Neon DB</span>
+                                <span class="tag">Netlify</span>
+                                <span class="tag">Game Dev</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <div class="project-image">
+                            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400" alt="Analytics Dashboard">
+                            <div class="project-overlay">
+                                <div class="project-links">
+                                    <a href="#" class="project-link">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                    <a href="#" class="project-link">
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-content">
+                            <h3 class="project-title">Analytics Dashboard</h3>
+                            <p class="project-description">
+                                Dashboard interactivo para análisis de datos con gráficos en tiempo real
+                                y métricas avanzadas de rendimiento.
+                            </p>
+                            <div class="project-tags">
+                                <span class="tag">React</span>
+                                <span class="tag">D3.js</span>
+                                <span class="tag">Express</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section contact">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Contacto</h2>
+                    <p class="section-subtitle">¿Tienes un proyecto en mente? ¡Hablemos!</p>
+                </div>
+                
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Email</h3>
+                                <a href="mailto:daniel@ejemplo.com">daniel@ejemplo.com</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fab fa-linkedin"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>LinkedIn</h3>
+                                <a href="https://linkedin.com/in/daniel-salini" target="_blank">linkedin.com/in/daniel-salini</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fab fa-github"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>GitHub</h3>
+                                <a href="https://github.com/Gureboy" target="_blank">github.com/Gureboy</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form class="contact-form" id="contact-form">
+                        <div class="form-group">
+                            <input type="text" id="name" name="name" placeholder="Tu nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" placeholder="Tu email" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="message" name="message" placeholder="Tu mensaje" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
+                    </form>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <div id="circle-info-modal" class="circle-info-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modal-title"></div>
+    <!-- Game Modal -->
+    <div id="game-modal" class="game-modal">
+        <div class="game-modal-content">
+            <div class="game-modal-header">
+                <h3>🎮 Aventura D&D Épica</h3>
+                <button class="game-close" id="game-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="game-container">
+                <div id="game"></div>
+            </div>
+        </div>
+    </div>
 
-    <footer role="contentinfo">
-        <div class="main-title" data-i18n="footer-main">Daniel Salini</div>
-        <div class="alias-footer" data-i18n="footer-alias">También conocido como Katosx</div>
-        <div class="footer-quote" data-i18n="footer-quote">
-            "No tengo capa ni superpoderes, pero cada día me levanto y lucho con lo que tengo. Y eso, para mí, ya es ser héroe."
-        </div>
-        <div class="social-links">
-            <a href="mailto:danielsalini77@gmail.com" class="social-link">
-                <span>📧</span> <span data-i18n="footer-email">Email</span>
-            </a>
-            <a href="https://linkedin.com/in/katosx" target="_blank" class="social-link">
-                <span>💼</span> <span data-i18n="footer-linkedin">LinkedIn</span>
-            </a>
-            <a href="https://github.com/Gureboy" target="_blank" class="social-link">
-                <span>💻</span> <span data-i18n="footer-github">GitHub</span>
-            </a>
-        </div>
-        <div style="margin-top: 25px; font-size: 0.9em; color: #888;" data-i18n="footer-copyright">
-            © 2025 Daniel Salini (Katosx) | Desarrollador Fullstack & Ingeniero & Músico
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2024 Daniel Salini. Todos los derechos reservados.</p>
+                <div class="footer-social">
+                    <a href="https://github.com/Gureboy" target="_blank" aria-label="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/daniel-salini" target="_blank" aria-label="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="mailto:daniel@ejemplo.com" aria-label="Email">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </footer>
 
-    <script src="circle-animations.js"></script>
-    <script>
-        // Performance monitoring
-        const performanceStats = {
-            animationsLoaded: 0,
-            loadTime: 0,
-            
-            init() {
-                const startTime = performance.now();
-                
-                window.addEventListener('load', () => {
-                    this.loadTime = Math.round(performance.now() - startTime);
-                    this.updateStats();
-                });
-
-                // Listen for custom animation events
-                document.addEventListener('circleAnimationsLoaded', () => {
-                    this.animationsLoaded = document.querySelectorAll('.animation-container').length;
-                    this.updateStats();
-                });
-            },
-
-            updateStats() {
-                const statsEl = document.getElementById('performance-stats');
-                if (this.loadTime && this.animationsLoaded) {
-                    statsEl.textContent = `⚡ ${this.loadTime}ms | 🎨 ${this.animationsLoaded} anims`;
-                    statsEl.classList.add('show');
-                    
-                    setTimeout(() => {
-                        statsEl.classList.remove('show');
-                    }, 3000);
-                }
-            }
-        };
-
-        // Enhanced CIRCLE_DATA with better formatting
-        const CIRCLE_DATA = [
-            {
-                title: "Perfil Profesional",
-                text: `<div class="music-description">
-                        <strong>Desarrollador Fullstack | Ingeniero Multidisciplinario | Compositor Musical</strong>
-                       </div>
-                       <p>Soy <strong>Daniel Salini (Katosx)</strong>, un profesional versátil con experiencia en:</p>
-                       <ul>
-                         <li>🚀 <strong>Desarrollo Web:</strong> React, Node.js, Python, JavaScript</li>
-                         <li>⚡ <strong>Programación Industrial:</strong> PLC Siemens, SCADA, automatización</li>
-                         <li>🔧 <strong>Diseño Eléctrico:</strong> Esquemas CAD, tableros, normativas AEA</li>
-                         <li>🎵 <strong>Composición Musical:</strong> Producción digital, teoría avanzada</li>
-                       </ul>
-                       <p>Mi enfoque combina <strong>innovación técnica</strong> con <strong>creatividad artística</strong>, entregando soluciones eficientes y resultados cuantificables.</p>`
-            },
-            {
-                title: "Experiencia Freelance",
-                text: `Freelance | Desarrollador Fullstack y Consultor Eléctrico (2019-Actualidad)<br>• Diseño de esquemas eléctricos y planos unifilares bajo normas internacionales.<br>• Programación PLC Siemens y Allen-Bradley, integración SCADA.<br>• Soluciones IoT con ESP8266/ESP32.<br>• Apps web fullstack con React, Node.js, Express, MongoDB/PostgreSQL.<br>• APIs RESTful, Docker, interfaces interactivas, IA en chatbots.`
-            },
-            {
-                title: "Profesor UPRO",
-                text: `Profesor de Programación PLC y Electricidad Avanzada | UPRO (2024-Actualidad)<br>• Programación PLC Siemens, SCADA, LADDER y SCL.<br>• Electricidad avanzada, alta tensión, tableros AEA.<br>• Esquemas CAD eléctricos, enseñanza técnica.`
-            },
-            {
-                title: "Proyectos Técnicos",
-                text: `Profesor y Desarrollador de Proyectos Técnicos | UPRO Penal de San Luis (2025-Actualidad)<br>• Enseñanza de electricidad y electrónica aplicada.<br>• Desarrollo de proyectos técnicos prácticos para reinserción social.`
-            },
-            {
-                title: "Experiencia en Soporte",
-                text: `Customer Service Agent | Influx (2025)<br>• Gestión de clientes vía CRM (Zendesk).<br>• Soporte técnico y ventas.<br>• Seguimiento postventa, reducción de reclamos.`
-            },
-            {
-                title: "Experiencia Técnica",
-                text: `Trainee & Soporte Técnico | GAOTEK (2022-2023)<br>• Gestión de CRM, soporte técnico, coordinación de proyectos.<br>Administrativo y Atención al Cliente | STARTEX (2018)<br>• Control de asistencia, reportes, caja.<br>Atención al Cliente | Telefónica de Argentina (2014-2015)<br>Administrador Logístico | Alcuva (2012-2014)<br>• Rutas, permisos, servidores Windows NT.`
-            },
-            {
-                title: "Educación",
-                text: `• Curso de CCNA Cisco Networking Academy<br>• Curso de Ciberseguridad Ofensiva (Kali Purple)<br>• Curso de Desarrollo de Software Microsoft<br>• Técnico Industrial<br>• Programador Industrial PLC UPRO<br>• Ingeniería Electrónica UNSL` 
-            },
-            {
-                title: "Habilidades Técnicas",
-                text: `Lenguajes: Python, C++, HTML, PHP, JavaScript, SQL, TypeScript<br>Frameworks: React, Node.js, Express, Bootstrap, Angular, Tailwind CSS<br>Herramientas: Docker, Git, Webpack, SolidWorks, ANSYS, MATLAB, Zendesk, HubSpot<br>Áreas: Fullstack, PLC/SCADA, CAD eléctrico, ciberseguridad, IoT, soporte técnico, enseñanza, administración de servidores.`
-            },
-            {
-                title: "Idiomas",
-                text: `Español: Nativo<br>Inglés: C1 (avanzado)`
-            },
-            {
-                title: "Música & Composición",
-                text: `<div class="music-description">
-                         🎵 <strong>Daniel Salini (Katosx) - Compositor y Músico</strong> 🎵
-                       </div>
-                       <p>La música es mi lenguaje universal. Como compositor, fusiono <strong>creatividad técnica</strong> con <strong>expresión artística</strong>, explorando géneros que van desde lo clásico hasta lo experimental.</p>
-                       
-                       <div class="youtube-container">
-                           <iframe src="https://www.youtube.com/embed/oxu48Zvsq9Y" 
-                                   title="Daniel Salini (Katosx) - Composición Musical" 
-                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                   allowfullscreen>
-                           </iframe>
-                       </div>
-                       
-                       <div class="music-description">
-                         <strong>🎹 Habilidades Musicales:</strong>
-                         <ul>
-                           <li>🎼 <strong>Composición Original:</strong> Melodías únicas y arreglos complejos</li>
-                           <li>🎚️ <strong>Producción Digital:</strong> DAW, síntesis, masterización</li>
-                           <li>📚 <strong>Teoría Musical:</strong> Armonía avanzada, contrapunto, análisis</li>
-                           <li>🎺 <strong>Arreglos Instrumentales:</strong> Orquestación y adaptación</li>
-                         </ul>
-                       </div>
-                       
-                       <p><em>"La música y la programación son hermanas: ambas requieren lógica, creatividad y una atención meticulosa al detalle. En ambas, cada nota y cada línea de código cuenta."</em></p>`,
-                isMusic: true
-            },
-            {
-                title: "D&D Easter Egg",
-                text: `¡Has encontrado mi easter egg secreto! 🎲<br><br>Como desarrollador y fan de D&D, creé un juego roguelike completo con sistema de combate por turnos, 8 clases jugables, sistema de niveles, items legendarios y mucho más.<br><br>¡Click para jugar!`,
-                isEasterEgg: true
-            },
-            {
-                title: "Contacto",
-                text: `<div class="music-description">
-                         <strong>¿Interesado en colaborar? ¡Conectemos!</strong>
-                       </div>
-                       <p>Soy <strong>Daniel Salini (Katosx)</strong> y estoy abierto a nuevas oportunidades que combinen tecnología, ingeniería y creatividad.</p>
-                       
-                       <div class="social-links" style="flex-direction: column; gap: 15px;">
-                         <a href='mailto:danielsalini77@gmail.com' class='social-link'>
-                           📧 danielsalini77@gmail.com
-                         </a>
-                         <a href='https://linkedin.com/in/katosx' target='_blank' class='social-link'>
-                           💼 LinkedIn: /in/katosx
-                         </a>
-                         <a href='https://github.com/Gureboy' target='_blank' class='social-link'>
-                           💻 GitHub: Gureboy
-                         </a>
-                       </div>
-                       
-                       <a href='mailto:danielsalini77@gmail.com' class='contact-btn' style='display: block; text-align: center; margin-top: 20px;'>
-                         🚀 Contactar por Email
-                       </a>`
-            },
-            {
-                title: "Más sobre mí",
-                text: `<div class="music-description">
-                         <strong>Daniel Salini (Katosx) - Donde la tecnología encuentra el arte</strong>
-                       </div>
-                       <p>Soy un <strong>creativo técnico</strong> apasionado por la intersección entre <strong>tecnología, ingeniería y música</strong>. Mi carrera refleja una búsqueda constante de desafíos que combinen lógica analítica con expresión artística.</p>
-                       
-                       <p>Como <strong>Katosx</strong>, represento mi identidad digital: un profesional versátil que no se limita a una sola disciplina, sino que encuentra inspiración en la diversidad de campos del conocimiento.</p>
-                       
-                       <div class="music-description">
-                         <strong>Mi filosofía profesional:</strong><br>
-                         <em>"No tengo capa ni superpoderes, pero cada día me levanto y lucho con lo que tengo. Y eso, para mí, ya es ser héroe."</em>
-                       </div>
-                       
-                       <p>¡Gracias por explorar mi universo creativo y técnico!</p>`
-            }
-        ];
-
-        // Memory-efficient modal handling
-        let currentModal = null;
-        
-        function showCircleInfo(idx) {
-          // Close previous modal first
-          if (currentModal) {
-            currentModal.remove();
-            currentModal = null;
-          }
-          
-          const data = CIRCLE_DATA[idx];
-          if (!data) return;
-          
-          const modal = document.createElement('div');
-          modal.className = 'circle-info-modal';
-          modal.innerHTML = `<div class='${data.isMusic ? 'circle-info-content music-modal' : 'circle-info-content'}>
-            <button class='close-btn' title='Cerrar modal' aria-label='Cerrar'>&times;</button>
-            <h2>${data.title}</h2>
-            <div>${data.text}</div>
-          </div>`;
-          
-          document.body.appendChild(modal);
-          currentModal = modal;
-          
-          const closeBtn = modal.querySelector('.close-btn');
-          const closeModal = () => {
-            modal.remove();
-            currentModal = null;
-          };
-          
-          closeBtn.onclick = closeModal;
-          modal.onclick = (e) => e.target === modal && closeModal();
-        }
-
-        // Función para manejar el easter egg
-        function handleEasterEgg() {
-            document.getElementById('loading').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-                window.open('dnd-easter-egg.html', '_blank');
-            }, 1000);
-        }
-
-        // Event listeners mejorados
-        document.querySelectorAll('.animation-container').forEach((el, idx) => {
-            const handleInteraction = () => {
-                if (idx === 10) { // Easter egg ahora está en posición 10
-                    handleEasterEgg();
-                } else {
-                    showCircleInfo(idx);
-                }
-            };
-            
-            el.addEventListener('click', handleInteraction);
-            
-            // Keyboard support
-            el.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleInteraction();
-                }
-            });
-            
-            // Enhanced hover effects
-            el.addEventListener('mouseenter', () => {
-                el.style.transform = 'translateY(-5px)';
-            });
-            
-            el.addEventListener('mouseleave', () => {
-                el.style.transform = 'translateY(0)';
-            });
-        });
-
-        // Loading screen management
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-            }, 500);
-        });
-
-        // Performance optimization
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        });
-
-        document.querySelectorAll('.animation-container').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(el);
-        });
-
-        // Enhanced initialization
-        function initializePortfolio() {
-            performanceStats.init();
-            
-            // Add smooth reveal animation for containers
-            const containers = document.querySelectorAll('.animation-container');
-            containers.forEach((container, index) => {
-                container.style.animationDelay = `${index * 0.1}s`;
-            });
-        }
-
-        // Initialize on load
-        window.addEventListener('DOMContentLoaded', initializePortfolio);
-
-        // Initialize i18n after DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            window.portfolioI18n.init();
-            
-            // Update CIRCLE_DATA with translations
-            const updateCircleData = () => {
-                const lang = window.portfolioI18n.currentLang;
-                if (window.portfolioI18n.circleData[lang]) {
-                    window.CIRCLE_DATA = window.portfolioI18n.circleData[lang];
-                }
-            };
-            
-            updateCircleData();
-            
-            // Listen for language changes
-            document.addEventListener('languageChanged', updateCircleData);
-        });
-
-        // Initialize database on page load
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Initialize i18n
-            window.portfolioI18n.init();
-            
-            // Initialize database
-            await window.neonDB.init();
-        });
-    </script>
+    <!-- Scripts -->
+    <script src="database/api.js"></script>
+    <script src="dnd-easter-egg.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
