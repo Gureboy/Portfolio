@@ -2,14 +2,16 @@
 
 class NeonDBClient {
   constructor() {
-    // Detectar entorno
+    // Detectar entorno para Netlify
     this.isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    this.isProduction = !this.isLocal;
+    this.isNetlify = window.location.hostname.includes('netlify.app') || window.location.hostname.includes('netlify.com');
     
     // Configurar endpoint según entorno
-    this.apiEndpoint = this.isLocal ? 
-      'http://localhost:3000/api/db' : 
-      '/api/db'; // Para Vercel/Netlify functions
+    if (this.isLocal) {
+      this.apiEndpoint = 'http://localhost:8888/.netlify/functions';
+    } else {
+      this.apiEndpoint = '/api/db';
+    }
     
     this.playerId = null;
     this.currentCharacter = null;
@@ -33,48 +35,45 @@ class NeonDBClient {
 
   // Generic API call handler with fallback
   async apiCall(endpoint, method = 'GET', data = null) {
-    try {
-      const config = {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      };
-
-      if (data) {
-        config.body = JSON.stringify(data);
+    const url = `${this.apiEndpoint}${endpoint.replace('/api/db', '')}`;
+    
+    const options = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
       }
-
-      const response = await fetch(`${this.apiEndpoint}${endpoint}`, config);
+    };
+    
+    if (data && method !== 'GET') {
+      options.body = JSON.stringify(data);
+    }
+    
+    try {
+      const response = await fetch(url, options);
       
       if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-
+      
       return await response.json();
     } catch (error) {
-      console.warn(`Database API Error for ${endpoint}:`, error);
-      return this.fallbackStorage(endpoint, method, data);
+      console.error(`API call failed: ${method} ${url}`, error);
+      throw error;
     }
   }
 
-  // localStorage fallback when database is unavailable
-  fallbackStorage(endpoint, method, data) {
-    const key = `dnd_${endpoint.replace(/[\/]/g, '_').replace(/\?.*/, '')}`;
-    
-    switch (method) {
-      case 'GET':
-        const stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : (endpoint.includes('leaderboard') ? [] : {});
-      case 'POST':
-      case 'PUT':
-        localStorage.setItem(key, JSON.stringify(data || {}));
-        return { success: true, id: Date.now() };
-      case 'DELETE':
-        localStorage.removeItem(key);
-        return { success: true };
-      default:
-        return { error: 'Unsupported method' };
+  async init() {
+    try {
+      const healthCheck = await this.apiCall('/db-health');
+      if (healthCheck.status === 'connected') {
+        this.initialized = true;
+        console.log('✅ Neon Database connected:', healthCheck.timestamp);
+        return true;
+      }
+    } catch (error) {
+      console.warn('❌ Database connection failed:', error);
+      this.initialized = false;
+      return false;
     }
   }
 
@@ -122,24 +121,29 @@ class NeonDBClient {
   }
 
   async saveCharacterData(characterData) {
-    if (!this.currentCharacter) return { success: false };
-    return await this.apiCall(`/characters/${this.currentCharacter}`, 'PUT', characterData);
+    if (!this.currentCharacter) return false;
+    
+    try {
+      await this.apiCall(`/characters/${this.currentCharacter}`, 'PUT', characterData);
+      return true;
+    } catch (error) {
+      console.warn('Character save failed:', error);
+      return false;
+    }
   }
 
   async getLeaderboard(limit = 10) {
-    return await this.apiCall(`/leaderboard?limit=${limit}`);
-  }
-
-  async logCombatResult(combatData) {
-    return await this.apiCall('/combat-logs', 'POST', combatData);
-  }
-
-  // Auto-save with simplified data structure
-  startAutoSave(character, interval = 30000) {
-    if (this.autoSaveInterval) {
-      clearInterval(this.autoSaveInterval);
+    try {
+      return await this.apiCall(`/leaderboard?limit=${limit}`);
+    } catch (error) {
+      console.warn('Leaderboard fetch failed:', error);
+      return [];
     }
+  }
+}
 
+// Global instance
+window.neonDB = new NeonDBClient();
     this.autoSaveInterval = setInterval(async () => {
       if (!character) return;
       
