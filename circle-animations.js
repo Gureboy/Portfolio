@@ -541,7 +541,55 @@
     }
   }
 
-  // Add missing CSS animations for better effects
+  // Nueva animación para la 13ª posición
+  function setupAdvancedSpiral() {
+    const c = utils.clearContainer("anim13");
+    if (!c) return;
+    
+    const container = document.createElement('div');
+    container.className = 'advanced-spiral-container';
+    container.style.position = 'absolute';
+    container.style.width = '100%';
+    container.style.height = '100%';
+    container.style.animation = 'rotateSlow 35s infinite linear';
+    container.style.transformOrigin = 'center';
+    c.appendChild(container);
+    
+    // Center dot
+    const center = utils.createDot('dot', CONFIG.SIZES.MEDIUM);
+    center.style.background = 'radial-gradient(circle, #ff7a00, #7fd7ff)';
+    center.style.boxShadow = '0 0 15px rgba(255, 122, 0, 0.8)';
+    utils.positionElement(center, 0, 0, CONFIG.SIZES.MEDIUM);
+    container.appendChild(center);
+    
+    // Advanced spiral pattern
+    const NUM_POINTS = 150;
+    const SPIRAL_FACTOR = 1.2;
+    const fragment = document.createDocumentFragment();
+    
+    for (let i = 0; i < NUM_POINTS; i++) {
+      const angle = i * 0.3;
+      const radius = SPIRAL_FACTOR * Math.sqrt(i) * 3;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      const size = Math.max(1, 4 - (i / NUM_POINTS) * 2);
+      
+      if (size >= 1) {
+        const dot = utils.createDot('advanced-spiral-dot', size);
+        utils.positionElement(dot, x, y, size);
+        dot.style.animationDelay = `${(i / NUM_POINTS) * 4}s`;
+        dot.style.background = `hsl(${30 + (i / NUM_POINTS) * 180}, 70%, ${70 - (i / NUM_POINTS) * 30}%)`;
+        dot.style.willChange = 'transform, opacity';
+        dot.style.animation = 'advancedPulse 4s infinite ease-in-out';
+        
+        fragment.appendChild(dot);
+      }
+    }
+    
+    container.appendChild(fragment);
+  }
+
+  // Add missing CSS animations
   function injectAdditionalStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -584,6 +632,52 @@
       
       .animation-container:hover .dot {
         box-shadow: 0 0 8px rgba(255, 122, 0, 0.6);
+      }
+      
+      .advanced-spiral-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        animation: rotateSlow 35s infinite linear;
+        transform-origin: center;
+        will-change: transform;
+      }
+      
+      .advanced-spiral-dot {
+        position: absolute;
+        border-radius: 50%;
+        background: #fff;
+        animation: advancedPulse 4s infinite ease-in-out;
+        will-change: transform, opacity;
+      }
+      
+      @keyframes advancedPulse {
+        0%, 100% {
+          opacity: 0.3;
+          transform: scale(0.8);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.3);
+        }
+      }
+      
+      .music-hint::after {
+        content: "🎵";
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 1.4em;
+        opacity: 0.7;
+        animation: 
+          pulse 2s infinite,
+          musicNote 4s ease-in-out infinite;
+      }
+      
+      @keyframes musicNote {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-8px) rotate(5deg); }
+        75% { transform: translateY(-3px) rotate(-5deg); }
       }
     `;
     document.head.appendChild(style);
@@ -655,9 +749,10 @@
         { func: setupBreathingGrid, name: 'Breathing Grid' },
         { func: setupRippleEffect, name: 'Ripple Effect' },
         { func: setupFibonacciSpiral, name: 'Fibonacci Spiral' },
-        { func: setupHalftoneGradient, name: 'Halftone Gradient' },
-        { func: setupSilverSpiral, name: 'Silver Spiral' },
-        { func: setupFibonacciConcentric, name: 'Fibonacci Concentric' }
+        { func: setupHalftoneGradient, name: 'Halftone Gradient' }, // Música
+        { func: setupSilverSpiral, name: 'Silver Spiral' }, // Easter Egg
+        { func: setupFibonacciConcentric, name: 'Fibonacci Concentric' }, // Contacto
+        { func: setupAdvancedSpiral, name: 'Advanced Spiral' } // Más sobre mí
       ];
       
       let index = 0;
