@@ -1767,7 +1767,7 @@
     switch(reward.type) {
       case 'gold':
         window.char.gold += reward.value;
-                      addLog(`¡Obtienes ${reward.value} de oro!`);
+               addLog(`¡Obtienes ${reward.value} de oro!`);
         break;
       case 'item':
         window.char.inv.push(reward.item);
