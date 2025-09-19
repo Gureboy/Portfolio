@@ -221,6 +221,8 @@
       font-size: 0.95em;
       max-height: 300px;
       overflow-y: auto;
+      scroll-behavior: smooth;
+      contain: layout style paint;
     }
 
     .combat-history {
@@ -271,6 +273,8 @@
       font-size: 4em;
       animation: spin 2s linear infinite;
       margin-bottom: 20px;
+      transform: translateZ(0); /* Force GPU acceleration */
+      backface-visibility: hidden;
     }
 
     @keyframes spin {
@@ -359,6 +363,10 @@
         transition: none !important;
         animation: none !important;
       }
+      
+      .btn:hover, .choices label:hover {
+        transform: none !important;
+      }
     }
 
     /* High contrast mode */
@@ -371,9 +379,138 @@
         --border-color: #666;
       }
     }
+
+    /* Performance optimizations */
+    * {
+      will-change: auto;
+    }
+
+    /* Only apply will-change to elements that actually animate */
+    .dice-spinner,
+    .btn:hover,
+    .back-to-portfolio:hover,
+    .choices label:hover {
+      will-change: transform;
+    }
+
+    /* Optimize animations */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .dice-spinner {
+      font-size: 4em;
+      animation: spin 2s linear infinite;
+      margin-bottom: 20px;
+      transform: translateZ(0); /* Force GPU acceleration */
+      backface-visibility: hidden;
+    }
+
+    /* Optimize scrolling */
+    .log, .combat-log, .combat-history {
+      /* ...existing code... */
+      scroll-behavior: smooth;
+      contain: layout style paint;
+    }
+
+    /* Optimize layout calculations */
+    .section {
+      /* ...existing code... */
+      contain: layout style;
+    }
+
+    /* Reduce repaints */
+    .choices label {
+      /* ...existing code... */
+      contain: layout style paint;
+    }
+
+    /* Memory optimization for mobile */
+    @media (max-width: 768px) {
+      .section {
+        contain: layout;
+      }
+      
+      .choices {
+        contain: layout;
+      }
+      
+      /* Reduce complexity on mobile */
+      .game-header {
+        box-shadow: 0 5px 15px var(--shadow-dark);
+      }
+      
+      #game {
+        box-shadow: 0 5px 15px var(--shadow-dark);
+      }
+    }
+
+    /* Performance for low-end devices */
+    @media (max-resolution: 1dppx) {
+      .btn, .choices label {
+        box-shadow: none;
+      }
+      
+      .game-header, #game {
+        box-shadow: 0 2px 8px var(--shadow-dark);
+      }
+    }
+
+    /* Reduce motion for better performance */
+    @media (prefers-reduced-motion: reduce) {
+      .dice-spinner {
+        animation: none;
+      }
+      
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+      
+      .btn:hover, .choices label:hover {
+        transform: none !important;
+      }
+    }
+
+    /* Critical CSS only - defer non-critical styles */
+    .game-stats {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.8);
+      color: var(--accent-gold);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.7em;
+      font-family: monospace;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    .game-stats.show {
+      opacity: 1;
+    }
+
+    /* Optimize for battery saving */
+    @media (prefers-reduced-data: reduce) {
+      .game-header {
+        background: var(--bg-panel);
+        box-shadow: none;
+      }
+      
+      #game {
+        box-shadow: none;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- Performance stats -->
+  <div id="game-stats" class="game-stats"></div>
+
   <a href="index.html" class="back-to-portfolio">
     <span>←</span>
     <span>Volver al Portfolio</span>
@@ -414,6 +551,174 @@
       </p>
     </footer>
   </div>
+
+  <script>
+    // Performance monitoring
+    const GamePerformance = {
+      startTime: performance.now(),
+      frameCount: 0,
+      fps: 0,
+      memory: 0,
+      
+      init() {
+        this.monitorFPS();
+        this.monitorMemory();
+        this.setupDebouncing();
+      },
+      
+      monitorFPS() {
+        const measureFPS = () => {
+          this.frameCount++;
+          const now = performance.now();
+          const elapsed = now - this.startTime;
+          
+          if (elapsed >= 1000) {
+            this.fps = Math.round((this.frameCount * 1000) / elapsed);
+            this.frameCount = 0;
+            this.startTime = now;
+            this.updateStats();
+          }
+          
+          requestAnimationFrame(measureFPS);
+        };
+        requestAnimationFrame(measureFPS);
+      },
+      
+      monitorMemory() {
+        if (performance.memory) {
+          setInterval(() => {
+            this.memory = Math.round(performance.memory.usedJSHeapSize / 1048576);
+            this.updateStats();
+          }, 2000);
+        }
+      },
+      
+      updateStats() {
+        const statsEl = document.getElementById('game-stats');
+        if (this.fps > 0) {
+          const memoryText = this.memory > 0 ? ` | ${this.memory}MB` : '';
+          statsEl.textContent = `FPS: ${this.fps}${memoryText}`;
+          
+          // Show warning if performance is poor
+          if (this.fps < 30 || this.memory > 100) {
+            statsEl.style.color = '#e53e3e';
+            statsEl.classList.add('show');
+          } else {
+            statsEl.style.color = '#38a169';
+            setTimeout(() => statsEl.classList.remove('show'), 3000);
+          }
+        }
+      },
+      
+      setupDebouncing() {
+        // Debounce resize events
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(() => {
+            this.optimizeForViewport();
+          }, 250);
+        });
+      },
+      
+      optimizeForViewport() {
+        const game = document.getElementById('game');
+        const isMobile = window.innerWidth < 768;
+        
+        if (isMobile) {
+          // Reduce complexity on mobile
+          game.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+        } else {
+          game.style.boxShadow = '0 10px 30px rgba(0,0,0,0.6)';
+        }
+      }
+    };
+
+    // Optimize DOM operations
+    const DOMOptimizer = {
+      updateQueue: [],
+      isUpdating: false,
+      
+      queueUpdate(element, property, value) {
+        this.updateQueue.push({ element, property, value });
+        if (!this.isUpdating) {
+          this.processQueue();
+        }
+      },
+      
+      processQueue() {
+        this.isUpdating = true;
+        requestAnimationFrame(() => {
+          const fragment = document.createDocumentFragment();
+          
+          this.updateQueue.forEach(({ element, property, value }) => {
+            if (property === 'innerHTML') {
+              element.innerHTML = value;
+            } else {
+              element.style[property] = value;
+            }
+          });
+          
+          this.updateQueue = [];
+          this.isUpdating = false;
+        });
+      }
+    };
+
+    // Memory management
+    const MemoryManager = {
+      cleanup() {
+        // Clear unused variables
+        if (window.DUNGEON && window.DUNGEON.length > 1000) {
+          window.DUNGEON = window.DUNGEON.slice(-100);
+        }
+        
+        // Force garbage collection if available
+        if (window.gc) {
+          window.gc();
+        }
+      },
+      
+      setupAutoCleanup() {
+        setInterval(() => {
+          this.cleanup();
+        }, 30000); // Clean up every 30 seconds
+      }
+    };
+
+    // Initialize performance optimizations
+    document.addEventListener('DOMContentLoaded', () => {
+      GamePerformance.init();
+      MemoryManager.setupAutoCleanup();
+      
+      // Preload critical resources
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = 'dnd-easter-egg.js';
+      document.head.appendChild(link);
+    });
+
+    // Optimize event listeners
+    const throttle = (func, limit) => {
+      let inThrottle;
+      return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+          func.apply(context, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
+        }
+      };
+    };
+
+    // Export for use in game script
+    window.GameOptimizer = {
+      DOMOptimizer,
+      MemoryManager,
+      throttle
+    };
+  </script>
 
   <script src="dnd-easter-egg.js"></script>
 </body>

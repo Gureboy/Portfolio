@@ -330,361 +330,37 @@ function nextBattle(character) {
   renderCombat(character, monster, turn);
 }
 
+// Optimize combat log rendering
 function renderCombat(character, monster, turn) {
-  // Iconos y descripciones de estados
-  const STATUS_ICONS = {
-    'Aturdido': '💫', 'Envenenado': '☠️', 'Ralentizado': '🐢', 'Miedo': '😱',
-    'Ceguera': '🙈', 'Silencio': '🔇', 'Buff': '✨', 'Debuff': '💢'
-  };
+  // Use performance utilities
+  const updates = [];
   
-  const STATUS_DESC = {
-    'Aturdido': 'Pierde el turno.', 'Envenenado': 'Recibe daño al final del turno.',
-    'Ralentizado': 'Pierde iniciativa y ataque.', 'Miedo': 'No puede atacar, solo huir.',
-    'Ceguera': 'Falla ataques y recibe más daño.', 'Silencio': 'No puede lanzar hechizos.',
-    'Buff': 'Mejora temporal.', 'Debuff': 'Penalización temporal.'
-  };
-  
-  function statusString(entity, isPlayer) {
-    if (!entity.status || !entity.status.length) return '';
-    return `<span class='status-icons'>` + entity.status.map((s, idx) => {
-      let dispelBtn = '';
-      if (isPlayer && ['Envenenado','Ralentizado','Miedo','Ceguera','Silencio','Debuff'].includes(s.name)) {
-        dispelBtn = `<button class='dispel-btn' data-idx='${idx}' title='Disipar'>🧹</button>`;
-      }
-      return `<span class='status-icon' title='${STATUS_DESC[s.name]||s.name}'>${STATUS_ICONS[s.name]||'❓'}${s.turns?`<sup>${s.turns}</sup>`:''}${dispelBtn}</span>`;
-    }).join('') + `</span>`;
-  }
-  
-  const game = document.getElementById('game');
-  let html = `<div class='section'><h2>¡Combate!</h2>`;
-  html += `<div><b class='player'>${character.class.name}</b> (Nv. ${character.level}) XP: ${character.xp}/${character.xpToNext} <br>Oro: <span>${character.gold}</span> | HP: <span>${character.hp}</span>/${character.maxHP} | CA: ${character.ac} ${statusString(character, true)}</div>`;
-  html += `<div><b class='enemy'>${monster.name}</b> HP: <span>${monster.hp}</span>/${monster.maxHP} | CA: ${monster.ac} ${statusString(monster, false)}</div>`;
-  
-  // Mostrar companions activos
-  if (character.companions && character.companions.length > 0) {
-    html += `<div class='companions'><small>Companions: ${character.companions.map(c=>c.name).join(', ')}</small></div>`;
-  }
-  
-  html += `<div id='combat-log' class='combat-log'></div>`;
-  html += `<div id='combat-history' class='combat-history'>${(character.combatLog||[]).slice(-8).map(e=>`<div>${e}</div>`).join('')}</div>`;
-
-  // Manejo de lógica de disipar estados
-  setTimeout(()=>{
-    document.querySelectorAll('.dispel-btn').forEach(btn=>{
-      btn.onclick = (e)=>{
-        const idx = +btn.getAttribute('data-idx');
-        const status = character.status[idx];
-        let canDispel = false;
-        
-        if(status.name==='Envenenado' && character.inventory && character.inventory.some(i=>i.effect==='heal')) canDispel = true;
-        if(status.name==='Silencio' && character.inventory && character.inventory.some(i=>i.name==='Libro de hechizos')) canDispel = true;
-        if(status.name==='Miedo' && character.inventory && character.inventory.some(i=>i.name==='Escudo')) canDispel = true;
-        if(['Ceguera','Ralentizado','Debuff'].includes(status.name) && character.spells && character.spells.length) canDispel = true;
-        
-        if(canDispel) {
-          character.status.splice(idx,1);
-          character.combatLog.push(`<span style='color:#6cf'>Disipas el estado: ${status.name}</span>`);
-          renderCombat(character, monster, turn);
-        } else {
-          alert(`No puedes disipar ${status.name} sin el item/hechizo adecuado.`);
-        }
-      };
-    });
-  }, 100);
-
-  // Verificar muerte o victoria
-  if(character.dead || monster.dead) {
-    if(character.dead) {
-      // Verificar si tiene amuleto del destino
-      if(character.hasDestinyAmulet) {
-        character.hasDestinyAmulet = false;
-        character.hp = 1;
-        character.dead = false;
-        character.combatLog.push(`<span style='color:#ff0'>¡El Amuleto del Destino te salva de la muerte!</span>`);
-        renderCombat(character, monster, turn);
-        return;
-      }
-      
-      updateStats(character, 'death');
-      updateRanking(character);
-      checkAchievements();
-      html += `<div class='section'><b>¡Has muerto! GAME OVER</b></div>`;
-      html += `<button class='btn' onclick='renderModeSelection()'>Volver al menú</button>`;
-      game.innerHTML = html;
-      return;
-    } else {
-      // Victoria - Otorgar XP y oro
-      updateStats(character, 'monster');
-      let xpGain = Math.round((monster.cr||1) * 10 + 5);
-      let goldGain = Math.round((monster.cr||1) * 6 + Math.random()*5);
-      
-      // Aplicar multiplicador de oro si tiene cáliz de la fortuna
-      if(character.goldMultiplier) {
-        goldGain *= character.goldMultiplier;
-      }
-      
-      character.xp += xpGain;
-      character.gold += goldGain;
-      character.combatLog.push(`<span style='color:#ff0'>¡Ganas ${xpGain} XP y ${goldGain} de oro!</span>`);
-      
-      // Intentar drops legendarios y reliquias
-      tryLegendaryDrop(character);
-      tryRelicDrop(character);
-      
-      // Loot aleatorio
-      if(Math.random()<0.2) {
-        let loot = ITEMS[Math.floor(Math.random()*ITEMS.length)];
-        character.inventory = character.inventory || [];
-        character.inventory.push(loot);
-        character.combatLog.push(`<span style='color:#6cf'>¡Encuentras un botín: ${loot.name}!</span>`);
-      }
-      
-      // Sistema de subida de nivel
-      let leveledUp = false;
-      while(character.xp >= character.xpToNext) {
-        character.xp -= character.xpToNext;
-        character.level++;
-        character.xpToNext = Math.round(character.xpToNext * 1.5 + 10);
-        
-        const stats = ['str','dex','con','int','wis','cha'];
-        const stat = stats[Math.floor(Math.random()*stats.length)];
-        character.class[stat] = (character.class[stat]||0) + 1;
-        
-        let hpGain = Math.floor(character.class.hitDie/2) + 2;
-        character.maxHP += hpGain;
-        character.hp = character.maxHP;
-        character.combatLog.push(`<span style='color:#6f6'>¡Subes a nivel ${character.level}! +1 ${stat.toUpperCase()}, +${hpGain} HP</span>`);
-        
-        // Aprender nuevo hechizo
-        let newSpell = (SPELLS[character.class.name]||[]).find(s=>s.level===character.level && !character.spells.some(sp=>sp.name===s.name));
-        if(newSpell) {
-          character.spells = character.spells || [];
-          character.spells.push(newSpell);
-          character.combatLog.push(`<span style='color:#6cf'>¡Aprendes un nuevo hechizo: ${newSpell.name}!</span>`);
-        }
-        leveledUp = true;
-      }
-      
-      // Reducir duración de buffs
-      if(character.status && character.status.length) {
-        character.status = character.status.map(s => {
-          if(s.name==='Buff' && s.turns) return {...s, turns: s.turns-1};
-          return s;
-        }).filter(s => !s.turns || s.turns > 0);
-        
-        if(!character.status.some(s=>s.name==='Buff')) {
-          character.ac = character.class.baseAC;
-        }
-      }
-      
-      html += `<div class='section'><b>¡Victoria! Has derrotado al monstruo.</b></div>`;
-      if(leveledUp) html += `<div class='section' style='color:#6f6'><b>¡Subiste de nivel!</b></div>`;
-      html += `<button class='btn' id='next-battle-btn'>Siguiente enemigo</button>`;
-      game.innerHTML = html;
-      
-      document.getElementById('next-battle-btn').onclick = () => {
-        character.progress++;
-        nextBattle(character);
-      };
-      return;
+  // Batch all DOM updates
+  updates.push(() => {
+    const game = document.getElementById('game');
+    if (!game) return;
+    
+    let html = `<div class='section'><h2>¡Combate!</h2>`;
+    html += `<div><b class='player'>${character.class.name}</b> (Nv. ${character.level}) XP: ${character.xp}/${character.xpToNext} <br>Oro: <span>${character.gold}</span> | HP: <span>${character.hp}</span>/${character.maxHP} | CA: ${character.ac} ${statusString(character, true)}</div>`;
+    html += `<div><b class='enemy'>${monster.name}</b> HP: <span>${monster.hp}</span>/${monster.maxHP} | CA: ${monster.ac} ${statusString(monster, false)}</div>`;
+    
+    // Mostrar companions activos
+    if (character.companions && character.companions.length > 0) {
+      html += `<div class='companions'><small>Companions: ${character.companions.map(c=>c.name).join(', ')}</small></div>`;
     }
-  }
+    
+    html += `<div id='combat-log' class='combat-log'></div>`;
+    html += `<div id='combat-history' class='combat-history'>${(character.combatLog||[]).slice(-8).map(e=>`<div>${e}</div>`).join('')}</div>`;
 
-  // Manejar estados que afectan turnos
-  if(handleStatusEffects(character, monster, turn)) {
-    return; // Si un estado afecta el turno, salir
-  }
-
-  // Turno del jugador
-  if(turn==='player') {
-    html += renderPlayerTurn(character, monster);
+    game.innerHTML = html;
+  });
+  
+  // Limit combat log size for performance
+  if (character.combatLog && character.combatLog.length > 50) {
+    character.combatLog = character.combatLog.slice(-30);
   }
   
-  game.innerHTML = html;
-  
-  // Configurar event listeners después de renderizar
-  if(turn==='player') {
-    setupPlayerTurnEvents(character, monster);
-  }
-}
-
-// Función auxiliar para manejar efectos de estado
-function handleStatusEffects(character, monster, turn) {
-  if(character.status && character.status.some(s=>s.name==='Aturdido')) {
-    document.getElementById('combat-log').innerText = '¡Estás aturdido y pierdes tu turno!';
-    character.status = character.status.map(s=>s.name==='Aturdido'?{...s,turns:s.turns-1}:s).filter(s=>s.turns>0);
-    setTimeout(()=>handleMonsterTurn(character, monster), 1200);
-    return true;
-  }
-  
-  if(character.status && character.status.some(s=>s.name==='Miedo')) {
-    document.getElementById('combat-log').innerText = '¡Estás asustado y solo puedes huir!';
-    character.status = character.status.map(s=>s.name==='Miedo'?{...s,turns:s.turns-1}:s).filter(s=>s.turns>0);
-    setTimeout(()=>handleMonsterTurn(character, monster), 1200);
-    return true;
-  }
-  
-  if(monster.status && monster.status.some(s=>s.name==='Aturdido')) {
-    document.getElementById('combat-log').innerText = '¡El monstruo está aturdido y pierde su turno!';
-    monster.status = monster.status.map(s=>s.name==='Aturdido'?{...s,turns:s.turns-1}:s).filter(s=>s.turns>0);
-    setTimeout(()=>renderCombat(character, monster, 'player'), 1200);
-    return true;
-  }
-  
-  if(monster.status && monster.status.some(s=>s.name==='Miedo')) {
-    document.getElementById('combat-log').innerText = '¡El monstruo está asustado y pierde su turno!';
-    monster.status = monster.status.map(s=>s.name==='Miedo'?{...s,turns:s.turns-1}:s).filter(s=>s.turns>0);
-    setTimeout(()=>renderCombat(character, monster, 'player'), 1200);
-    return true;
-  }
-  
-  return false;
-}
-
-// Función auxiliar para renderizar el turno del jugador
-function renderPlayerTurn(character, monster) {
-  let html = `<div class='section turn-panel'><b>Tu turno</b><br>`;
-  html += `<button class='btn big-btn' id='attack-btn'>⚔️ Atacar</button> `;
-  html += `<button class='btn big-btn' id='item-btn'>🧪 Usar Item</button> `;
-  
-  if(character.cantrips && character.cantrips.length)
-    html += `<select id='cantrip-select' class='big-select'>${character.cantrips.map((c,i)=>`<option value='${i}'>${c.name}</option>`)}</select><button class='btn big-btn' id='cantrip-btn'>✨ Cantrip</button> `;
-  
-  if(character.spells && character.spells.length && !(character.status && character.status.some(s=>s.name==='Silencio')))
-    html += `<select id='spell-select' class='big-select'>${character.spells.map((s,i)=>`<option value='${i}'>${s.name}</option>`)}</select><button class='btn big-btn' id='spell-btn'>🪄 Hechizo</button> `;
-  
-  if(character.status && character.status.some(s=>s.name==='Silencio'))
-    html += `<span class='fx-status' style='margin-left:8px;'>No puedes lanzar hechizos (Silenciado)</span>`;
-  
-  html += `<button class='btn big-btn' id='flee-btn'>🏃‍♂️ Huir</button> `;
-  html += `<button class='btn big-btn' id='talk-btn'>💬 Dialogar</button> `;
-  html += `</div>`;
-  
-  return html;
-}
-
-// Función para configurar los event listeners del turno del jugador
-function setupPlayerTurnEvents(character, monster) {
-  // Botón de ataque
-  const attackBtn = document.getElementById('attack-btn');
-  if(attackBtn) {
-    attackBtn.onclick = () => {
-      character.turns = (character.turns || 0) + 1;
-      let d20 = Math.floor(Math.random()*20)+1 + (character.luckBonus||0);
-      let toHit = d20 + (character.class.str||0);
-      
-      // Penalización por ceguera
-      let blindPenalty = character.status && character.status.some(s=>s.name==='Ceguera') ? -5 : 0;
-      toHit += blindPenalty;
-      
-      if(toHit >= monster.ac) {
-        let dmg = (character.class.str||0) + Math.floor(Math.random()*8)+1;
-        
-        // Aplicar bonos de items
-        if(character.inventory) {
-          character.inventory.forEach(item=>{
-            if(item.effect==='atk') dmg += item.value;
-          });
-        }
-        
-        monster.hp -= dmg;
-        character.combatLog.push(`<span style='color:#6f6'>¡Atacas e infliges ${dmg} de daño! (${d20}+${(character.class.str||0)+blindPenalty} vs CA ${monster.ac})</span>`);
-        
-        if(monster.hp <= 0) { 
-          monster.hp = 0; 
-          monster.dead = true; 
-        }
-      } else {
-        character.combatLog.push(`<span style='color:#f66'>¡Fallas el ataque! (${d20}+${(character.class.str||0)+blindPenalty} vs CA ${monster.ac})</span>`);
-      }
-      
-      if(!monster.dead) {
-        setTimeout(()=>handleMonsterTurn(character, monster), 1000);
-      } else {
-        renderCombat(character, monster, 'player');
-      }
-    };
-  }
-  
-  // Botón de usar item
-  const itemBtn = document.getElementById('item-btn');
-  if(itemBtn) {
-    itemBtn.onclick = () => {
-      if(!character.inventory || !character.inventory.length) {
-        alert('No tienes items.');
-        return;
-      }
-      
-      let itemHtml = `<div class='section item-selection'><h3>Selecciona un item:</h3>`;
-      character.inventory.forEach((item, i) => {
-        itemHtml += `<div class='item-option'><button class='btn' data-idx='${i}'>${item.name}</button> <small>${item.desc || item.effect}</small></div>`;
-      });
-      itemHtml += `<button class='btn' id='cancel-item'>Cancelar</button></div>`;
-      
-      document.getElementById('game').innerHTML += itemHtml;
-      
-      document.querySelectorAll('[data-idx]').forEach(btn => {
-        btn.onclick = () => {
-          const idx = +btn.getAttribute('data-idx');
-          const item = character.inventory[idx];
-          useItem(character, monster, item, idx);
-        };
-      });
-      
-      document.getElementById('cancel-item').onclick = () => {
-        renderCombat(character, monster, 'player');
-      };
-    };
-  }
-  
-  // Botón de cantrip
-  const cantripBtn = document.getElementById('cantrip-btn');
-  if(cantripBtn) {
-    cantripBtn.onclick = () => {
-      const idx = +document.getElementById('cantrip-select').value;
-      const cantrip = character.cantrips[idx];
-      castCantrip(character, monster, cantrip);
-    };
-  }
-  
-  // Botón de hechizo
-  const spellBtn = document.getElementById('spell-btn');
-  if(spellBtn) {
-    spellBtn.onclick = () => {
-      const idx = +document.getElementById('spell-select').value;
-      const spell = character.spells[idx];
-      castSpell(character, monster, spell);
-    };
-  }
-  
-  // Botón de huir
-  const fleeBtn = document.getElementById('flee-btn');
-  if(fleeBtn) {
-    fleeBtn.onclick = () => {
-      character.turns = (character.turns || 0) + 1;
-      let d20 = Math.floor(Math.random()*20)+1 + (character.class.dex||0) + (character.luckBonus||0);
-      let log = `Intentas huir (Destreza): ${d20}`;
-      
-      if(d20 >= 15) {
-        log += ' ¡Escapas exitosamente del combate!';
-        character.combatLog.push(`<span style='color:#6cf'>${log}</span>`);
-        character.progress++;
-        setTimeout(()=>nextBattle(character), 1000);
-      } else {
-        log += ' No logras escapar.';
-        character.combatLog.push(`<span style='color:#f66'>${log}</span>`);
-        setTimeout(()=>handleMonsterTurn(character, monster), 1000);
-      }
-    };
-  }
-  
-  // Botón de dialogar
-  const talkBtn = document.getElementById('talk-btn');
-  if(talkBtn) {
-    talkBtn.onclick = () => {
-      handleDialogue(character, monster);
-    };
-  }
+  PerformanceUtils.batchDOMUpdates(updates);
 }
 
 // Función para usar items
@@ -711,156 +387,6 @@ function useItem(character, monster, item, idx) {
   } else {
     renderCombat(character, monster, 'player');
   }
-}
-
-// Función para lanzar cantrips
-function castCantrip(character, monster, cantrip) {
-  character.turns = (character.turns || 0) + 1;
-  
-  if(cantrip.name === 'Rayo de Escarcha') {
-    let dmg = 3 + Math.floor(Math.random()*4);
-    monster.hp -= dmg;
-    monster.status = monster.status || [];
-    monster.status.push({name:'Ralentizado', turns:1});
-    character.combatLog.push(`<span style='color:#6cf'>Lanzas ${cantrip.name} e infliges ${dmg} de daño y ralentizas al enemigo.</span>`);
-  } else if(cantrip.name === 'Grito Intimidante') {
-    monster.status = monster.status || [];
-    monster.status.push({name:'Miedo', turns:1});
-    character.combatLog.push(`<span style='color:#6cf'>Lanzas ${cantrip.name} y asustas al enemigo.</span>`);
-  } else if(cantrip.name === 'Luz Sagrada') {
-    let dmg = 4 + Math.floor(Math.random()*4);
-    monster.hp -= dmg;
-    character.combatLog.push(`<span style='color:#ff0'>Lanzas ${cantrip.name} e infliges ${dmg} de daño radiante.</span>`);
-  } else if(cantrip.name === 'Chispa') {
-    let dmg = 2 + Math.floor(Math.random()*6);
-    monster.hp -= dmg;
-    character.combatLog.push(`<span style='color:#6cf'>Lanzas ${cantrip.name} e infliges ${dmg} de daño eléctrico.</span>`);
-  } else {
-    // Cantrip genérico
-    let dmg = 2 + Math.floor(Math.random()*3);
-    monster.hp -= dmg;
-    character.combatLog.push(`<span style='color:#6cf'>Lanzas ${cantrip.name} e infliges ${dmg} de daño.</span>`);
-  }
-  
-  if(monster.hp <= 0) { 
-    monster.hp = 0; 
-    monster.dead = true; 
-  }
-  
-  if(!monster.dead) {
-    setTimeout(()=>handleMonsterTurn(character, monster), 1000);
-  } else {
-    renderCombat(character, monster, 'player');
-  }
-}
-
-// Función para lanzar hechizos
-function castSpell(character, monster, spell) {
-  character.turns = (character.turns || 0) + 1;
-  
-  if(spell.name === 'Curar Heridas') {
-    let heal = 8 + character.level * 2;
-    character.hp = Math.min(character.maxHP, character.hp + heal);
-    character.combatLog.push(`<span style='color:#6f6'>Lanzas ${spell.name} y recuperas ${heal} HP.</span>`);
-  } else if(spell.name === 'Misil Mágico') {
-    let dmg = 4 + character.level;
-    monster.hp -= dmg;
-    character.combatLog.push(`<span style='color:#6cf'>Lanzas ${spell.name} e infliges ${dmg} de daño automático.</span>`);
-  } else if(spell.name === 'Bola de Fuego') {
-    let dmg = 15 + Math.floor(Math.random()*10);
-    monster.hp -= dmg;
-    character.combatLog.push(`<span style='color:#f60'>Lanzas ${spell.name} e infliges ${dmg} de daño explosivo.</span>`);
-  } else if(spell.name === 'Armadura de mago') {
-    character.ac += 3;
-    character.status = character.status || [];
-    character.status.push({name:'Buff', turns:3});
-    character.combatLog.push(`<span style='color:#6cf'>Lanzas ${spell.name} y ganas +3 CA por 3 turnos.</span>`);
-  } else if(spell.name === 'Bendición') {
-    character.luckBonus = (character.luckBonus||0) + 2;
-    character.status = character.status || [];
-    character.status.push({name:'Buff', turns:5});
-    character.combatLog.push(`<span style='color:#6cf'>Lanzas ${spell.name} y ganas +2 a todas las tiradas por 5 turnos.</span>`);
-  } else if(spell.name === 'Imposición de Manos') {
-    let heal = character.level * 5;
-    character.hp = Math.min(character.maxHP, character.hp + heal);
-    character.combatLog.push(`<span style='color:#6f6'>Lanzas ${spell.name} y recuperas ${heal} HP.</span>`);
-  } else if(spell.name === 'Escudo de la Fe') {
-    character.ac += 2;
-    character.status = character.status || [];
-    character.status.push({name:'Buff', turns:4});
-    character.combatLog.push(`<span style='color:#6cf'>Lanzas ${spell.name} y ganas +2 CA por 4 turnos.</span>`);
-  } else if(spell.name === 'Furia Potenciada') {
-    character.class.str = (character.class.str||0) + 3;
-    character.status = character.status || [];
-    character.status.push({name:'Buff', turns:3});
-    character.combatLog.push(`<span style='color:#f60'>Lanzas ${spell.name} y ganas +3 STR por 3 turnos.</span>`);
-  } else {
-    // Hechizo genérico
-    let dmg = 5 + character.level;
-    monster.hp -= dmg;
-    character.combatLog.push(`<span style='color:#6cf'>Lanzas ${spell.name} e infliges ${dmg} de daño.</span>`);
-  }
-  
-  if(monster.hp <= 0) { 
-    monster.hp = 0; 
-    monster.dead = true; 
-  }
-  
-  if(!monster.dead) {
-    setTimeout(()=>handleMonsterTurn(character, monster), 1000);
-  } else {
-    renderCombat(character, monster, 'player');
-  }
-}
-
-// Función para el turno del monstruo
-function handleMonsterTurn(character, monster) {
-  // Aplicar daño por veneno al jugador
-  if(character.status && character.status.some(s=>s.name==='Envenenado')) {
-    let poisonDmg = 3;
-    character.hp = Math.max(1, character.hp-poisonDmg);
-    character.damageTaken = (character.damageTaken||0) + poisonDmg;
-    character.combatLog.push(`<span style='color:#f66'>El veneno te daña por ${poisonDmg} HP.</span>`);
-    
-    // Reducir duración del veneno
-    character.status = character.status.map(s=>s.name==='Envenenado'?{...s,turns:s.turns-1}:s).filter(s=>s.turns>0);
-  }
-  
-  // Verificar si el jugador tiene botas del viento para esquivar el primer ataque
-  if(character.hasWindBoots) {
-    character.hasWindBoots = false;
-    character.combatLog.push(`<span style='color:#6cf'>¡Las Botas del Viento te ayudan a esquivar el ataque!</span>`);
-    renderCombat(character, monster, 'player');
-    return;
-  }
-  
-  // Ataque del monstruo
-  let d20 = Math.floor(Math.random()*20)+1;
-  let toHit = d20 + Math.floor(monster.atk/2);
-  
-  if(toHit >= character.ac) {
-    let dmg = monster.atk + Math.floor(Math.random()*6);
-    
-    // Verificar si tiene capa de las sombras (20% evasión)
-    if(character.inventory && character.inventory.some(i=>i.name==='Capa de las Sombras') && Math.random() < 0.2) {
-      character.combatLog.push(`<span style='color:#6cf'>¡La Capa de las Sombras te ayuda a esquivar el ataque!</span>`);
-      renderCombat(character, monster, 'player');
-      return;
-    }
-    
-    character.hp -= dmg;
-    character.damageTaken = (character.damageTaken||0) + dmg;
-    character.combatLog.push(`<span style='color:#f66'>¡${monster.name} te ataca e inflige ${dmg} de daño! (${d20}+${Math.floor(monster.atk/2)} vs CA ${character.ac})</span>`);
-    
-    if(character.hp <= 0) {
-      character.hp = 0;
-      character.dead = true;
-    }
-  } else {
-    character.combatLog.push(`<span style='color:#6cf'>¡${monster.name} falla su ataque! (${d20}+${Math.floor(monster.atk/2)} vs CA ${character.ac})</span>`);
-  }
-  
-  renderCombat(character, monster, 'player');
 }
 
 // --- SISTEMA DE LOGROS Y ESTADÍSTICAS ---
@@ -1365,3 +891,19 @@ function renderEventRoomMejorada(character) {
 window.addEventListener('DOMContentLoaded', () => {
   renderModeSelection();
 });
+
+// Add memory cleanup function
+function cleanupGameMemory() {
+  // Clean up large data structures
+  if (window.DUNGEON && window.DUNGEON.length > 1000) {
+    window.DUNGEON = window.DUNGEON.slice(-500);
+  }
+  
+  // Force garbage collection if available
+  if (window.gc && typeof window.gc === 'function') {
+    window.gc();
+  }
+}
+
+// Set up automatic cleanup
+setInterval(cleanupGameMemory, 60000); // Every minute
