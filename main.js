@@ -63,49 +63,25 @@ $(document).ready(function() {
         skillsObserver.observe($('.skills')[0]);
     }
 
-    // Game Modal functionality - MEJORAR LA INTEGRACIÓN
-    const gameModal = document.getElementById('game-modal');
-    const gameTrigger = document.getElementById('game-trigger');
-    const playGameBtn = document.getElementById('play-game-btn');
-    const gameClose = document.getElementById('game-close');
-
+    // Game Modal functionality con jQuery
     function openGameModal() {
-        gameModal.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        $('#game-modal').addClass('active');
+        $('body').css('overflow', 'hidden');
         
-        // Initialize game if jQuery is loaded
-        if (typeof jQuery !== 'undefined' && window.showWelcomeScreen) {
-            // El juego se inicializa automáticamente con jQuery
-            console.log('✅ Juego D&D cargado exitosamente');
-        } else {
-            // Fallback sin jQuery
-            document.getElementById('game').innerHTML = `
-                <div class='section welcome-section'>
-                    <h2>⚔️ Aventura D&D Épica ⚔️</h2>
-                    <p>Cargando el juego...</p>
-                    <p><em>Asegúrate de que jQuery esté cargado correctamente.</em></p>
-                </div>
-            `;
+        // Initialize game
+        if (typeof showWelcomeScreen === 'function') {
+            showWelcomeScreen();
         }
     }
 
     function closeGameModal() {
-        gameModal.classList.remove('active');
-        document.body.style.overflow = 'auto';
+        $('#game-modal').removeClass('active');
+        $('body').css('overflow', 'auto');
     }
 
-    // Event listeners for game modal - MANTENER EXISTING CODE
-    if (gameTrigger) {
-        gameTrigger.addEventListener('click', openGameModal);
-    }
-    
-    if (playGameBtn) {
-        playGameBtn.addEventListener('click', openGameModal);
-    }
-    
-    if (gameClose) {
-        gameClose.addEventListener('click', closeGameModal);
-    }
+    // Event listeners for game modal
+    $('#game-trigger, #play-game-btn').on('click', openGameModal);
+    $('#game-close').on('click', closeGameModal);
 
     // Close modal when clicking outside
     $('#game-modal').on('click', function(e) {
@@ -224,47 +200,67 @@ $(document).ready(function() {
             }, 1000);
         }
     });
-});
 
-// Utility functions
-function debounce(func, wait, immediate) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            timeout = null;
-            if (!immediate) func(...args);
-        };
-        const callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func(...args);
+    // Circle animation interactivity
+    document.querySelectorAll('.circle').forEach(circle => {
+        circle.addEventListener('mouseenter', function() {
+            this.style.animationPlayState = 'paused';
+            
+            // Add ripple effect
+            const ripple = document.createElement('div');
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255,255,255,0.3);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                pointer-events: none;
+            `;
+            this.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        });
+        
+        circle.addEventListener('mouseleave', function() {
+            this.style.animationPlayState = 'running';
+        });
+    });
+
+    // Add CSS for ripple animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Intersection Observer para activar animaciones
+    const observerOptions = {
+        threshold: 0.3,
+        rootMargin: '0px 0px -100px 0px'
     };
-}
 
-// Performance monitoring
-if ('performance' in window) {
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            const perfData = performance.getEntriesByType('navigation')[0];
-            console.log(`Page Load Time: ${perfData.loadEventEnd - perfData.loadEventStart}ms`);
-        }, 0);
+    const animateOnScroll = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, observerOptions);
+
+    // Observe elements for animations
+    document.querySelectorAll('.skill-category, .project-card').forEach(el => {
+        animateOnScroll.observe(el);
     });
-}
 
-// Service Worker registration for PWA capabilities
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
-}
-
-$(document).ready(function() {
     // Mobile performance optimization
     if (window.innerWidth <= 768) {
         // Disable parallax on mobile
