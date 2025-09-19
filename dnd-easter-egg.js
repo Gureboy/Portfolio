@@ -416,32 +416,66 @@
   }
 
   // ================================
-  // INTERFAZ DE USUARIO
+  // INTERFAZ DE USUARIO MEJORADA
   // ================================
   
   class UI {
     static showWelcomeScreen() {
       const $game = $('#game');
       $game.html(`
-        <div class='section welcome-section fade-in'>
-          <div class='welcome-header'>
-            <h2>⚔️ Aventura D&D Épica ⚔️</h2>
-            <p class='welcome-subtitle'>Roguelike completo con sistema avanzado de RPG</p>
-          </div>
-          
-          <div class='features-grid'>
-            <div class='feature-card'><i class='fas fa-scroll'></i> Historia Épica</div>
-            <div class='feature-card'><i class='fas fa-sword'></i> Combate Estratégico</div>
-            <div class='feature-card'><i class='fas fa-backpack'></i> Sistema de Inventario</div>
-            <div class='feature-card'><i class='fas fa-magic'></i> Habilidades Especiales</div>
-            <div class='feature-card'><i class='fas fa-store'></i> Mercaderes</div>
-            <div class='feature-card'><i class='fas fa-hammer'></i> Mejora de Equipo</div>
-          </div>
-          
-          <div class='welcome-actions'>
-            <button id='start-game-btn' class='btn btn-primary'>🎮 Nueva Aventura</button>
-            <button id='continue-btn' class='btn btn-secondary'>📁 Continuar</button>
-            <button id='show-leaderboard-btn' class='btn btn-outline'>🏆 Ranking</button>
+        <div class='dnd-game-container'>
+          <div class='glass-background'></div>
+          <div class='section welcome-section glass-card fade-in'>
+            <div class='welcome-header glass-header'>
+              <div class='title-glow'>
+                <h2 class='dnd-title'>⚔️ Aventura D&D Épica ⚔️</h2>
+                <div class='title-underline'></div>
+              </div>
+              <p class='welcome-subtitle glass-text'>Roguelike completo con sistema avanzado de RPG</p>
+            </div>
+            
+            <div class='features-grid glass-grid'>
+              <div class='feature-card glass-mini-card'>
+                <div class='feature-icon'><i class='fas fa-scroll'></i></div>
+                <span>Historia Épica</span>
+              </div>
+              <div class='feature-card glass-mini-card'>
+                <div class='feature-icon'><i class='fas fa-sword'></i></div>
+                <span>Combate Estratégico</span>
+              </div>
+              <div class='feature-card glass-mini-card'>
+                <div class='feature-icon'><i class='fas fa-backpack'></i></div>
+                <span>Sistema de Inventario</span>
+              </div>
+              <div class='feature-card glass-mini-card'>
+                <div class='feature-icon'><i class='fas fa-magic'></i></div>
+                <span>Habilidades Especiales</span>
+              </div>
+              <div class='feature-card glass-mini-card'>
+                <div class='feature-icon'><i class='fas fa-store'></i></div>
+                <span>Mercaderes</span>
+              </div>
+              <div class='feature-card glass-mini-card'>
+                <div class='feature-icon'><i class='fas fa-hammer'></i></div>
+                <span>Mejora de Equipo</span>
+              </div>
+            </div>
+            
+            <div class='welcome-actions'>
+              <button id='start-game-btn' class='glass-btn glass-btn-primary'>
+                <span class='btn-icon'>🎮</span>
+                <span>Nueva Aventura</span>
+                <div class='btn-glow'></div>
+              </button>
+              <button id='continue-btn' class='glass-btn glass-btn-secondary'>
+                <span class='btn-icon'>📁</span>
+                <span>Continuar</span>
+              </button>
+              <button id='show-leaderboard-btn' class='glass-btn glass-btn-outline'>
+                <span class='btn-icon'>🏆</span>
+                <span>Ranking</span>
+              </button>
+            </div>
           </div>
         </div>
       `);
@@ -458,33 +492,56 @@
     static showCharacterSelection() {
       const $game = $('#game');
       $game.html(`
-        <div class='section char-selection fade-in'>
-          <div class='selection-header'>
-            <h2>⚔️ Elige tu Héroe ⚔️</h2>
-            <p>Cada clase tiene habilidades únicas y estilos de juego diferentes</p>
-          </div>
-          
-          <div class='character-grid'>
-            ${CLASSES.map((cls, i) => `
-              <div class='char-card' data-class-index='${i}' style='border-color: ${cls.color}'>
-                <div class='char-header' style='background: ${cls.color}'>
-                  <h3>${cls.n}</h3>
-                </div>
-                <div class='char-body'>
-                  <p class='char-desc'>${cls.desc}</p>
-                  <div class='char-special'>
-                    <strong>Especial:</strong> ${cls.special}
-                  </div>
-                  <div class='char-stats'>
-                    HP: ${cls.h + 10} | AC: ${cls.a} | ATK: ${cls.s}
-                  </div>
-                </div>
+        <div class='dnd-game-container'>
+          <div class='glass-background character-bg'></div>
+          <div class='section char-selection glass-card fade-in'>
+            <div class='selection-header glass-header'>
+              <div class='title-glow'>
+                <h2 class='dnd-title'>⚔️ Elige tu Héroe ⚔️</h2>
+                <div class='title-underline'></div>
               </div>
-            `).join('')}
-          </div>
-          
-          <div class='selection-footer'>
-            <button id='back-to-menu' class='btn btn-secondary'>← Volver</button>
+              <p class='glass-text'>Cada clase tiene habilidades únicas y estilos de juego diferentes</p>
+            </div>
+            
+            <div class='character-grid glass-grid'>
+              ${CLASSES.map((cls, i) => `
+                <div class='char-card glass-character-card' data-class-index='${i}'>
+                  <div class='char-header glass-char-header' style='background: linear-gradient(135deg, ${cls.color}80, ${cls.color}40)'>
+                    <h3 class='char-title'>${cls.n}</h3>
+                    <div class='class-icon' style='color: ${cls.color}'>⚔️</div>
+                  </div>
+                  <div class='char-body glass-content'>
+                    <p class='char-desc glass-text'>${cls.desc}</p>
+                    <div class='char-special glass-special'>
+                      <strong class='special-label'>Especial:</strong> 
+                      <span class='special-text'>${cls.special}</span>
+                    </div>
+                    <div class='char-stats glass-stats'>
+                      <div class='stat-item'>
+                        <span class='stat-label'>HP</span>
+                        <span class='stat-value'>${cls.h + 10}</span>
+                      </div>
+                      <div class='stat-item'>
+                        <span class='stat-label'>AC</span>
+                        <span class='stat-value'>${cls.a}</span>
+                      </div>
+                      <div class='stat-item'>
+                        <span class='stat-label'>ATK</span>
+                        <span class='stat-value'>${cls.s}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class='card-glow' style='background: linear-gradient(135deg, ${cls.color}20, transparent)'></div>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class='selection-footer'>
+              <button id='back-to-menu' class='glass-btn glass-btn-secondary'>
+                <span class='btn-icon'>←</span>
+                <span>Volver</span>
+              </button>
+            </div>
           </div>
         </div>
       `);
@@ -501,7 +558,279 @@
       $('#back-to-menu').on('click', () => this.showWelcomeScreen());
     }
 
-    // ...existing code... (resto de métodos UI)
+    static renderCombatEncounter(encounter) {
+      window.currentMonster = {
+        ...encounter.monster,
+        maxHP: encounter.monster.h,
+        conditions: []
+      };
+      
+      const $game = $('#game');
+      $game.html(`
+        <div class='dnd-game-container'>
+          <div class='glass-background combat-bg'></div>
+          <div class='section combat-section glass-card fade-in'>
+            <div class='combat-header glass-header'>
+              <h2 class='dnd-title'>⚔️ ¡Combate Épico! ⚔️</h2>
+              <p class='encounter-desc glass-text'>${encounter.desc}</p>
+            </div>
+            
+            <div class='combat-arena glass-arena'>
+              ${this.renderHeroPanel()}
+              <div class='vs-indicator glass-vs'>
+                <span class='vs-text'>VS</span>
+                <div class='vs-glow'></div>
+              </div>
+              ${this.renderEnemyPanel()}
+            </div>
+            
+            <div class='combat-log-container glass-mini-card'>
+              <h4 class='log-title'>📜 Registro de Combate</h4>
+              <div class='combat-log glass-log' id='combat-log'></div>
+            </div>
+            
+            <div class='action-panel glass-actions'>
+              <div class='basic-actions'>
+                <button id='attack-btn' class='glass-btn glass-btn-combat glass-btn-primary'>
+                  <span class='btn-icon'>⚔️</span>
+                  <span>Atacar</span>
+                  <div class='btn-glow'></div>
+                </button>
+                <button id='inventory-btn' class='glass-btn glass-btn-combat'>
+                  <span class='btn-icon'>🎒</span>
+                  <span>Inventario</span>
+                </button>
+                <button id='defend-btn' class='glass-btn glass-btn-combat'>
+                  <span class='btn-icon'>🛡️</span>
+                  <span>Defenderse</span>
+                </button>
+              </div>
+              <div class='special-actions glass-specials'>
+                ${this.renderSpecialActions()}
+              </div>
+            </div>
+          </div>
+        </div>
+      `);
+      
+      this.bindCombatEvents();
+    }
+
+    static renderHeroPanel() {
+      const char = window.char;
+      return `
+        <div class='hero-panel glass-character-panel'>
+          <div class='panel-header'>
+            <h3 class='character-name'>${char.name}</h3>
+            <span class='level-badge glass-badge'>Nv.${char.lvl}</span>
+          </div>
+          
+          <div class='hp-container'>
+            <div class='hp-bar glass-bar'>
+              <div class='hp-fill hero-hp' style='width: ${(char.hp/char.maxHP)*100}%'></div>
+              <div class='hp-glow'></div>
+              <span class='hp-text'>${char.hp}/${char.maxHP} HP</span>
+            </div>
+          </div>
+          
+          <div class='stats-grid glass-stats-grid'>
+            <div class='stat-box glass-mini-card'>
+              <span class='stat-icon'>🛡️</span>
+              <span class='stat-value'>${Combat.calculateAC(char)}</span>
+              <span class='stat-label'>AC</span>
+            </div>
+            <div class='stat-box glass-mini-card'>
+              <span class='stat-icon'>⚔️</span>
+              <span class='stat-value'>${Combat.calculateAttackBonus(char)}</span>
+              <span class='stat-label'>ATK</span>
+            </div>
+            <div class='stat-box glass-mini-card'>
+              <span class='stat-icon'>💰</span>
+              <span class='stat-value'>${char.gold}</span>
+              <span class='stat-label'>Oro</span>
+            </div>
+          </div>
+          
+          ${this.renderConditions(char.conditions)}
+          <div class='panel-glow hero-glow'></div>
+        </div>
+      `;
+    }
+
+    static renderEnemyPanel() {
+      const monster = window.currentMonster;
+      return `
+        <div class='enemy-panel glass-character-panel enemy'>
+          <div class='panel-header'>
+            <h3 class='character-name'>${monster.n}</h3>
+            <div class='danger-indicator'>💀</div>
+          </div>
+          
+          <div class='hp-container'>
+            <div class='hp-bar glass-bar enemy-bar'>
+              <div class='hp-fill enemy-hp' style='width: ${(monster.h/monster.maxHP)*100}%'></div>
+              <div class='hp-glow enemy-glow'></div>
+              <span class='hp-text'>${monster.h}/${monster.maxHP} HP</span>
+            </div>
+          </div>
+          
+          <div class='stats-grid glass-stats-grid'>
+            <div class='stat-box glass-mini-card enemy-stat'>
+              <span class='stat-icon'>🛡️</span>
+              <span class='stat-value'>${monster.a}</span>
+              <span class='stat-label'>AC</span>
+            </div>
+            <div class='stat-box glass-mini-card enemy-stat'>
+              <span class='stat-icon'>⚔️</span>
+              <span class='stat-value'>${monster.at}</span>
+              <span class='stat-label'>ATK</span>
+            </div>
+          </div>
+          
+          ${this.renderConditions(monster.conditions)}
+          <div class='panel-glow enemy-glow'></div>
+        </div>
+      `;
+    }
+
+    static renderSpecialActions() {
+      const char = window.char;
+      let actions = [];
+      
+      if (char.abilities.rage > 0) {
+        actions.push(`
+          <button id='use-rage' class='glass-btn glass-btn-special rage-btn'>
+            <span class='btn-icon'>🔥</span>
+            <span>Furia (${char.abilities.rage})</span>
+            <div class='special-glow rage-glow'></div>
+          </button>
+        `);
+      }
+      
+      if (char.abilities.spells > 0) {
+        actions.push(`
+          <button id='cast-magic' class='glass-btn glass-btn-special magic-btn'>
+            <span class='btn-icon'>✨</span>
+            <span>Misil Mágico (${char.abilities.spells})</span>
+            <div class='special-glow magic-glow'></div>
+          </button>
+        `);
+      }
+      
+      if (char.abilities.heals > 0) {
+        actions.push(`
+          <button id='divine-heal' class='glass-btn glass-btn-special heal-btn'>
+            <span class='btn-icon'>🙏</span>
+            <span>Curación (${char.abilities.heals})</span>
+            <div class='special-glow heal-glow'></div>
+          </button>
+        `);
+      }
+      
+      if (char.abilities.sneak > 0) {
+        actions.push(`
+          <button id='sneak-attack' class='glass-btn glass-btn-special sneak-btn'>
+            <span class='btn-icon'>🗡️</span>
+            <span>Ataque Furtivo (${char.abilities.sneak})</span>
+            <div class='special-glow sneak-glow'></div>
+          </button>
+        `);
+      }
+      
+      return actions.join('');
+    }
+
+    static renderConditions(conditions) {
+      if (!conditions?.length) return '';
+      return `
+        <div class='conditions-container'>
+          ${conditions.map(c => `
+            <div class='condition-badge glass-condition ${c.name}'>
+              <span class='condition-icon'>${this.getConditionIcon(c.name)}</span>
+              <span class='condition-text'>${c.name}</span>
+              <span class='condition-turns'>(${c.turns || '∞'})</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    static getConditionIcon(conditionName) {
+      const icons = {
+        'rage': '🔥',
+        'defending': '🛡️',
+        'poison': '☠️',
+        'curse': '💀',
+        'blessed': '✨'
+      };
+      return icons[conditionName] || '⚡';
+    }
+
+    static showLeaderboard() {
+      const leaderboard = GameStorage.getLeaderboard();
+      const $game = $('#game');
+      
+      $game.html(`
+        <div class='dnd-game-container'>
+          <div class='glass-background leaderboard-bg'></div>
+          <div class='section leaderboard-section glass-card fade-in'>
+            <div class='leaderboard-header glass-header'>
+              <div class='title-glow'>
+                <h2 class='dnd-title'>🏆 Ranking de Aventureros 🏆</h2>
+                <div class='title-underline'></div>
+              </div>
+              <p class='glass-text'>Los héroes más valientes del reino</p>
+            </div>
+            
+            <div class='leaderboard-list glass-list'>
+              ${leaderboard.length > 0 ? leaderboard.map((entry, i) => `
+                <div class='leaderboard-entry glass-entry ${i < 3 ? 'top-three' : ''}'>
+                  <div class='rank-badge glass-rank-badge rank-${i + 1}'>
+                    <span class='rank-number'>#${i + 1}</span>
+                    ${i < 3 ? `<div class='rank-glow rank-${i + 1}-glow'></div>` : ''}
+                  </div>
+                  <div class='entry-info'>
+                    <div class='entry-main'>
+                      <span class='entry-name'>${entry.character_name}</span>
+                      <span class='entry-class glass-badge'>${entry.class_name}</span>
+                    </div>
+                    <div class='entry-stats'>
+                      <span class='stat-item'>Nv.${entry.final_level}</span>
+                      <span class='stat-item'>${entry.score} pts</span>
+                    </div>
+                  </div>
+                  <div class='entry-glow'></div>
+                </div>
+              `).join('') : `
+                <div class='empty-leaderboard glass-mini-card'>
+                  <div class='empty-icon'>🏆</div>
+                  <p class='glass-text'>¡Sé el primer héroe en completar una aventura!</p>
+                </div>
+              `}
+            </div>
+            
+            <div class='leaderboard-actions'>
+              <button id='back-to-menu' class='glass-btn glass-btn-secondary'>
+                <span class='btn-icon'>🏠</span>
+                <span>Menú Principal</span>
+              </button>
+              <button id='clear-scores' class='glass-btn glass-btn-outline'>
+                <span class='btn-icon'>🗑️</span>
+                <span>Limpiar Puntuaciones</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `);
+      
+      $('#back-to-menu').on('click', () => this.showWelcomeScreen());
+      $('#clear-scores').on('click', function() {
+        if (confirm('¿Seguro que quieres borrar todas las puntuaciones?')) {
+          GameStorage.save('leaderboard', []);
+          UI.showLeaderboard();
+        }
+      });
+    }
 
     static updateCombatDisplay() {
       if ($('.combat-section').length) {
@@ -510,49 +839,19 @@
       }
     }
 
-    static renderHeroPanel() {
-      const char = window.char;
-      return `
-        <div class='hero-panel'>
-          <h3>${char.name} <span class='level-badge'>Nv.${char.lvl}</span></h3>
-          <div class='hp-bar'>
-            <div class='hp-fill' style='width: ${(char.hp/char.maxHP)*100}%'></div>
-            <span class='hp-text'>${char.hp}/${char.maxHP} HP</span>
-          </div>
-          <div class='stats-row'>
-            <span>AC: ${Combat.calculateAC(char)}</span>
-            <span>ATK: ${Combat.calculateAttackBonus(char)}</span>
-            <span>Oro: ${char.gold}</span>
-          </div>
-          ${this.renderConditions(char.conditions)}
-        </div>
-      `;
+    static bindCombatEvents() {
+      $('#attack-btn').on('click', () => Combat.performAttack());
+      $('#inventory-btn').on('click', () => this.showInventoryInCombat());
+      $('#defend-btn').on('click', () => this.defendAction());
+      
+      // Special abilities
+      $('#use-rage').on('click', () => this.useRage());
+      $('#cast-magic').on('click', () => this.castMagicMissile());
+      $('#divine-heal').on('click', () => this.divineHeal());
+      $('#sneak-attack').on('click', () => this.sneakAttack());
     }
 
-    static renderEnemyPanel() {
-      const monster = window.currentMonster;
-      return `
-        <div class='enemy-panel'>
-          <h3>${monster.n}</h3>
-          <div class='hp-bar enemy'>
-            <div class='hp-fill' style='width: ${(monster.h/monster.maxHP)*100}%'></div>
-            <span class='hp-text'>${monster.h}/${monster.maxHP} HP</span>
-          </div>
-          <div class='stats-row'>
-            <span>AC: ${monster.a}</span>
-            <span>ATK: ${monster.at}</span>
-          </div>
-          ${this.renderConditions(monster.conditions)}
-        </div>
-      `;
-    }
-
-    static renderConditions(conditions) {
-      if (!conditions?.length) return '';
-      return `<div class='conditions'>
-        ${conditions.map(c => `<span class='condition ${c.name}'>${c.name} (${c.turns || '∞'})</span>`).join('')}
-      </div>`;
-    }
+    // ...existing code...
   }
 
   // ================================

@@ -37,13 +37,16 @@
     <style>
         /* Critical styles for immediate rendering */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { font-size: 16px; }
+        html { font-size: 16px; scroll-behavior: smooth; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
             line-height: 1.6; 
             color: #1f2937; 
             background: #ffffff;
+            overflow-x: hidden;
         }
+        
+        /* Enhanced preloader with particles */
         .preloader { 
             position: fixed; 
             top: 0; 
@@ -52,26 +55,73 @@
             height: 100%; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
             display: flex; 
+            flex-direction: column;
             justify-content: center; 
             align-items: center; 
             z-index: 10000; 
-            transition: opacity 0.5s ease;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
         }
-        .preloader.hidden { opacity: 0; pointer-events: none; }
+        .preloader.hidden { 
+            opacity: 0; 
+            visibility: hidden;
+            transform: scale(1.1);
+        }
+        
         .loader { 
-            width: 60px; 
-            height: 60px; 
+            width: 80px; 
+            height: 80px; 
             position: relative;
+            margin-bottom: 2rem;
         }
         .loader-inner { 
             width: 100%; 
             height: 100%; 
-            border: 3px solid rgba(255,255,255,0.2); 
-            border-top: 3px solid #ffffff; 
+            border: 4px solid rgba(255,255,255,0.1); 
+            border-top: 4px solid #ffffff; 
             border-radius: 50%; 
-            animation: spin 1s linear infinite; 
+            animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; 
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin { 
+            0% { transform: rotate(0deg) scale(1); } 
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); } 
+        }
+        
+        .loading-text {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-align: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        /* Floating loader particles */
+        .loader-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .loader-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+        }
+        .loader-particle:nth-child(1) { top: 20%; left: 20%; animation-delay: 0s; }
+        .loader-particle:nth-child(2) { top: 20%; right: 20%; animation-delay: 0.5s; }
+        .loader-particle:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 1s; }
+        .loader-particle:nth-child(4) { bottom: 20%; right: 20%; animation-delay: 1.5s; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); opacity: 0.7; }
+            50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+        }
         
         /* Hero critical styles */
         .hero { 
@@ -83,6 +133,26 @@
             position: relative; 
             overflow: hidden;
         }
+        
+        /* Hero particles */
+        .hero-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-particle {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: heroFloat 6s ease-in-out infinite;
+        }
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-100px) rotate(180deg); opacity: 0.8; }
+        }
+        
         .hero-container { 
             max-width: 1200px; 
             margin: 0 auto; 
@@ -104,6 +174,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 0 30px rgba(255,255,255,0.3);
         }
         
         /* Skip link for accessibility */
@@ -116,6 +187,7 @@
             padding: 8px;
             text-decoration: none;
             z-index: 10001;
+            border-radius: 4px;
         }
         .skip-link:focus { top: 6px; }
         
@@ -183,193 +255,346 @@
     
     <!-- Enhanced preloader -->
     <div id="preloader" class="preloader" aria-label="Cargando página">
+        <div class="loader-particles">
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+        </div>
         <div class="loader">
             <div class="loader-inner"></div>
         </div>
-        <div class="loading-text" style="position: absolute; bottom: 30%; color: white; font-size: 1.1rem; font-weight: 500;">
-            Cargando experiencia profesional...
+        <div class="loading-text">
+            <div>Cargando experiencia profesional...</div>
+            <div style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.8;">✨ Daniel Salini • Katosx ✨</div>
         </div>
     </div>
 
     <!-- Enhanced header -->
-    <header class="header" role="banner">
+    <header class="header glass-header" role="banner">
         <nav class="nav" role="navigation" aria-label="Navegación principal">
             <div class="nav-container">
                 <div class="nav-brand">
-                    <a href="#home" aria-label="Daniel Salini - Ir al inicio">
-                        <span class="brand-name">Daniel Salini</span>
-                        <span class="brand-subtitle">Ing. • Dev • Katosx</span>
+                    <a href="#home" aria-label="Daniel Salini - Ir al inicio" class="brand-link">
+                        <div class="brand-content">
+                            <span class="brand-name">Daniel Salini</span>
+                            <span class="brand-subtitle">Ing. • Dev • Katosx</span>
+                        </div>
+                        <div class="brand-glow"></div>
                     </a>
                 </div>
                 
-                <button class="nav-toggle" id="nav-toggle" 
+                <button class="nav-toggle modern-toggle" id="nav-toggle" 
                         aria-label="Abrir menú de navegación" 
                         aria-expanded="false"
                         aria-controls="nav-menu">
                     <span class="hamburger-line"></span>
                     <span class="hamburger-line"></span>
                     <span class="hamburger-line"></span>
+                    <div class="toggle-bg"></div>
                 </button>
                 
-                <div class="nav-menu" id="nav-menu" role="menubar">
-                    <a href="#home" class="nav-link" role="menuitem" aria-label="Ir a inicio">
-                        <i class="fas fa-home" aria-hidden="true"></i>
-                        <span>Inicio</span>
+                <div class="nav-menu modern-menu" id="nav-menu" role="menubar">
+                    <a href="#home" class="nav-link modern-nav-link" role="menuitem" aria-label="Ir a inicio">
+                        <div class="nav-link-content">
+                            <i class="fas fa-home" aria-hidden="true"></i>
+                            <span>Inicio</span>
+                        </div>
+                        <div class="nav-link-glow"></div>
                     </a>
-                    <a href="#about" class="nav-link" role="menuitem" aria-label="Ir a sobre mí">
-                        <i class="fas fa-user" aria-hidden="true"></i>
-                        <span>Sobre mí</span>
+                    <a href="#about" class="nav-link modern-nav-link" role="menuitem" aria-label="Ir a sobre mí">
+                        <div class="nav-link-content">
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                            <span>Sobre mí</span>
+                        </div>
+                        <div class="nav-link-glow"></div>
                     </a>
-                    <a href="#skills" class="nav-link" role="menuitem" aria-label="Ir a habilidades">
-                        <i class="fas fa-cogs" aria-hidden="true"></i>
-                        <span>Habilidades</span>
+                    <a href="#skills" class="nav-link modern-nav-link" role="menuitem" aria-label="Ir a habilidades">
+                        <div class="nav-link-content">
+                            <i class="fas fa-cogs" aria-hidden="true"></i>
+                            <span>Habilidades</span>
+                        </div>
+                        <div class="nav-link-glow"></div>
                     </a>
-                    <a href="#projects" class="nav-link" role="menuitem" aria-label="Ir a proyectos">
-                        <i class="fas fa-briefcase" aria-hidden="true"></i>
-                        <span>Proyectos</span>
+                    <a href="#projects" class="nav-link modern-nav-link" role="menuitem" aria-label="Ir a proyectos">
+                        <div class="nav-link-content">
+                            <i class="fas fa-briefcase" aria-hidden="true"></i>
+                            <span>Proyectos</span>
+                        </div>
+                        <div class="nav-link-glow"></div>
                     </a>
-                    <a href="#contact" class="nav-link" role="menuitem" aria-label="Ir a contacto">
-                        <i class="fas fa-envelope" aria-hidden="true"></i>
-                        <span>Contacto</span>
+                    <a href="#contact" class="nav-link modern-nav-link" role="menuitem" aria-label="Ir a contacto">
+                        <div class="nav-link-content">
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                            <span>Contacto</span>
+                        </div>
+                        <div class="nav-link-glow"></div>
                     </a>
                 </div>
                 
                 <!-- Theme toggle -->
-                <button class="theme-toggle" id="theme-toggle" 
+                <button class="theme-toggle modern-theme-toggle" id="theme-toggle" 
                         aria-label="Cambiar tema" 
                         title="Cambiar entre tema claro y oscuro">
-                    <i class="fas fa-moon" aria-hidden="true"></i>
+                    <div class="theme-icon-container">
+                        <i class="fas fa-moon theme-icon" aria-hidden="true"></i>
+                        <i class="fas fa-sun theme-icon" aria-hidden="true"></i>
+                    </div>
+                    <div class="theme-toggle-bg"></div>
                 </button>
             </div>
         </nav>
         
-        <!-- Progress bar for scroll -->
-        <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+        <!-- Enhanced progress bar -->
+        <div class="scroll-progress-container">
+            <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+            <div class="scroll-progress-glow"></div>
+        </div>
     </header>
 
     <main class="main" id="main-content" role="main">
         <!-- Enhanced Hero Section -->
-        <section id="home" class="hero">
-            <!-- Animated background particles -->
+        <section id="home" class="hero modern-hero">
+            <!-- Advanced animated background -->
             <div class="hero-background">
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
+                <div class="hero-gradient"></div>
+                <div class="hero-mesh"></div>
+                <div class="hero-particles">
+                    <div class="hero-particle" style="width: 4px; height: 4px; top: 10%; left: 10%; animation-delay: 0s;"></div>
+                    <div class="hero-particle" style="width: 6px; height: 6px; top: 20%; left: 80%; animation-delay: 1s;"></div>
+                    <div class="hero-particle" style="width: 3px; height: 3px; top: 70%; left: 20%; animation-delay: 2s;"></div>
+                    <div class="hero-particle" style="width: 5px; height: 5px; top: 80%; left: 90%; animation-delay: 3s;"></div>
+                    <div class="hero-particle" style="width: 4px; height: 4px; top: 40%; left: 60%; animation-delay: 4s;"></div>
+                </div>
+                <div class="hero-orbs">
+                    <div class="hero-orb orb-1"></div>
+                    <div class="hero-orb orb-2"></div>
+                    <div class="hero-orb orb-3"></div>
+                </div>
             </div>
             
             <div class="hero-container">
                 <div class="hero-content">
-                    <div class="hero-text">
-                        <span class="hero-greeting animate-fade-in">
-                            <i class="fas fa-hand-peace" aria-hidden="true"></i>
-                            ¡Hola! Soy
-                        </span>
-                        <h1 class="hero-name animate-slide-up">Daniel Salini</h1>
-                        <h2 class="hero-title animate-slide-up" style="animation-delay: 0.2s">
-                            Ingeniero Electricista & Full Stack Developer
+                    <div class="hero-text modern-hero-text">
+                        <div class="hero-intro">
+                            <span class="hero-greeting animate-fade-in">
+                                <div class="greeting-icon">
+                                    <i class="fas fa-hand-peace" aria-hidden="true"></i>
+                                </div>
+                                <span class="greeting-text">¡Hola! Soy</span>
+                            </span>
+                        </div>
+                        
+                        <h1 class="hero-name modern-hero-name animate-slide-up">
+                            <span class="name-part">Daniel</span>
+                            <span class="name-part">Salini</span>
+                            <div class="name-underline"></div>
+                        </h1>
+                        
+                        <h2 class="hero-title modern-hero-title animate-slide-up" style="animation-delay: 0.2s">
+                            <span class="title-highlight">Ingeniero Electricista</span> & 
+                            <span class="title-highlight">Full Stack Developer</span>
                         </h2>
-                        <h3 class="hero-subtitle animate-slide-up" style="animation-delay: 0.4s">
-                            <span class="highlight-badge">Profesor UPRO</span> • 
-                            <span class="highlight-badge">Músico Katosx</span>
+                        
+                        <h3 class="hero-subtitle modern-hero-subtitle animate-slide-up" style="animation-delay: 0.4s">
+                            <div class="subtitle-badges">
+                                <span class="highlight-badge badge-engineering">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    Profesor UPRO
+                                </span>
+                                <span class="highlight-badge badge-music">
+                                    <i class="fas fa-music"></i>
+                                    Músico Katosx
+                                </span>
+                            </div>
                         </h3>
-                        <p class="hero-description animate-fade-in" style="animation-delay: 0.6s">
-                            Ingeniero Electricista especializado en <strong>automatización industrial</strong> bajo estándares AEA. 
+                        
+                        <p class="hero-description modern-hero-description animate-fade-in" style="animation-delay: 0.6s">
+                            Ingeniero Electricista especializado en <mark class="highlight-text">automatización industrial</mark> bajo estándares AEA. 
                             Desarrollador Full Stack y profesor en UPRO. También soy músico bajo el alias 
-                            <strong>Katosx</strong>, creando beats únicos con Ableton Live y FL Studio.
+                            <mark class="highlight-text">Katosx</mark>, creando beats únicos con Ableton Live y FL Studio.
                         </p>
-                        <div class="hero-buttons animate-fade-in" style="animation-delay: 0.8s">
-                            <a href="#projects" class="btn btn-primary btn-glow">
-                                <i class="fas fa-rocket" aria-hidden="true"></i>
-                                Ver Proyectos
+                        
+                        <div class="hero-buttons modern-hero-buttons animate-fade-in" style="animation-delay: 0.8s">
+                            <a href="#projects" class="btn btn-primary btn-modern">
+                                <span class="btn-content">
+                                    <i class="fas fa-rocket" aria-hidden="true"></i>
+                                    Ver Proyectos
+                                </span>
+                                <div class="btn-glow"></div>
+                                <div class="btn-particles">
+                                    <span class="btn-particle"></span>
+                                    <span class="btn-particle"></span>
+                                    <span class="btn-particle"></span>
+                                </div>
                             </a>
-                            <a href="#contact" class="btn btn-secondary btn-outline">
-                                <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                                Contactar
+                            
+                            <a href="#contact" class="btn btn-secondary btn-modern">
+                                <span class="btn-content">
+                                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                                    Contactar
+                                </span>
+                                <div class="btn-glow"></div>
                             </a>
+                            
                             <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" 
                                target="_blank" 
                                rel="noopener"
-                               class="btn btn-music">
-                                <i class="fab fa-youtube" aria-hidden="true"></i>
-                                Música Katosx
+                               class="btn btn-music btn-modern">
+                                <span class="btn-content">
+                                    <i class="fab fa-youtube" aria-hidden="true"></i>
+                                    Música Katosx
+                                </span>
+                                <div class="btn-glow music-glow"></div>
+                                <div class="music-waves">
+                                    <span class="wave"></span>
+                                    <span class="wave"></span>
+                                    <span class="wave"></span>
+                                </div>
                             </a>
                         </div>
                         
-                        <!-- Quick stats -->
-                        <div class="hero-stats animate-fade-in" style="animation-delay: 1s">
-                            <div class="stat-item">
-                                <span class="stat-number" data-target="5">0</span>
-                                <span class="stat-label">Años Experiencia</span>
+                        <!-- Enhanced quick stats with counters -->
+                        <div class="hero-stats modern-hero-stats animate-fade-in" style="animation-delay: 1s">
+                            <div class="stat-item modern-stat-item" data-aos="zoom-in" data-aos-delay="100">
+                                <div class="stat-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <span class="stat-number" data-target="5">0</span>
+                                    <span class="stat-label">Años Experiencia</span>
+                                </div>
                             </div>
-                            <div class="stat-item">
-                                <span class="stat-number" data-target="25">0</span>
-                                <span class="stat-label">Proyectos</span>
+                            
+                            <div class="stat-item modern-stat-item" data-aos="zoom-in" data-aos-delay="200">
+                                <div class="stat-icon">
+                                    <i class="fas fa-code-branch"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <span class="stat-number" data-target="25">0</span>
+                                    <span class="stat-label">Proyectos</span>
+                                </div>
                             </div>
-                            <div class="stat-item">
-                                <span class="stat-number" data-target="100">0</span>
-                                <span class="stat-label">Estudiantes</span>
+                            
+                            <div class="stat-item modern-stat-item" data-aos="zoom-in" data-aos-delay="300">
+                                <div class="stat-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <span class="stat-number" data-target="100" data-suffix="+">0</span>
+                                    <span class="stat-label">Estudiantes</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Enhanced visual with better animations -->
-                    <div class="hero-visual animate-float">
-                        <div class="circle-animation">
-                            <!-- Technology circles with enhanced styling -->
-                            <div class="circle circle-1" data-tooltip="JavaScript ES6+">
-                                <i class="fab fa-js-square" aria-hidden="true"></i>
+                    <!-- Ultra enhanced visual with 3D effects -->
+                    <div class="hero-visual modern-hero-visual animate-float">
+                        <div class="circle-animation enhanced-circles">
+                            <!-- Technology circles with premium styling -->
+                            <div class="circle circle-1 enhanced-circle" data-tooltip="JavaScript ES6+" data-color="#f7df1e">
+                                <div class="circle-inner">
+                                    <i class="fab fa-js-square" aria-hidden="true"></i>
+                                    <div class="circle-ripple"></div>
+                                </div>
                                 <div class="circle-glow"></div>
-                            </div>
-                            <div class="circle circle-2" data-tooltip="React & Next.js">
-                                <i class="fab fa-react" aria-hidden="true"></i>
-                                <div class="circle-glow"></div>
-                            </div>
-                            <div class="circle circle-3" data-tooltip="Node.js & Express">
-                                <i class="fab fa-node-js" aria-hidden="true"></i>
-                                <div class="circle-glow"></div>
-                            </div>
-                            <div class="circle circle-4" data-tooltip="Bases de Datos">
-                                <i class="fas fa-database" aria-hidden="true"></i>
-                                <div class="circle-glow"></div>
-                            </div>
-                            <div class="circle circle-5" data-tooltip="Producción Musical">
-                                <i class="fas fa-music" aria-hidden="true"></i>
-                                <div class="circle-glow"></div>
-                            </div>
-                            <div class="circle circle-6" data-tooltip="Control de Versiones">
-                                <i class="fab fa-git-alt" aria-hidden="true"></i>
-                                <div class="circle-glow"></div>
+                                <div class="circle-ring"></div>
                             </div>
                             
-                            <!-- Enhanced center avatar -->
-                            <div class="circle-center">
-                                <div class="avatar-container">
-                                    <img src="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg" 
-                                         alt="Daniel Salini - Ingeniero Electricista, Desarrollador y Músico Katosx" 
-                                         class="profile-avatar"
-                                         width="120" 
-                                         height="120"
-                                         loading="eager">
-                                    <div class="avatar-glow"></div>
+                            <div class="circle circle-2 enhanced-circle" data-tooltip="React & Next.js" data-color="#61dafb">
+                                <div class="circle-inner">
+                                    <i class="fab fa-react" aria-hidden="true"></i>
+                                    <div class="circle-ripple"></div>
                                 </div>
-                                <div class="status-indicator">
-                                    <span class="status-dot"></span>
-                                    <span class="status-text">Disponible</span>
+                                <div class="circle-glow"></div>
+                                <div class="circle-ring"></div>
+                            </div>
+                            
+                            <div class="circle circle-3 enhanced-circle" data-tooltip="Node.js & Express" data-color="#68a063">
+                                <div class="circle-inner">
+                                    <i class="fab fa-node-js" aria-hidden="true"></i>
+                                    <div class="circle-ripple"></div>
                                 </div>
+                                <div class="circle-glow"></div>
+                                <div class="circle-ring"></div>
+                            </div>
+                            
+                            <div class="circle circle-4 enhanced-circle" data-tooltip="Bases de Datos" data-color="#336791">
+                                <div class="circle-inner">
+                                    <i class="fas fa-database" aria-hidden="true"></i>
+                                    <div class="circle-ripple"></div>
+                                </div>
+                                <div class="circle-glow"></div>
+                                <div class="circle-ring"></div>
+                            </div>
+                            
+                            <div class="circle circle-5 enhanced-circle" data-tooltip="Producción Musical" data-color="#ff6b6b">
+                                <div class="circle-inner">
+                                    <i class="fas fa-music" aria-hidden="true"></i>
+                                    <div class="circle-ripple"></div>
+                                </div>
+                                <div class="circle-glow"></div>
+                                <div class="circle-ring"></div>
+                            </div>
+                            
+                            <div class="circle circle-6 enhanced-circle" data-tooltip="Control de Versiones" data-color="#f1502f">
+                                <div class="circle-inner">
+                                    <i class="fab fa-git-alt" aria-hidden="true"></i>
+                                    <div class="circle-ripple"></div>
+                                </div>
+                                <div class="circle-glow"></div>
+                                <div class="circle-ring"></div>
+                            </div>
+                            
+                            <!-- Ultra enhanced center avatar -->
+                            <div class="circle-center enhanced-center">
+                                <div class="avatar-container premium-avatar">
+                                    <div class="avatar-frame">
+                                        <img src="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg" 
+                                             alt="Daniel Salini - Ingeniero Electricista, Desarrollador y Músico Katosx" 
+                                             class="profile-avatar"
+                                             width="120" 
+                                             height="120"
+                                             loading="eager">
+                                        <div class="avatar-overlay"></div>
+                                    </div>
+                                    <div class="avatar-glow premium-glow"></div>
+                                    <div class="avatar-ring-1"></div>
+                                    <div class="avatar-ring-2"></div>
+                                </div>
+                                
+                                <div class="status-indicator premium-status">
+                                    <div class="status-container">
+                                        <span class="status-dot"></span>
+                                        <span class="status-text">Disponible para proyectos</span>
+                                    </div>
+                                    <div class="status-glow"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Floating tech badges -->
+                            <div class="floating-badges">
+                                <div class="floating-badge badge-1" data-text="⚡ AEA"></div>
+                                <div class="floating-badge badge-2" data-text="🎓 UPRO"></div>
+                                <div class="floating-badge badge-3" data-text="🎵 Katosx"></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Enhanced scroll indicator -->
-                <div class="hero-scroll">
-                    <a href="#about" class="scroll-indicator" aria-label="Desplazarse hacia abajo">
-                        <span class="scroll-text">Conoce más</span>
-                        <div class="scroll-arrow">
-                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                <!-- Ultra enhanced scroll indicator -->
+                <div class="hero-scroll modern-hero-scroll">
+                    <a href="#about" class="scroll-indicator modern-scroll" aria-label="Desplazarse hacia abajo">
+                        <div class="scroll-container">
+                            <span class="scroll-text">Conoce más sobre mí</span>
+                            <div class="scroll-arrow-container">
+                                <div class="scroll-arrow">
+                                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                </div>
+                                <div class="scroll-line"></div>
+                            </div>
                         </div>
+                        <div class="scroll-glow"></div>
                     </a>
                 </div>
             </div>
@@ -871,61 +1096,118 @@
     </main>
 
     <!-- Enhanced Footer -->
-    <footer class="footer" role="contentinfo">
+    <footer class="footer modern-footer" role="contentinfo">
+        <div class="footer-background">
+            <div class="footer-gradient"></div>
+            <div class="footer-pattern"></div>
+        </div>
+        
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <div class="footer-brand">
-                        <h3>Daniel Salini</h3>
+                    <div class="footer-brand modern-footer-brand">
+                        <h3 class="footer-title">Daniel Salini</h3>
                         <div class="footer-badges">
-                            <span class="footer-badge">🔧 Ing. Electricista</span>
-                            <span class="footer-badge">💻 Full Stack Dev</span>
-                            <span class="footer-badge">👨‍🏫 Prof. UPRO</span>
-                            <span class="footer-badge">🎵 Katosx</span>
+                            <span class="footer-badge engineering-badge">
+                                <i class="fas fa-bolt"></i>
+                                Ing. Electricista
+                            </span>
+                            <span class="footer-badge dev-badge">
+                                <i class="fas fa-code"></i>
+                                Full Stack Dev
+                            </span>
+                            <span class="footer-badge teaching-badge">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                Prof. UPRO
+                            </span>
+                            <span class="footer-badge music-badge">
+                                <i class="fas fa-music"></i>
+                                Katosx
+                            </span>
                         </div>
                     </div>
-                    <p class="footer-philosophy">
-                        "Donde la ingeniería encuentra la creatividad, la educación transforma vidas, 
-                        y la música conecta el alma"
-                    </p>
-                    <p class="footer-credentials">
-                        Automatización Industrial • Estándares AEA • IoT & Smart Systems • 
-                        Zendesk & Jira • Educación Inclusiva
-                    </p>
+                    
+                    <blockquote class="footer-philosophy modern-philosophy">
+                        <div class="quote-mark">"</div>
+                        <p>Donde la ingeniería encuentra la creatividad, la educación transforma vidas, 
+                        y la música conecta el alma</p>
+                        <div class="quote-mark closing">"</div>
+                    </blockquote>
+                    
+                    <div class="footer-credentials modern-credentials">
+                        <div class="credentials-grid">
+                            <span class="credential-item">Automatización Industrial</span>
+                            <span class="credential-item">Estándares AEA</span>
+                            <span class="credential-item">IoT & Smart Systems</span>
+                            <span class="credential-item">Zendesk & Jira</span>
+                            <span class="credential-item">Educación Inclusiva</span>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="footer-links">
+                <div class="footer-links modern-footer-links">
                     <div class="footer-section">
-                        <h4>Contacto Profesional</h4>
-                        <ul>
+                        <h4 class="footer-section-title">
+                            <i class="fas fa-address-card"></i>
+                            Contacto Profesional
+                        </h4>
+                        <ul class="footer-links-list">
                             <li>
-                                <a href="mailto:danielsalini77@gmail.com" aria-label="Enviar email">
-                                    <i class="fas fa-envelope" aria-hidden="true"></i>
-                                    Email
+                                <a href="mailto:danielsalini77@gmail.com" class="footer-link" aria-label="Enviar email">
+                                    <div class="link-content">
+                                        <i class="fas fa-envelope" aria-hidden="true"></i>
+                                        <span>Email Profesional</span>
+                                    </div>
+                                    <div class="link-arrow">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </div>
                                 </a>
                             </li>
                             <li>
-                                <a href="https://www.linkedin.com/in/katosx/" target="_blank" rel="noopener" aria-label="LinkedIn">
-                                    <i class="fab fa-linkedin" aria-hidden="true"></i>
-                                    LinkedIn
+                                <a href="https://www.linkedin.com/in/katosx/" target="_blank" rel="noopener" class="footer-link" aria-label="LinkedIn">
+                                    <div class="link-content">
+                                        <i class="fab fa-linkedin" aria-hidden="true"></i>
+                                        <span>LinkedIn</span>
+                                    </div>
+                                    <div class="link-arrow">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </div>
                                 </a>
                             </li>
                         </ul>
                     </div>
                     
                     <div class="footer-section">
-                        <h4>Proyectos & Música</h4>
-                        <ul>
+                        <h4 class="footer-section-title">
+                            <i class="fas fa-rocket"></i>
+                            Proyectos & Música
+                        </h4>
+                        <ul class="footer-links-list">
                             <li>
-                                <a href="https://github.com/Gureboy" target="_blank" rel="noopener" aria-label="GitHub">
-                                    <i class="fab fa-github" aria-hidden="true"></i>
-                                    GitHub
+                                <a href="https://github.com/Gureboy" target="_blank" rel="noopener" class="footer-link" aria-label="GitHub">
+                                    <div class="link-content">
+                                        <i class="fab fa-github" aria-hidden="true"></i>
+                                        <span>GitHub</span>
+                                    </div>
+                                    <div class="link-arrow">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </div>
                                 </a>
                             </li>
                             <li>
-                                <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" target="_blank" rel="noopener" aria-label="YouTube Katosx">
-                                    <i class="fab fa-youtube" aria-hidden="true"></i>
-                                    Katosx Music
+                                <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" target="_blank" rel="noopener" class="footer-link music-link" aria-label="YouTube Katosx">
+                                    <div class="link-content">
+                                        <i class="fab fa-youtube" aria-hidden="true"></i>
+                                        <span>Katosx Music</span>
+                                    </div>
+                                    <div class="link-arrow">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </div>
+                                    <div class="music-visualizer">
+                                        <span class="bar"></span>
+                                        <span class="bar"></span>
+                                        <span class="bar"></span>
+                                    </div>
                                 </a>
                             </li>
                         </ul>
@@ -933,12 +1215,16 @@
                 </div>
             </div>
             
-            <div class="footer-bottom">
+            <div class="footer-bottom modern-footer-bottom">
                 <div class="footer-bottom-content">
-                    <p>&copy; 2025 Daniel Salini - Ingeniero Electricista. Todos los derechos reservados.</p>
+                    <div class="copyright">
+                        <p>&copy; 2025 Daniel Salini - Ingeniero Electricista. Todos los derechos reservados.</p>
+                    </div>
                     <div class="footer-tech">
                         <span>Construido con</span>
-                        <i class="fas fa-heart" aria-hidden="true" style="color: #ef4444;"></i>
+                        <div class="heart-container">
+                            <i class="fas fa-heart animated-heart" aria-hidden="true"></i>
+                        </div>
                         <span>y tecnología moderna</span>
                     </div>
                 </div>
@@ -946,11 +1232,22 @@
         </div>
     </footer>
 
-    <!-- Back to top button -->
-    <button class="back-to-top" id="back-to-top" 
+    <!-- Enhanced back to top button -->
+    <button class="back-to-top modern-back-to-top" id="back-to-top" 
             aria-label="Volver arriba" 
             title="Volver al inicio de la página">
-        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+        <div class="back-to-top-content">
+            <i class="fas fa-arrow-up" aria-hidden="true"></i>
+            <div class="progress-ring">
+                <svg class="progress-ring-svg" width="50" height="50">
+                    <circle class="progress-ring-circle" 
+                            cx="25" cy="25" r="20" 
+                            fill="transparent" 
+                            stroke-width="2"></circle>
+                </svg>
+            </div>
+        </div>
+        <div class="back-to-top-glow"></div>
     </button>
 
     <!-- Scripts with async loading -->
