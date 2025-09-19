@@ -1,5 +1,18 @@
 @import url("https://fonts.cdnfonts.com/css/thegoodmonolith");
 
+:root {
+  --primary-bg: #000;
+  --secondary-bg: rgba(0, 0, 0, 0.5);
+  --text-primary: #f0f0f0;
+  --text-secondary: #ccc;
+  --accent-color: #ff7a00;
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(255, 122, 0, 0.4);
+  --animation-duration: 8s;
+  --container-size: 220px;
+  --circle-size: 180px;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -7,8 +20,8 @@
 }
 
 body {
-  background: #000;
-  color: #f0f0f0;
+  background: linear-gradient(135deg, var(--primary-bg) 0%, #1a1a1a 100%);
+  color: var(--text-primary);
   font-family: "TheGoodMonolith", monospace;
   display: flex;
   flex-direction: column;
@@ -16,13 +29,19 @@ body {
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
+  overflow-x: hidden;
 }
 
 h1 {
-  margin-bottom: 30px;
-  font-size: 24px;
-  letter-spacing: 1px;
+  margin-bottom: 40px;
+  font-size: clamp(24px, 4vw, 32px);
+  letter-spacing: 2px;
   text-align: center;
+  background: linear-gradient(45deg, var(--text-primary), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 20px rgba(255, 122, 0, 0.3);
 }
 
 .container {
@@ -31,116 +50,640 @@ h1 {
   gap: 30px;
   max-width: 1000px;
   margin: 0 auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  border: 1px solid var(--border-light);
+  backdrop-filter: blur(10px);
 }
 
-@media (max-width: 768px) {
+/* Improved responsive design */
+@media (max-width: 900px) {
   .container {
     grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
   }
 }
-@media (max-width: 500px) {
+
+@media (max-width: 600px) {
   .container {
     grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 15px;
+  }
+  
+  .animation-container {
+    width: min(var(--container-size), 90vw);
+    height: min(var(--container-size), 90vw);
   }
 }
 
 .animation-container {
   position: relative;
-  width: 220px;
-  height: 220px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.5);
-  padding: 10px;
+  width: var(--container-size);
+  height: var(--container-size);
+  border: 2px solid var(--border-light);
+  background: linear-gradient(135deg, var(--secondary-bg) 0%, rgba(26, 26, 26, 0.7) 100%);
+  padding: 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow: visible;
-  transition: border-color 0.3s ease;
+  border-radius: 15px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(5px);
+  cursor: pointer;
+  transform-style: preserve-3d;
 }
 
 .animation-container:hover {
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: var(--border-hover);
+  background: linear-gradient(135deg, rgba(255, 122, 0, 0.1) 0%, rgba(26, 26, 26, 0.8) 100%);
+  box-shadow: 
+    0 10px 30px rgba(255, 122, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-8px) scale(1.02);
+}
+
+.animation-container:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
+.animation-container:active {
+  transform: translateY(-4px) scale(0.98);
 }
 
 .animation-title {
-  margin-bottom: 10px;
-  font-size: 12px;
-  letter-spacing: 0.5px;
+  margin-bottom: 15px;
+  font-size: clamp(10px, 2vw, 12px);
+  letter-spacing: 1px;
   text-transform: uppercase;
   text-align: center;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+  font-weight: 600;
+}
+
+.animation-container:hover .animation-title {
+  color: var(--accent-color);
+  text-shadow: 0 0 10px rgba(255, 122, 0, 0.5);
 }
 
 .circle-container {
   position: relative;
-  width: 180px;
-  height: 180px;
+  width: var(--circle-size);
+  height: var(--circle-size);
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
 }
 
 .dot {
   position: absolute;
   border-radius: 50%;
-  background: #fff;
+  background: linear-gradient(45deg, #fff, var(--accent-color));
+  box-shadow: 
+    0 0 10px rgba(255, 255, 255, 0.3),
+    0 0 20px rgba(255, 122, 0, 0.1);
+  will-change: transform, opacity;
+  transition: all 0.3s ease;
+}
+
+.animation-container:hover .dot {
+  box-shadow: 
+    0 0 15px rgba(255, 122, 0, 0.6),
+    0 0 25px rgba(255, 255, 255, 0.4);
+  filter: brightness(1.2);
 }
 
 .corner {
   position: absolute;
-  width: 16px;
-  height: 16px;
-  color: white;
+  width: 18px;
+  height: 18px;
+  color: var(--accent-color);
   opacity: 0;
   z-index: 10;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 0 5px rgba(255, 122, 0, 0.5));
 }
+
 .animation-container:hover .corner {
   opacity: 1;
+  transform: scale(1.2);
 }
-.top-left { top: -8px; left: -8px; transition-delay: 0s; }
-.top-right { top: -8px; right: -8px; transform: rotate(90deg); transition-delay: 0.1s; }
-.bottom-left { bottom: -8px; left: -8px; transform: rotate(-90deg); transition-delay: 0.2s; }
-.bottom-right { bottom: -8px; right: -8px; transform: rotate(180deg); transition-delay: 0.3s; }
 
-.pulse-dot { opacity: 0; transform-origin: center; animation: pulseFadeIn 3s infinite ease-in-out; }
-@keyframes pulseFadeIn { 0% { opacity: 0; transform: scale(0.2); } 40%,60% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.2); } }
+.top-left { 
+  top: -12px; 
+  left: -12px; 
+  transition-delay: 0s; 
+}
 
-.orbit-container { position: absolute; width: 100%; height: 100%; border-radius: 50%; transform-style: preserve-3d; animation: rotate 8s infinite linear; }
-@keyframes rotate { to { transform: rotateZ(360deg); } }
+.top-right { 
+  top: -12px; 
+  right: -12px; 
+  transform: rotate(90deg); 
+  transition-delay: 0.1s; 
+}
 
-@keyframes expandRing { 0% { transform: scale(0); opacity: 0; } 20% { transform: scale(1); opacity: 1; } 40%,100% { transform: scale(1.1); opacity: 0; } }
+.bottom-left { 
+  bottom: -12px; 
+  left: -12px; 
+  transform: rotate(-90deg); 
+  transition-delay: 0.2s; 
+}
 
-.concentric-container { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; }
-.concentric-ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; transform-style: preserve-3d; animation: rotateRing linear infinite; }
-@keyframes rotateRing { to { transform: rotate(360deg); } }
+.bottom-right { 
+  bottom: -12px; 
+  right: -12px; 
+  transform: rotate(180deg); 
+  transition-delay: 0.3s; 
+}
 
-.circular-wave-dot { animation: circularWave 3s infinite ease-in-out; transform-origin: center; }
-@keyframes circularWave { 0% { transform: scale(0.7); opacity: 0.3; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.7); opacity: 0.3; } }
+.animation-container:hover .top-right { 
+  transform: rotate(90deg) scale(1.2); 
+}
 
-.line-container { position: absolute; width: 100%; height: 100%; animation: rotateLines 8s infinite linear; transform-origin: center; }
-@keyframes rotateLines { to { transform: rotate(360deg); } }
-.expanding-line { position: absolute; height: 1px; left: 50%; top: 50%; transform-origin: left center; background: rgba(255, 255, 255, 0.3); animation: expandLine 4s infinite ease-in-out; }
-@keyframes expandLine { 0% { width: 0; opacity: 0; } 20%,80% { width: 70px; opacity: 1; } 100% { width: 0; opacity: 0; } }
+.animation-container:hover .bottom-left { 
+  transform: rotate(-90deg) scale(1.2); 
+}
 
-.breathing-dot { animation: breathe 4s infinite cubic-bezier(0.4, 0, 0.2, 1); transform-origin: center; }
-@keyframes breathe { 0% { transform: scale(0.8); opacity: 0.3; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.3; } }
+.animation-container:hover .bottom-right { 
+  transform: rotate(180deg) scale(1.2); 
+}
 
-.ripple-container { position: absolute; width: 100%; height: 100%; }
-.ripple-ring { position: absolute; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); animation: ripple 4s infinite cubic-bezier(0, 0.5, 0.5, 1); }
-@keyframes ripple { 0% { width: 0; height: 0; opacity: 1; } 100% { width: 180px; height: 180px; opacity: 0; } }
-.ripple-wave-dot { position: absolute; border-radius: 50%; background: #fff; transform-origin: center; }
-@keyframes rippleWave { 0%,100% { transform: scale(0.8); opacity: 0.3; } 50% { transform: scale(1.8); opacity: 1; } }
+/* Enhanced animations with better performance */
+.pulse-dot { 
+  opacity: 0; 
+  transform-origin: center; 
+  animation: pulseFadeIn 3s infinite ease-in-out; 
+  will-change: transform, opacity;
+}
 
-.fibonacci-container { position: absolute; width: 100%; height: 100%; animation: rotateSlow 30s infinite linear; transform-origin: center; }
-@keyframes rotateSlow { to { transform: rotate(360deg); } }
-.fibonacci-dot { position: absolute; border-radius: 50%; background: #fff; animation: fibPulse 3s infinite ease-in-out; }
-@keyframes fibPulse { 0%,100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+@keyframes pulseFadeIn { 
+  0% { 
+    opacity: 0; 
+    transform: scale(0.2); 
+  } 
+  40%, 60% { 
+    opacity: 1; 
+    transform: scale(1); 
+  } 
+  100% { 
+    opacity: 0; 
+    transform: scale(0.2); 
+  } 
+}
 
-.halftone-container { position: absolute; width: 100%; height: 100%; animation: rotateSlow 20s infinite linear; transform-origin: center; }
-.halftone-dot { position: absolute; border-radius: 50%; background: #fff; animation: halftoneFade 4s infinite ease-in-out; }
-@keyframes halftoneFade { 0%,100% { opacity: 0.3; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1); } }
+.orbit-container { 
+  position: absolute; 
+  width: 100%; 
+  height: 100%; 
+  border-radius: 50%; 
+  transform-style: preserve-3d; 
+  animation: rotate var(--animation-duration) infinite linear; 
+  will-change: transform;
+}
 
-.silver-container { position: absolute; width: 100%; height: 100%; animation: rotateSlow 25s infinite reverse linear; transform-origin: center; }
-.silver-dot { position: absolute; border-radius: 50%; background: #fff; animation: silverPulse 3s infinite ease-in-out; }
-@keyframes silverPulse { 0%,100% { opacity: 0.2; transform: scale(0.7); } 50% { opacity: 1; transform: scale(1.3); } }
+@keyframes rotate { 
+  to { 
+    transform: rotateZ(360deg); 
+  } 
+}
+
+/* Improved performance for complex animations */
+.concentric-container { 
+  position: absolute; 
+  width: 100%; 
+  height: 100%; 
+  transform-style: preserve-3d; 
+}
+
+.concentric-ring { 
+  position: absolute; 
+  width: 100%; 
+  height: 100%; 
+  border-radius: 50%; 
+  transform-style: preserve-3d; 
+  animation: rotateRing linear infinite; 
+  will-change: transform;
+}
+
+@keyframes rotateRing { 
+  to { 
+    transform: rotate(360deg); 
+  } 
+}
+
+.circular-wave-dot { 
+  animation: circularWave 3s infinite ease-in-out; 
+  transform-origin: center; 
+  will-change: transform, opacity;
+}
+
+@keyframes circularWave { 
+  0% { 
+    transform: scale(0.7); 
+    opacity: 0.3; 
+  } 
+  50% { 
+    transform: scale(1.2); 
+    opacity: 1; 
+  } 
+  100% { 
+    transform: scale(0.7); 
+    opacity: 0.3; 
+  } 
+}
+
+/* Add missing animations referenced in JavaScript */
+.sequential-dot {
+  will-change: transform, opacity;
+  border-radius: 50%;
+  animation: expandRing 3s infinite ease-in-out;
+}
+
+@keyframes expandRing {
+  0% { 
+    transform: scale(0); 
+    opacity: 0; 
+  } 
+  20% { 
+    transform: scale(1); 
+    opacity: 1; 
+  } 
+  40%, 100% { 
+    transform: scale(1.1); 
+    opacity: 0; 
+  } 
+}
+
+.ripple-wave-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+@keyframes rippleWave { 
+  0%, 100% { 
+    transform: scale(0.8); 
+    opacity: 0.3; 
+  } 
+  50% { 
+    transform: scale(1.8); 
+    opacity: 1; 
+  } 
+}
+
+.line-container { 
+  position: absolute; 
+  width: 100%; 
+  height: 100%; 
+  animation: rotateLines 8s infinite linear; 
+  transform-origin: center; 
+  will-change: transform;
+}
+
+@keyframes rotateLines { 
+  to { 
+    transform: rotate(360deg); 
+  } 
+}
+
+.expanding-line { 
+  position: absolute; 
+  height: 1px; 
+  left: 50%; 
+  top: 50%; 
+  transform-origin: left center; 
+  background: rgba(255, 122, 0, 0.4); 
+  animation: expandLine 4s infinite ease-in-out; 
+  will-change: width, opacity;
+}
+
+@keyframes expandLine { 
+  0% { 
+    width: 0; 
+    opacity: 0; 
+  } 
+  20%, 80% { 
+    width: 70px; 
+    opacity: 1; 
+  } 
+  100% { 
+    width: 0; 
+    opacity: 0; 
+  } 
+}
+
+.breathing-dot { 
+  animation: breathe 4s infinite cubic-bezier(0.4, 0, 0.2, 1); 
+  transform-origin: center; 
+  will-change: transform, opacity;
+}
+
+@keyframes breathe { 
+  0% { 
+    transform: scale(0.8); 
+    opacity: 0.3; 
+  } 
+  50% { 
+    transform: scale(1.3); 
+    opacity: 1; 
+  } 
+  100% { 
+    transform: scale(0.8); 
+    opacity: 0.3; 
+  } 
+}
+
+.fibonacci-container { 
+  position: absolute; 
+  width: 100%; 
+  height: 100%; 
+  animation: rotateSlow 30s infinite linear; 
+  transform-origin: center; 
+  will-change: transform;
+}
+
+@keyframes rotateSlow { 
+  to { 
+    transform: rotate(360deg); 
+  } 
+}
+
+.fibonacci-dot { 
+  position: absolute; 
+  border-radius: 50%; 
+  background: #fff; 
+  animation: fibPulse 3s infinite ease-in-out; 
+  will-change: transform, opacity;
+}
+
+@keyframes fibPulse { 
+  0%, 100% { 
+    opacity: 0.2; 
+    transform: scale(0.8); 
+  } 
+  50% { 
+    opacity: 1; 
+    transform: scale(1.2); 
+  } 
+}
+
+.halftone-container { 
+  position: absolute; 
+  width: 100%; 
+  height: 100%; 
+  animation: rotateSlow 20s infinite linear; 
+  transform-origin: center; 
+  will-change: transform;
+}
+
+.halftone-dot { 
+  position: absolute; 
+  border-radius: 50%; 
+  background: #fff; 
+  animation: halftoneFade 4s infinite ease-in-out; 
+  will-change: transform, opacity;
+}
+
+@keyframes halftoneFade { 
+  0%, 100% { 
+    opacity: 0.3; 
+    transform: scale(0.5); 
+  } 
+  50% { 
+    opacity: 1; 
+    transform: scale(1); 
+  } 
+}
+
+.silver-container { 
+  position: absolute; 
+  width: 100%; 
+  height: 100%; 
+  animation: rotateSlow 25s infinite reverse linear; 
+  transform-origin: center; 
+  will-change: transform;
+}
+
+.silver-dot { 
+  position: absolute; 
+  border-radius: 50%; 
+  background: #fff; 
+  animation: silverPulse 3s infinite ease-in-out; 
+  will-change: transform, opacity;
+}
+
+@keyframes silverPulse { 
+  0%, 100% { 
+    opacity: 0.2; 
+    transform: scale(0.7); 
+  } 
+  50% { 
+    opacity: 1; 
+    transform: scale(1.3); 
+  } 
+}
+
+/* Enhanced ripple effects */
+.ripple-container { 
+  position: absolute; 
+  width: 100%; 
+  height: 100%; 
+}
+
+.ripple-ring { 
+  position: absolute; 
+  border: 2px solid rgba(255, 122, 0, 0.4); 
+  border-radius: 50%; 
+  left: 50%; 
+  top: 50%; 
+  transform: translate(-50%, -50%); 
+  animation: ripple 4s infinite cubic-bezier(0, 0.5, 0.5, 1); 
+  will-change: transform, opacity;
+}
+
+@keyframes ripple { 
+  0% { 
+    width: 0; 
+    height: 0; 
+    opacity: 1; 
+  } 
+  100% { 
+    width: var(--circle-size); 
+    height: var(--circle-size); 
+    opacity: 0; 
+  } 
+}
+
+/* Performance optimizations */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* GPU acceleration for better performance */
+.animation-container,
+.circle-container,
+.dot,
+.orbit-container,
+.concentric-ring {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Loading states */
+.circle-container:not(.loaded) {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: light) {
+  :root {
+    --primary-bg: #f5f5f5;
+    --secondary-bg: rgba(255, 255, 255, 0.8);
+    --text-primary: #333;
+    --text-secondary: #666;
+    --border-light: rgba(0, 0, 0, 0.1);
+  }
+  
+  body {
+    background: linear-gradient(135deg, var(--primary-bg) 0%, #e0e0e0 100%);
+  }
+}
+
+/* Enhanced loading animation */
+.circle-container.loaded {
+  animation: fadeInComplete 0.4s ease-out forwards;
+}
+
+@keyframes fadeInComplete {
+  from {
+    filter: blur(2px);
+    opacity: 0.8;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+/* Enhanced container hover effects */
+.animation-container::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    transparent, 
+    rgba(255, 122, 0, 0.1), 
+    transparent, 
+    rgba(255, 122, 0, 0.1), 
+    transparent
+  );
+  border-radius: 17px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+  animation: borderGlow 3s linear infinite;
+}
+
+.animation-container:hover::before {
+  opacity: 1;
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Enhanced responsive improvements */
+@media (max-width: 480px) {
+  .animation-container {
+    width: min(180px, 85vw);
+    height: min(180px, 85vw);
+    padding: 10px;
+  }
+  
+  .circle-container {
+    width: min(140px, 70vw);
+    height: min(140px, 70vw);
+  }
+  
+  .animation-title {
+    font-size: 9px;
+    margin-bottom: 8px;
+  }
+}
+
+/* Performance improvements for mobile */
+@media (max-width: 768px) {
+  .animation-container,
+  .circle-container,
+  .dot {
+    will-change: auto;
+  }
+  
+  .animation-container:not(:hover) {
+    transform: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .dot {
+    background: #fff;
+    box-shadow: 0 0 0 2px #000;
+  }
+  
+  .animation-container {
+    border-width: 3px;
+  }
+  
+  .corner {
+    filter: contrast(2);
+  }
+}
+
+/* Print styles */
+@media print {
+  .animation-container {
+    animation: none !important;
+    transform: none !important;
+  }
+  
+  .dot,
+  .circle-container * {
+    animation: none !important;
+  }
+}
