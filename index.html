@@ -1,1278 +1,511 @@
 <!DOCTYPE html>
-<html lang="es" class="no-js">
+<html lang="es" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Daniel Salini - Ingeniero Electricista, Desarrollador Full Stack y músico Katosx. Especializado en automatización industrial bajo estándares AEA, desarrollo web moderno y producción musical con Ableton Live.">
-    <meta name="keywords" content="Daniel Salini, Ingeniero Electricista, Full Stack Developer, Katosx, Automatización Industrial, AEA, ESP32, ESP8266, React, Node.js, Ableton Live, FL Studio, UPRO">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Daniel Salini — Ingeniero Electricista &amp; Full Stack Developer | Katosx</title>
+    <meta name="description" content="Daniel Salini (Katosx) — Ingeniero Electricista, Full Stack Developer, Profesor UPRO y Productor Musical. Especialista en automatización industrial bajo normas AEA.">
+    <meta name="keywords" content="Daniel Salini, Katosx, Ingeniero Electricista, Full Stack, ESP32, ESP8266, AEA, UPRO, React, Node.js, Ableton Live">
     <meta name="author" content="Daniel Salini">
     <meta name="robots" content="index, follow">
-    <meta name="theme-color" content="#6366f1">
-    <meta name="msapplication-TileColor" content="#6366f1">
-    
-    <!-- Open Graph / Facebook -->
+    <meta name="theme-color" content="#c084fc">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://danielsalini.netlify.app/">
-    <meta property="og:title" content="Daniel Salini - Ingeniero Electricista & Full Stack Developer">
-    <meta property="og:description" content="Portfolio profesional de Daniel Salini (Katosx) - Ingeniero, Desarrollador, Profesor y Músico">
+    <meta property="og:title" content="Daniel Salini — Ingeniero &amp; Full Stack Developer | Katosx">
+    <meta property="og:description" content="Portfolio profesional de Daniel Salini (Katosx) — Ingeniero, Desarrollador, Profesor y Músico.">
     <meta property="og:image" content="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
-    
-    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Daniel Salini - Ingeniero Electricista & Full Stack Developer">
-    <meta name="twitter:description" content="Portfolio profesional de Daniel Salini (Katosx) - Ingeniero, Desarrollador, Profesor y Músico">
-    <meta name="twitter:image" content="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
-    
-    <title>Daniel Salini - Ingeniero Electricista & Full Stack Developer | Katosx</title>
-    
-    <!-- Preconnect to external domains -->
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Daniel Salini","alternateName":"Katosx","url":"https://danielsalini.netlify.app","image":"https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg","sameAs":["https://github.com/Gureboy","https://www.linkedin.com/in/katosx/","https://www.youtube.com/watch?v=N4dmCNN2foQ"],"jobTitle":"Ingeniero Electricista & Full Stack Developer"}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://i.ibb.co">
-    <link rel="dns-prefetch" href="https://github.com">
-    <link rel="dns-prefetch" href="https://linkedin.com">
-    
-    <!-- Critical CSS inline for above-the-fold content -->
-    <style>
-        /* Critical styles for immediate rendering */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { font-size: 16px; scroll-behavior: smooth; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            line-height: 1.6; 
-            color: #1f2937; 
-            background: #ffffff;
-            overflow-x: hidden;
-        }
-        
-        /* Enhanced preloader with particles */
-        .preloader { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center; 
-            z-index: 10000; 
-            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        .preloader.hidden { 
-            opacity: 0; 
-            visibility: hidden;
-            transform: scale(1.1);
-        }
-        
-        .loader { 
-            width: 80px; 
-            height: 80px; 
-            position: relative;
-            margin-bottom: 2rem;
-        }
-        .loader-inner { 
-            width: 100%; 
-            height: 100%; 
-            border: 4px solid rgba(255,255,255,0.1); 
-            border-top: 4px solid #ffffff; 
-            border-radius: 50%; 
-            animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; 
-        }
-        @keyframes spin { 
-            0% { transform: rotate(0deg) scale(1); } 
-            50% { transform: rotate(180deg) scale(1.1); }
-            100% { transform: rotate(360deg) scale(1); } 
-        }
-        
-        .loading-text {
-            color: rgba(255,255,255,0.9);
-            font-size: 1.1rem;
-            font-weight: 500;
-            text-align: center;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
-        
-        /* Floating loader particles */
-        .loader-particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-        .loader-particle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: rgba(255,255,255,0.6);
-            border-radius: 50%;
-            animation: float 3s ease-in-out infinite;
-        }
-        .loader-particle:nth-child(1) { top: 20%; left: 20%; animation-delay: 0s; }
-        .loader-particle:nth-child(2) { top: 20%; right: 20%; animation-delay: 0.5s; }
-        .loader-particle:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 1s; }
-        .loader-particle:nth-child(4) { bottom: 20%; right: 20%; animation-delay: 1.5s; }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) scale(1); opacity: 0.7; }
-            50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
-        }
-        
-        /* Hero critical styles */
-        .hero { 
-            min-height: 100vh; 
-            display: flex; 
-            align-items: center; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; 
-            position: relative; 
-            overflow: hidden;
-        }
-        
-        /* Hero particles */
-        .hero-particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .hero-particle {
-            position: absolute;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            animation: heroFloat 6s ease-in-out infinite;
-        }
-        @keyframes heroFloat {
-            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
-            50% { transform: translateY(-100px) rotate(180deg); opacity: 0.8; }
-        }
-        
-        .hero-container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 0 1.5rem; 
-            position: relative; 
-            z-index: 1; 
-        }
-        .hero-content { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 4rem; 
-            align-items: center; 
-        }
-        .hero-name { 
-            font-size: 3.5rem; 
-            font-weight: 700; 
-            margin: 0.5rem 0; 
-            background: linear-gradient(45deg, #ffffff, #e5e7eb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(255,255,255,0.3);
-        }
-        
-        /* Skip link for accessibility */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 6px;
-            background: #000;
-            color: #fff;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 10001;
-            border-radius: 4px;
-        }
-        .skip-link:focus { top: 6px; }
-        
-        @media (max-width: 768px) {
-            .hero-content { grid-template-columns: 1fr; text-align: center; }
-            .hero-name { font-size: 2.5rem; }
-        }
-    </style>
-    
-    <!-- Load CSS asynchronously -->
-    <link rel="preload" href="style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="style.css"></noscript>
-    
-    <!-- Load fonts with display=swap -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Load icons asynchronously -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
-    
-    <!-- PWA Manifest -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
+    <link rel="apple-touch-icon" href="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Favicon and app icons -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg">
-    
-    <!-- Structured Data for SEO -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Daniel Salini",
-      "alternateName": "Katosx",
-      "description": "Ingeniero Electricista, Full Stack Developer y Músico",
-      "url": "https://danielsalini.netlify.app",
-      "image": "https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg",
-      "sameAs": [
-        "https://github.com/Gureboy",
-        "https://www.linkedin.com/in/katosx/",
-        "https://www.youtube.com/watch?v=N4dmCNN2foQ"
-      ],
-      "jobTitle": "Ingeniero Electricista y Desarrollador Full Stack",
-      "worksFor": {
-        "@type": "Organization",
-        "name": "UPRO"
-      },
-      "knowsAbout": [
-        "Automatización Industrial",
-        "Desarrollo Web",
-        "ESP32",
-        "ESP8266", 
-        "React",
-        "Node.js",
-        "Producción Musical"
-      ]
-    }
-    </script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dnd-easter-egg.css">
 </head>
+<body class="body-main" data-theme="dark">
 
-<body>
-    <!-- Skip to main content for screen readers -->
-    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
-    
-    <!-- Enhanced preloader -->
-    <div id="preloader" class="preloader" aria-label="Cargando página">
-        <div class="loader-particles">
-            <div class="loader-particle"></div>
-            <div class="loader-particle"></div>
-            <div class="loader-particle"></div>
-            <div class="loader-particle"></div>
+<div class="loader-screen" id="loader" role="status" aria-label="Cargando portfolio">
+    <div class="loader-content">
+        <div class="loader-code-text" aria-hidden="true">
+            <div class="code-line" data-line="1">const portfolio = {</div>
+            <div class="code-line" data-line="2">  dev: <span class="lc-string">'Daniel Salini'</span>,</div>
+            <div class="code-line" data-line="3">  alias: <span class="lc-green">'Katosx'</span>,</div>
+            <div class="code-line" data-line="4">  status: <span class="lc-cyan">'loading...'</span></div>
+            <div class="code-line" data-line="5">};</div>
         </div>
-        <div class="loader">
-            <div class="loader-inner"></div>
+        <div class="loader-spinner-wrapper"><div class="loader-spinner"></div></div>
+        <div class="loader-progress-wrapper"><div class="loader-progress-bar"></div></div>
+        <div class="loader-percentage" id="loaderPercent">0%</div>
+    </div>
+</div>
+
+<header class="main-header" id="header" role="banner">
+    <nav class="nav-container" role="navigation" aria-label="Navegación principal">
+        <div class="nav-brand">
+            <a href="#home" class="brand-logo" aria-label="Ir al inicio">
+                <span class="logo-bracket">&lt;</span><span class="logo-text">Katosx</span><span class="logo-bracket">/&gt;</span>
+            </a>
         </div>
-        <div class="loading-text">
-            <div>Cargando experiencia profesional...</div>
-            <div style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.8;">✨ Daniel Salini • Katosx ✨</div>
+        <div class="nav-menu" id="navMenu" role="menubar">
+            <a href="#home"       class="nav-link active" data-section="home"       role="menuitem"><i class="fas fa-home"></i><span class="nav-text" data-i18n="nav.home">Inicio</span></a>
+            <a href="#about"      class="nav-link"        data-section="about"      role="menuitem"><i class="fas fa-user"></i><span class="nav-text" data-i18n="nav.about">Sobre mí</span></a>
+            <a href="#skills"     class="nav-link"        data-section="skills"     role="menuitem"><i class="fas fa-code"></i><span class="nav-text" data-i18n="nav.skills">Habilidades</span></a>
+            <a href="#experience" class="nav-link"        data-section="experience" role="menuitem"><i class="fas fa-briefcase"></i><span class="nav-text" data-i18n="nav.experience">Experiencia</span></a>
+            <a href="#projects"   class="nav-link"        data-section="projects"   role="menuitem"><i class="fas fa-rocket"></i><span class="nav-text" data-i18n="nav.projects">Proyectos</span></a>
+            <a href="#contact"    class="nav-link"        data-section="contact"    role="menuitem"><i class="fas fa-envelope"></i><span class="nav-text" data-i18n="nav.contact">Contacto</span></a>
+        </div>
+        <div class="nav-controls">
+            <button class="theme-toggle" id="themeToggle" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"><i class="fas fa-moon"></i><span class="theme-label" data-i18n="nav.theme.dark">Oscuro</span></button>
+            <button class="lang-toggle" id="langToggle" data-i18n-title="nav.lang.title" title="Switch to English" aria-label="Switch to English"><i class="fas fa-globe"></i><span class="lang-label" data-i18n="nav.lang.btn">EN</span></button>
+            <button class="menu-toggle" id="menuToggle" title="Menú" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMenu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+    <div class="scroll-progress-bar" id="scrollProgress" aria-hidden="true"></div>
+</header>
+
+<main class="main-content" id="main-content">
+
+<!-- HERO -->
+<section id="home" class="hero-section" aria-label="Presentación">
+    <div class="hero-background" aria-hidden="true">
+        <div class="code-grid-bg"></div>
+        <div class="floating-particles" id="particles"></div>
+    </div>
+    <div class="hero-container">
+        <div class="hero-content">
+            <div class="hero-greeting">
+                <span class="greeting-text" data-i18n="hero.greeting">¡Hola! Soy</span>
+                <span class="greeting-cursor" aria-hidden="true">|</span>
+            </div>
+            <h1 class="hero-name" id="heroName">
+                <span class="name-prefix">const</span>
+                <span class="name-operator">=</span>
+                <span class="name-value">Daniel Salini</span>
+                <span class="name-suffix">;</span>
+            </h1>
+            <div class="hero-title">
+                <span class="title-prefix" aria-hidden="true">//</span>
+                <span class="title-text" data-i18n="hero.title">Ing. Electricista &amp; Full Stack Developer</span>
+            </div>
+            <p class="hero-description" data-i18n="hero.desc">
+                Especialista en <strong>automatización industrial</strong> bajo normas AEA &middot; Profesor en
+                <strong>UPRO</strong> &middot; Sistemas IoT con ESP32/ESP8266 &middot; Músico productor como
+                <strong>Katosx</strong> con Ableton Live y FL Studio.
+            </p>
+            <div class="hero-buttons">
+                <a href="#contact" class="btn btn-primary"><span data-i18n="hero.btn.contact">Contactar</span><i class="fas fa-paper-plane" aria-hidden="true"></i></a>
+                <a href="#projects" class="btn btn-secondary"><span data-i18n="hero.btn.projects">Ver Proyectos</span><i class="fas fa-code" aria-hidden="true"></i></a>
+                <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" target="_blank" rel="noopener noreferrer" class="btn btn-music"><span data-i18n="hero.btn.music">Música Katosx</span><i class="fab fa-youtube" aria-hidden="true"></i></a>
+            </div>
+            <div class="hero-social">
+                <a href="https://github.com/Gureboy" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/katosx/" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="YouTube Katosx"><i class="fab fa-youtube"></i></a>
+                <a href="mailto:danielsalini77@gmail.com" class="social-icon" aria-label="Email"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+        <div class="hero-image-wrapper">
+            <div class="hero-image-container">
+                <div class="profile-image-glow" aria-hidden="true"></div>
+                <div class="profile-image-frame">
+                    <div class="profile-image" id="profileImage">
+                        <img
+                            src="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg"
+                            alt="Daniel Salini — Ingeniero Electricista, Full Stack Developer y Músico Katosx"
+                            class="profile-avatar"
+                            width="400" height="400"
+                            loading="eager"
+                            decoding="async"
+                        >
+                    </div>
+                </div>
+                <div class="floating-badge badge-1" aria-hidden="true">
+                    <i class="fas fa-bolt"></i>
+                    <div class="badge-content"><span class="badge-title" data-i18n="badge.electrical">Ing. Eléctrico</span><span class="badge-libs">AEA &middot; ESP32 &middot; IoT</span></div>
+                </div>
+                <div class="floating-badge badge-2" aria-hidden="true">
+                    <i class="fab fa-react"></i>
+                    <div class="badge-content"><span class="badge-title">Full Stack</span><span class="badge-libs">React &middot; Node.js &middot; JS</span></div>
+                </div>
+                <div class="floating-badge badge-3" aria-hidden="true">
+                    <i class="fas fa-music"></i>
+                    <div class="badge-content"><span class="badge-title">Katosx</span><span class="badge-libs">Ableton &middot; FL Studio</span></div>
+                </div>
+            </div>
         </div>
     </div>
+    <div class="scroll-indicator" aria-hidden="true">
+        <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+        <span class="scroll-text" data-i18n="hero.scroll">Deslizar</span>
+    </div>
+</section>
 
-    <!-- Enhanced header -->
-    <header class="header glass-header" role="banner">
-        <nav class="nav" role="navigation" aria-label="Navegación principal">
-            <div class="nav-container">
-                <div class="nav-brand">
-                    <a href="#home" aria-label="Daniel Salini - Ir al inicio" class="brand-link">
-                        <div class="brand-content">
-                            <span class="brand-name">Daniel Salini</span>
-                            <span class="brand-subtitle">Ing. • Dev • Katosx</span>
-                        </div>
-                        <div class="brand-glow"></div>
-                    </a>
+<!-- ABOUT -->
+<section id="about" class="section about-section" aria-label="Sobre mí">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">01</span>
+            <h2 class="section-title">
+                <span class="title-bracket" aria-hidden="true">&lt;</span>
+                <span class="title-text" data-i18n="about.title">Sobre mí</span>
+                <span class="title-bracket" aria-hidden="true">/&gt;</span>
+            </h2>
+            <div class="section-line" aria-hidden="true"></div>
+        </div>
+        <div class="about-content">
+            <div class="about-text-wrapper">
+                <p class="about-text" data-i18n="about.p1">
+                    Soy <strong>Daniel Salini</strong>, Ingeniero Electricista especializado en
+                    <strong>automatización industrial</strong> bajo los estándares AEA.
+                    Profesor en <strong>UPRO</strong> — Automatización Industrial y Electricidad —
+                    con la experiencia transformadora de haber enseñado en la Penitenciaría de San Luis.
+                </p>
+                <p class="about-text" data-i18n="about.p2">
+                    Desarrollador Full Stack con foco en IoT: sistemas de alarmas con <strong>ESP32/ESP8266</strong>
+                    y mapas Leaflet. Manejo de <strong>Zendesk, Jira</strong> y CRM corporativos.
+                    Músico productor electrónico como <strong>Katosx</strong> con Ableton Live y FL Studio.
+                </p>
+                <blockquote class="about-quote" data-i18n="about.quote">
+                    "La ingeniería me enseñó precisión, la programación versatilidad,
+                    la docencia el valor del conocimiento, y la música el alma para
+                    conectar todo con creatividad."
+                </blockquote>
+                <div class="credentials-grid">
+                    <div class="cred-item"><i class="fas fa-graduation-cap"></i><span data-i18n="cred.engineer">Ingeniero Electricista</span></div>
+                    <div class="cred-item"><i class="fas fa-industry"></i><span data-i18n="cred.aea">Especialista AEA</span></div>
+                    <div class="cred-item"><i class="fas fa-chalkboard-teacher"></i><span data-i18n="cred.teacher">Profesor UPRO</span></div>
+                    <div class="cred-item"><i class="fas fa-heart"></i><span data-i18n="cred.prison">Docente Penitenciaría</span></div>
+                    <div class="cred-item"><i class="fas fa-code"></i><span data-i18n="cred.dev">Full Stack Developer</span></div>
+                    <div class="cred-item"><i class="fas fa-headset"></i><span data-i18n="cred.crm">Especialista CRM</span></div>
+                    <div class="cred-item"><i class="fas fa-microchip"></i><span data-i18n="cred.iot">IoT — ESP32/ESP8266</span></div>
+                    <div class="cred-item"><i class="fas fa-music"></i><span data-i18n="cred.music">Productor Musical</span></div>
                 </div>
-                
-                <button class="nav-toggle modern-toggle" id="nav-toggle" 
-                        aria-label="Abrir menú de navegación" 
-                        aria-expanded="false"
-                        aria-controls="nav-menu">
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <div class="toggle-bg"></div>
+                <div class="about-stats">
+                    <div class="stat-item"><div class="stat-number" data-count="5">0</div><div class="stat-label" data-i18n="stat.years">Años Exp.</div></div>
+                    <div class="stat-item"><div class="stat-number" data-count="25">0</div><div class="stat-label" data-i18n="stat.projects">Proyectos IoT</div></div>
+                    <div class="stat-item"><div class="stat-number" data-count="100">0</div><div class="stat-label" data-i18n="stat.students">Estudiantes</div></div>
+                </div>
+            </div>
+            <div class="about-image-wrapper">
+                <div class="about-image-container">
+                    <div class="code-block" aria-label="Perfil en código">
+                        <div class="code-header"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span><span class="code-filename">perfil.js</span></div>
+                        <div class="code-line"><span class="code-keyword">const</span><span class="code-variable"> daniel</span><span class="code-operator"> =</span><span class="code-brace"> {</span></div>
+                        <div class="code-line indent"><span class="code-property">nombre</span><span class="code-operator">:</span><span class="code-string"> 'Daniel Salini'</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent"><span class="code-property">alias</span><span class="code-operator">:</span><span class="code-string"> 'Katosx'</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent"><span class="code-property">roles</span><span class="code-operator">:</span><span class="code-bracket"> [</span></div>
+                        <div class="code-line indent2"><span class="code-string">'Ing. Electricista'</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent2"><span class="code-string">'Full Stack Dev'</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent2"><span class="code-string">'Profesor UPRO'</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent2"><span class="code-string">'Productor Katosx'</span></div>
+                        <div class="code-line indent"><span class="code-bracket">]</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent"><span class="code-property">normas</span><span class="code-operator">:</span><span class="code-string"> 'AEA'</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent"><span class="code-property">iot</span><span class="code-operator">:</span><span class="code-bracket"> [</span><span class="code-string">'ESP32'</span><span class="code-comma">, </span><span class="code-string">'ESP8266'</span><span class="code-bracket">]</span><span class="code-comma">,</span></div>
+                        <div class="code-line indent"><span class="code-property">disponible</span><span class="code-operator">:</span><span class="code-keyword"> true</span></div>
+                        <div class="code-line"><span class="code-brace">}</span><span class="code-semicolon">;</span></div>
+                    </div>
+                    <div class="status-badge"><span class="status-dot"></span><span data-i18n="about.status">Disponible para proyectos</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" class="section skills-section" aria-label="Habilidades">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">02</span>
+            <h2 class="section-title">
+                <span class="title-bracket" aria-hidden="true">&lt;</span>
+                <span class="title-text" data-i18n="skills.title">Habilidades</span>
+                <span class="title-bracket" aria-hidden="true">/&gt;</span>
+            </h2>
+            <div class="section-line" aria-hidden="true"></div>
+        </div>
+        <div class="skills-grid">
+            <div class="skill-category sk-engineering">
+                <h3 class="category-title"><i class="fas fa-bolt"></i> <span data-i18n="skills.engineering">Ingeniería Eléctrica</span></h3>
+                <div class="skill-items">
+                    <div class="skill-item" data-percent="95"><div class="skill-header"><span class="skill-name" data-i18n="skill.automation">Automatización Industrial</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="90"><div class="skill-header"><span class="skill-name">ESP32 / ESP8266</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="95"><div class="skill-header"><span class="skill-name" data-i18n="skill.aea">Normativas AEA</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="88"><div class="skill-header"><span class="skill-name" data-i18n="skill.alarms">Sistemas de Alarmas IoT</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                </div>
+            </div>
+            <div class="skill-category sk-dev">
+                <h3 class="category-title"><i class="fas fa-code"></i> <span data-i18n="skills.web">Desarrollo Web</span></h3>
+                <div class="skill-items">
+                    <div class="skill-item" data-percent="95"><div class="skill-header"><span class="skill-name">JavaScript (ES6+)</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="90"><div class="skill-header"><span class="skill-name">React</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="85"><div class="skill-header"><span class="skill-name">Node.js / Express</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="85"><div class="skill-header"><span class="skill-name">Leaflet Maps</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                </div>
+            </div>
+            <div class="skill-category sk-music">
+                <h3 class="category-title"><i class="fas fa-music"></i> <span data-i18n="skills.music">Música (Katosx)</span></h3>
+                <div class="skill-items">
+                    <div class="skill-item" data-percent="90"><div class="skill-header"><span class="skill-name">Ableton Live</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="85"><div class="skill-header"><span class="skill-name">FL Studio</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="85"><div class="skill-header"><span class="skill-name" data-i18n="skill.mix">Mezcla &amp; Mastering</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="90"><div class="skill-header"><span class="skill-name" data-i18n="skill.music.prod">Producción Musical</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                </div>
+            </div>
+            <div class="skill-category sk-crm">
+                <h3 class="category-title"><i class="fas fa-chart-bar"></i> <span data-i18n="skills.crm">CRM &amp; Gestión</span></h3>
+                <div class="skill-items">
+                    <div class="skill-item" data-percent="90"><div class="skill-header"><span class="skill-name">Zendesk</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="85"><div class="skill-header"><span class="skill-name">Jira</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="90"><div class="skill-header"><span class="skill-name">Customer Support</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                    <div class="skill-item" data-percent="85"><div class="skill-header"><span class="skill-name">Project Management</span><span class="skill-percent">0%</span></div><div class="skill-bar"><div class="skill-progress" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- EXPERIENCE / TIMELINE -->
+<section id="experience" class="section experience-section" aria-label="Experiencia">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">03</span>
+            <h2 class="section-title">
+                <span class="title-bracket" aria-hidden="true">&lt;</span>
+                <span class="title-text" data-i18n="exp.title">Experiencia</span>
+                <span class="title-bracket" aria-hidden="true">/&gt;</span>
+            </h2>
+            <div class="section-line" aria-hidden="true"></div>
+        </div>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-marker" aria-hidden="true"></div>
+                <div class="timeline-content">
+                    <div class="timeline-header"><div class="timeline-year">2019 — <span data-i18n="exp.present">Presente</span></div><div class="timeline-badge" data-i18n="exp.current">Actual</div></div>
+                    <h3 class="timeline-title" data-i18n="exp.job1.title">Ingeniero Electricista &amp; Automatización</h3>
+                    <div class="timeline-company"><i class="fas fa-industry" aria-hidden="true"></i> <span data-i18n="exp.job1.company">Industria / Proyectos Propios</span></div>
+                    <p class="timeline-description" data-i18n="exp.job1.desc">Diseño e implementación de sistemas de automatización industrial bajo normas AEA. Desarrollo de sistemas de alarmas inteligentes con ESP32/ESP8266 y visualización geoespacial con Leaflet Maps.</p>
+                    <div class="timeline-achievements">
+                        <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-i18n="ach.iot">20+ proyectos IoT implementados</span></div>
+                        <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-i18n="ach.aea">Certificación en normas AEA</span></div>
+                        <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-i18n="ach.leaflet">Integración ESP32 + Leaflet en producción</span></div>
+                    </div>
+                    <div class="timeline-tags"><span class="tag">AEA</span><span class="tag">ESP32</span><span class="tag">ESP8266</span><span class="tag">Leaflet</span><span class="tag">IoT</span><span class="tag">SCADA</span></div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-marker" aria-hidden="true"></div>
+                <div class="timeline-content">
+                    <div class="timeline-header"><div class="timeline-year">2021 — <span data-i18n="exp.present">Presente</span></div><div class="timeline-badge" data-i18n="exp.current">Actual</div></div>
+                    <h3 class="timeline-title" data-i18n="exp.job2.title">Profesor — UPRO</h3>
+                    <div class="timeline-company"><i class="fas fa-chalkboard-teacher" aria-hidden="true"></i> <span data-i18n="exp.job2.company">UPRO — Universidad Provincial</span></div>
+                    <p class="timeline-description" data-i18n="exp.job2.desc">Docente de Automatización Industrial y Electricidad. Diseño de contenidos curriculares, evaluaciones prácticas y proyectos de laboratorio. Experiencia única en Penitenciaría de San Luis.</p>
+                    <div class="timeline-achievements">
+                        <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-i18n="ach.students">+100 estudiantes formados</span></div>
+                        <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-i18n="ach.curricula">Diseño de currícula práctica IoT</span></div>
+                        <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-i18n="ach.social">Impacto social — Penitenciaría de San Luis</span></div>
+                    </div>
+                    <div class="timeline-tags"><span class="tag">UPRO</span><span class="tag" data-i18n="tag.teaching">Docencia</span><span class="tag" data-i18n="tag.automation">Automatización</span><span class="tag" data-i18n="tag.inclusion">Inclusión</span></div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-marker" aria-hidden="true"></div>
+                <div class="timeline-content">
+                    <div class="timeline-header"><div class="timeline-year">2020 — <span data-i18n="exp.present">Presente</span></div></div>
+                    <h3 class="timeline-title" data-i18n="exp.job3.title">Full Stack Developer &amp; CRM Specialist</h3>
+                    <div class="timeline-company"><i class="fas fa-code" aria-hidden="true"></i> <span data-i18n="exp.job3.company">Proyectos Web &amp; Gestión</span></div>
+                    <p class="timeline-description" data-i18n="exp.job3.desc">Desarrollo de aplicaciones web con React y Node.js. Gestión de atención al cliente y tickets usando Zendesk y Jira en entornos corporativos.</p>
+                    <div class="timeline-achievements">
+                        <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-i18n="ach.github">Repositorio GitHub activo (Gureboy)</span></div>
+                        <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-i18n="ach.zendesk">Zendesk &amp; Jira en producción</span></div>
+                    </div>
+                    <div class="timeline-tags"><span class="tag">React</span><span class="tag">Node.js</span><span class="tag">JavaScript</span><span class="tag">Zendesk</span><span class="tag">Jira</span></div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-marker" aria-hidden="true"></div>
+                <div class="timeline-content">
+                    <div class="timeline-header"><div class="timeline-year">2018 — <span data-i18n="exp.present">Presente</span></div></div>
+                    <h3 class="timeline-title" data-i18n="exp.job4.title">Productor Musical — Katosx</h3>
+                    <div class="timeline-company"><i class="fas fa-music" aria-hidden="true"></i> <span data-i18n="exp.job4.company">Proyecto Musical Independiente</span></div>
+                    <p class="timeline-description" data-i18n="exp.job4.desc">Producción de música electrónica y beats bajo el alias Katosx, fusionando background técnico con creatividad artística. Publicación en YouTube.</p>
+                    <div class="timeline-achievements">
+                        <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-i18n="ach.tracks">Tracks publicados en YouTube</span></div>
+                        <div class="achievement-item"><i class="fas fa-check-circle" aria-hidden="true"></i><span data-i18n="ach.mastering">Mezcla y mastering propios</span></div>
+                    </div>
+                    <div class="timeline-tags"><span class="tag">Ableton Live</span><span class="tag">FL Studio</span><span class="tag">Electronic</span><span class="tag">Mastering</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects" class="section projects-section" aria-label="Proyectos">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">04</span>
+            <h2 class="section-title">
+                <span class="title-bracket" aria-hidden="true">&lt;</span>
+                <span class="title-text" data-i18n="projects.title">Proyectos</span>
+                <span class="title-bracket" aria-hidden="true">/&gt;</span>
+            </h2>
+            <div class="section-line" aria-hidden="true"></div>
+        </div>
+        <div class="projects-grid">
+            <article class="project-card">
+                <div class="project-image"><div class="project-overlay" aria-hidden="true"><div class="project-links"><a href="https://github.com/Gureboy" target="_blank" rel="noopener noreferrer" class="project-link" aria-label="Ver en GitHub"><i class="fab fa-github"></i></a></div></div><div class="project-placeholder p-engineering"><i class="fas fa-microchip"></i></div></div>
+                <div class="project-content"><h3 class="project-title" data-i18n="proj1.title">Sistema de Alarmas IoT</h3><p class="project-description" data-i18n="proj1.desc">Sistema inteligente con ESP8266/ESP32 y visualización en tiempo real mediante mapas interactivos Leaflet. Monitoreo remoto y alertas.</p><div class="project-tags"><span class="tag">ESP32</span><span class="tag">ESP8266</span><span class="tag">Leaflet</span><span class="tag">IoT</span></div></div>
+            </article>
+            <article class="project-card">
+                <div class="project-image"><div class="project-overlay" aria-hidden="true"><div class="project-links"><a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" target="_blank" rel="noopener noreferrer" class="project-link" aria-label="Escuchar en YouTube"><i class="fab fa-youtube"></i></a></div></div><div class="project-placeholder p-music"><i class="fas fa-headphones"></i></div></div>
+                <div class="project-content"><h3 class="project-title" data-i18n="proj2.title">Katosx — Música Electrónica</h3><p class="project-description" data-i18n="proj2.desc">Producción musical electrónica fusionando background técnico de ingeniería con creatividad artística. Beats únicos con Ableton Live y FL Studio.</p><div class="project-tags"><span class="tag">Ableton</span><span class="tag">FL Studio</span><span class="tag">Electronic</span><span class="tag">YouTube</span></div></div>
+            </article>
+            <article class="project-card">
+                <div class="project-image"><div class="project-overlay" aria-hidden="true"><div class="project-links"><a href="#contact" class="project-link" aria-label="Consultar"><i class="fas fa-envelope"></i></a></div></div><div class="project-placeholder p-industry"><i class="fas fa-industry"></i></div></div>
+                <div class="project-content"><h3 class="project-title" data-i18n="proj3.title">Automatización Industrial AEA</h3><p class="project-description" data-i18n="proj3.desc">Proyectos de automatización de procesos siguiendo estándares AEA para industrias. Control de procesos y monitoreo remoto SCADA.</p><div class="project-tags"><span class="tag">AEA</span><span class="tag">PLC</span><span class="tag">SCADA</span><span class="tag" data-i18n="tag.automation">Automatización</span></div></div>
+            </article>
+            <article class="project-card">
+                <div class="project-image"><div class="project-overlay" aria-hidden="true"><div class="project-links"><a href="#contact" class="project-link" aria-label="Consultar"><i class="fas fa-envelope"></i></a></div></div><div class="project-placeholder p-teaching"><i class="fas fa-chalkboard-teacher"></i></div></div>
+                <div class="project-content"><h3 class="project-title" data-i18n="proj4.title">Educación Técnica — UPRO</h3><p class="project-description" data-i18n="proj4.desc">Diseño de currícula y enseñanza de Automatización Industrial y Electricidad. Educación inclusiva en Penitenciaría de San Luis.</p><div class="project-tags"><span class="tag">UPRO</span><span class="tag" data-i18n="tag.automation">Automatización</span><span class="tag" data-i18n="tag.education">Educación</span></div></div>
+            </article>
+            <article class="project-card">
+                <div class="project-image"><div class="project-overlay" aria-hidden="true"><div class="project-links"><a href="#contact" class="project-link" aria-label="Consultar"><i class="fas fa-envelope"></i></a></div></div><div class="project-placeholder p-crm"><i class="fas fa-headset"></i></div></div>
+                <div class="project-content"><h3 class="project-title" data-i18n="proj5.title">CRM &amp; Customer Support</h3><p class="project-description" data-i18n="proj5.desc">Gestión de tickets, seguimiento de proyectos y atención al cliente con Zendesk, Jira y plataformas CRM especializadas.</p><div class="project-tags"><span class="tag">Zendesk</span><span class="tag">Jira</span><span class="tag">CRM</span></div></div>
+            </article>
+            <article class="project-card">
+                <div class="project-image"><div class="project-overlay" aria-hidden="true"><div class="project-links"><a href="https://github.com/Gureboy" target="_blank" rel="noopener noreferrer" class="project-link" aria-label="Ver en GitHub"><i class="fab fa-github"></i></a></div></div><div class="project-placeholder p-dev"><i class="fas fa-laptop-code"></i></div></div>
+                <div class="project-content"><h3 class="project-title" data-i18n="proj6.title">Desarrollo Full Stack</h3><p class="project-description" data-i18n="proj6.desc">Aplicaciones web modernas con React, Node.js y APIs REST. Portfolio, dashboards y sistemas disponibles en GitHub (Gureboy).</p><div class="project-tags"><span class="tag">React</span><span class="tag">Node.js</span><span class="tag">REST API</span></div></div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section contact-section" aria-label="Contacto">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">05</span>
+            <h2 class="section-title">
+                <span class="title-bracket" aria-hidden="true">&lt;</span>
+                <span class="title-text" data-i18n="contact.title">Contacto</span>
+                <span class="title-bracket" aria-hidden="true">/&gt;</span>
+            </h2>
+            <div class="section-line" aria-hidden="true"></div>
+        </div>
+        <div class="contact-content">
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="fas fa-envelope" aria-hidden="true"></i></div>
+                    <div class="contact-details"><h4 class="contact-label" data-i18n="contact.email.label">Email Profesional</h4><a href="mailto:danielsalini77@gmail.com" class="contact-value">danielsalini77@gmail.com</a></div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="fab fa-github" aria-hidden="true"></i></div>
+                    <div class="contact-details"><h4 class="contact-label">GitHub</h4><a href="https://github.com/Gureboy" target="_blank" rel="noopener noreferrer" class="contact-value">github.com/Gureboy</a></div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="fab fa-linkedin-in" aria-hidden="true"></i></div>
+                    <div class="contact-details"><h4 class="contact-label">LinkedIn</h4><a href="https://www.linkedin.com/in/katosx/" target="_blank" rel="noopener noreferrer" class="contact-value">linkedin.com/in/katosx</a></div>
+                </div>
+                <div class="contact-item music-contact">
+                    <div class="contact-icon"><i class="fab fa-youtube" aria-hidden="true"></i></div>
+                    <div class="contact-details"><h4 class="contact-label" data-i18n="contact.music.label">Katosx — Música</h4><a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" target="_blank" rel="noopener noreferrer" class="contact-value">YouTube — Katosx</a></div>
+                </div>
+            </div>
+            <form class="contact-form" id="contactForm" novalidate>
+                <div class="form-group">
+                    <label for="contactType" class="form-label" data-i18n="form.type.label">Tipo de consulta</label>
+                    <select id="contactType" name="contactType" class="form-input" required>
+                        <option value="" data-i18n="form.type.placeholder">Seleccionar...</option>
+                        <option value="engineering" data-i18n="form.type.opt1">Proyecto de Ingeniería / IoT</option>
+                        <option value="web" data-i18n="form.type.opt2">Desarrollo Web / Software</option>
+                        <option value="crm" data-i18n="form.type.opt3">CRM / Soporte</option>
+                        <option value="teaching" data-i18n="form.type.opt4">Consulta Académica</option>
+                        <option value="music" data-i18n="form.type.opt5">Colaboración Musical</option>
+                        <option value="other" data-i18n="form.type.opt6">Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="contactName" class="form-label" data-i18n="form.name.label">Nombre</label>
+                    <input type="text" id="contactName" name="name" class="form-input" placeholder="Tu nombre completo" data-i18n-placeholder="form.name.placeholder" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="contactEmail" class="form-label" data-i18n="form.email.label">Email</label>
+                    <input type="email" id="contactEmail" name="email" class="form-input" placeholder="tu@email.com" data-i18n-placeholder="form.email.placeholder" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="contactMessage" class="form-label" data-i18n="form.msg.label">Mensaje</label>
+                    <textarea id="contactMessage" name="message" class="form-input form-textarea" rows="5" placeholder="Cuéntame sobre tu proyecto..." data-i18n-placeholder="form.msg.placeholder" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-submit">
+                    <span data-i18n="form.submit">Enviar Consulta</span><i class="fas fa-paper-plane" aria-hidden="true"></i>
                 </button>
-                
-                <div class="nav-menu modern-menu" id="nav-menu" role="menubar">
-                    <a href="#home" class="nav-link modern-nav-link" role="menuitem" aria-label="Ir a inicio">
-                        <div class="nav-link-content">
-                            <i class="fas fa-home" aria-hidden="true"></i>
-                            <span>Inicio</span>
-                        </div>
-                        <div class="nav-link-glow"></div>
-                    </a>
-                    <a href="#about" class="nav-link modern-nav-link" role="menuitem" aria-label="Ir a sobre mí">
-                        <div class="nav-link-content">
-                            <i class="fas fa-user" aria-hidden="true"></i>
-                            <span>Sobre mí</span>
-                        </div>
-                        <div class="nav-link-glow"></div>
-                    </a>
-                    <a href="#skills" class="nav-link modern-nav-link" role="menuitem" aria-label="Ir a habilidades">
-                        <div class="nav-link-content">
-                            <i class="fas fa-cogs" aria-hidden="true"></i>
-                            <span>Habilidades</span>
-                        </div>
-                        <div class="nav-link-glow"></div>
-                    </a>
-                    <a href="#projects" class="nav-link modern-nav-link" role="menuitem" aria-label="Ir a proyectos">
-                        <div class="nav-link-content">
-                            <i class="fas fa-briefcase" aria-hidden="true"></i>
-                            <span>Proyectos</span>
-                        </div>
-                        <div class="nav-link-glow"></div>
-                    </a>
-                    <a href="#contact" class="nav-link modern-nav-link" role="menuitem" aria-label="Ir a contacto">
-                        <div class="nav-link-content">
-                            <i class="fas fa-envelope" aria-hidden="true"></i>
-                            <span>Contacto</span>
-                        </div>
-                        <div class="nav-link-glow"></div>
-                    </a>
-                </div>
-                
-                <!-- Theme toggle -->
-                <button class="theme-toggle modern-theme-toggle" id="theme-toggle" 
-                        aria-label="Cambiar tema" 
-                        title="Cambiar entre tema claro y oscuro">
-                    <div class="theme-icon-container">
-                        <i class="fas fa-moon theme-icon" aria-hidden="true"></i>
-                        <i class="fas fa-sun theme-icon" aria-hidden="true"></i>
-                    </div>
-                    <div class="theme-toggle-bg"></div>
-                </button>
-            </div>
-        </nav>
-        
-        <!-- Enhanced progress bar -->
-        <div class="scroll-progress-container">
-            <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
-            <div class="scroll-progress-glow"></div>
+            </form>
         </div>
-    </header>
+    </div>
+</section>
 
-    <main class="main" id="main-content" role="main">
-        <!-- Enhanced Hero Section -->
-        <section id="home" class="hero modern-hero">
-            <!-- Advanced animated background -->
-            <div class="hero-background">
-                <div class="hero-gradient"></div>
-                <div class="hero-mesh"></div>
-                <div class="hero-particles">
-                    <div class="hero-particle" style="width: 4px; height: 4px; top: 10%; left: 10%; animation-delay: 0s;"></div>
-                    <div class="hero-particle" style="width: 6px; height: 6px; top: 20%; left: 80%; animation-delay: 1s;"></div>
-                    <div class="hero-particle" style="width: 3px; height: 3px; top: 70%; left: 20%; animation-delay: 2s;"></div>
-                    <div class="hero-particle" style="width: 5px; height: 5px; top: 80%; left: 90%; animation-delay: 3s;"></div>
-                    <div class="hero-particle" style="width: 4px; height: 4px; top: 40%; left: 60%; animation-delay: 4s;"></div>
-                </div>
-                <div class="hero-orbs">
-                    <div class="hero-orb orb-1"></div>
-                    <div class="hero-orb orb-2"></div>
-                    <div class="hero-orb orb-3"></div>
-                </div>
-            </div>
-            
-            <div class="hero-container">
-                <div class="hero-content">
-                    <div class="hero-text modern-hero-text">
-                        <div class="hero-intro">
-                            <span class="hero-greeting animate-fade-in">
-                                <div class="greeting-icon">
-                                    <i class="fas fa-hand-peace" aria-hidden="true"></i>
-                                </div>
-                                <span class="greeting-text">¡Hola! Soy</span>
-                            </span>
-                        </div>
-                        
-                        <h1 class="hero-name modern-hero-name animate-slide-up">
-                            <span class="name-part">Daniel</span>
-                            <span class="name-part">Salini</span>
-                            <div class="name-underline"></div>
-                        </h1>
-                        
-                        <h2 class="hero-title modern-hero-title animate-slide-up" style="animation-delay: 0.2s">
-                            <span class="title-highlight">Ingeniero Electricista</span> & 
-                            <span class="title-highlight">Full Stack Developer</span>
-                        </h2>
-                        
-                        <h3 class="hero-subtitle modern-hero-subtitle animate-slide-up" style="animation-delay: 0.4s">
-                            <div class="subtitle-badges">
-                                <span class="highlight-badge badge-engineering">
-                                    <i class="fas fa-graduation-cap"></i>
-                                    Profesor UPRO
-                                </span>
-                                <span class="highlight-badge badge-music">
-                                    <i class="fas fa-music"></i>
-                                    Músico Katosx
-                                </span>
-                            </div>
-                        </h3>
-                        
-                        <p class="hero-description modern-hero-description animate-fade-in" style="animation-delay: 0.6s">
-                            Ingeniero Electricista especializado en <mark class="highlight-text">automatización industrial</mark> bajo estándares AEA. 
-                            Desarrollador Full Stack y profesor en UPRO. También soy músico bajo el alias 
-                            <mark class="highlight-text">Katosx</mark>, creando beats únicos con Ableton Live y FL Studio.
-                        </p>
-                        
-                        <div class="hero-buttons modern-hero-buttons animate-fade-in" style="animation-delay: 0.8s">
-                            <a href="#projects" class="btn btn-primary btn-modern">
-                                <span class="btn-content">
-                                    <i class="fas fa-rocket" aria-hidden="true"></i>
-                                    Ver Proyectos
-                                </span>
-                                <div class="btn-glow"></div>
-                                <div class="btn-particles">
-                                    <span class="btn-particle"></span>
-                                    <span class="btn-particle"></span>
-                                    <span class="btn-particle"></span>
-                                </div>
-                            </a>
-                            
-                            <a href="#contact" class="btn btn-secondary btn-modern">
-                                <span class="btn-content">
-                                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                                    Contactar
-                                </span>
-                                <div class="btn-glow"></div>
-                            </a>
-                            
-                            <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" 
-                               target="_blank" 
-                               rel="noopener"
-                               class="btn btn-music btn-modern">
-                                <span class="btn-content">
-                                    <i class="fab fa-youtube" aria-hidden="true"></i>
-                                    Música Katosx
-                                </span>
-                                <div class="btn-glow music-glow"></div>
-                                <div class="music-waves">
-                                    <span class="wave"></span>
-                                    <span class="wave"></span>
-                                    <span class="wave"></span>
-                                </div>
-                            </a>
-                        </div>
-                        
-                        <!-- Enhanced quick stats with counters -->
-                        <div class="hero-stats modern-hero-stats animate-fade-in" style="animation-delay: 1s">
-                            <div class="stat-item modern-stat-item" data-aos="zoom-in" data-aos-delay="100">
-                                <div class="stat-icon">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="stat-number" data-target="5">0</span>
-                                    <span class="stat-label">Años Experiencia</span>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-item modern-stat-item" data-aos="zoom-in" data-aos-delay="200">
-                                <div class="stat-icon">
-                                    <i class="fas fa-code-branch"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="stat-number" data-target="25">0</span>
-                                    <span class="stat-label">Proyectos</span>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-item modern-stat-item" data-aos="zoom-in" data-aos-delay="300">
-                                <div class="stat-icon">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <div class="stat-content">
-                                    <span class="stat-number" data-target="100" data-suffix="+">0</span>
-                                    <span class="stat-label">Estudiantes</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Ultra enhanced visual with 3D effects -->
-                    <div class="hero-visual modern-hero-visual animate-float">
-                        <div class="circle-animation enhanced-circles">
-                            <!-- Technology circles with premium styling -->
-                            <div class="circle circle-1 enhanced-circle" data-tooltip="JavaScript ES6+" data-color="#f7df1e">
-                                <div class="circle-inner">
-                                    <i class="fab fa-js-square" aria-hidden="true"></i>
-                                    <div class="circle-ripple"></div>
-                                </div>
-                                <div class="circle-glow"></div>
-                                <div class="circle-ring"></div>
-                            </div>
-                            
-                            <div class="circle circle-2 enhanced-circle" data-tooltip="React & Next.js" data-color="#61dafb">
-                                <div class="circle-inner">
-                                    <i class="fab fa-react" aria-hidden="true"></i>
-                                    <div class="circle-ripple"></div>
-                                </div>
-                                <div class="circle-glow"></div>
-                                <div class="circle-ring"></div>
-                            </div>
-                            
-                            <div class="circle circle-3 enhanced-circle" data-tooltip="Node.js & Express" data-color="#68a063">
-                                <div class="circle-inner">
-                                    <i class="fab fa-node-js" aria-hidden="true"></i>
-                                    <div class="circle-ripple"></div>
-                                </div>
-                                <div class="circle-glow"></div>
-                                <div class="circle-ring"></div>
-                            </div>
-                            
-                            <div class="circle circle-4 enhanced-circle" data-tooltip="Bases de Datos" data-color="#336791">
-                                <div class="circle-inner">
-                                    <i class="fas fa-database" aria-hidden="true"></i>
-                                    <div class="circle-ripple"></div>
-                                </div>
-                                <div class="circle-glow"></div>
-                                <div class="circle-ring"></div>
-                            </div>
-                            
-                            <div class="circle circle-5 enhanced-circle" data-tooltip="Producción Musical" data-color="#ff6b6b">
-                                <div class="circle-inner">
-                                    <i class="fas fa-music" aria-hidden="true"></i>
-                                    <div class="circle-ripple"></div>
-                                </div>
-                                <div class="circle-glow"></div>
-                                <div class="circle-ring"></div>
-                            </div>
-                            
-                            <div class="circle circle-6 enhanced-circle" data-tooltip="Control de Versiones" data-color="#f1502f">
-                                <div class="circle-inner">
-                                    <i class="fab fa-git-alt" aria-hidden="true"></i>
-                                    <div class="circle-ripple"></div>
-                                </div>
-                                <div class="circle-glow"></div>
-                                <div class="circle-ring"></div>
-                            </div>
-                            
-                            <!-- Ultra enhanced center avatar -->
-                            <div class="circle-center enhanced-center">
-                                <div class="avatar-container premium-avatar">
-                                    <div class="avatar-frame">
-                                        <img src="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg" 
-                                             alt="Daniel Salini - Ingeniero Electricista, Desarrollador y Músico Katosx" 
-                                             class="profile-avatar"
-                                             width="120" 
-                                             height="120"
-                                             loading="eager">
-                                        <div class="avatar-overlay"></div>
-                                    </div>
-                                    <div class="avatar-glow premium-glow"></div>
-                                    <div class="avatar-ring-1"></div>
-                                    <div class="avatar-ring-2"></div>
-                                </div>
-                                
-                                <div class="status-indicator premium-status">
-                                    <div class="status-container">
-                                        <span class="status-dot"></span>
-                                        <span class="status-text">Disponible para proyectos</span>
-                                    </div>
-                                    <div class="status-glow"></div>
-                                </div>
-                            </div>
-                            
-                            <!-- Floating tech badges -->
-                            <div class="floating-badges">
-                                <div class="floating-badge badge-1" data-text="⚡ AEA"></div>
-                                <div class="floating-badge badge-2" data-text="🎓 UPRO"></div>
-                                <div class="floating-badge badge-3" data-text="🎵 Katosx"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Ultra enhanced scroll indicator -->
-                <div class="hero-scroll modern-hero-scroll">
-                    <a href="#about" class="scroll-indicator modern-scroll" aria-label="Desplazarse hacia abajo">
-                        <div class="scroll-container">
-                            <span class="scroll-text">Conoce más sobre mí</span>
-                            <div class="scroll-arrow-container">
-                                <div class="scroll-arrow">
-                                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                                </div>
-                                <div class="scroll-line"></div>
-                            </div>
-                        </div>
-                        <div class="scroll-glow"></div>
-                    </a>
-                </div>
-            </div>
-        </section>
+</main>
 
-        <!-- About Section -->
-        <section id="about" class="section about">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Sobre mí</h2>
-                    <p class="section-subtitle">Ingeniero, Profesor, Desarrollador y Músico</p>
-                </div>
-                
-                <div class="about-content">
-                    <div class="about-text">
-                        <p>
-                            Soy <strong>Daniel Salini</strong>, Ingeniero Electricista especializado en automatización industrial,
-                            con amplia experiencia trabajando bajo los estándares de la <strong>Asociación Electrotécnica Argentina (AEA)</strong>.
-                            Actualmente me desempeño como profesor en <strong>UPRO</strong>, enseñando Automatización Industrial y Electricidad.
-                            También he tenido la experiencia enriquecedora de dar clases en la <strong>Penitenciaría de San Luis</strong>,
-                            contribuyendo a la educación y reinserción social.
-                        </p>
-                        <p>
-                            Paralelamente, soy desarrollador Full Stack apasionado por crear soluciones tecnológicas innovadoras.
-                            He desarrollado sistemas de alarmas inteligentes usando <strong>ESP8266 y ESP32</strong> con mapas interactivos 
-                            mediante Leaflet, todo disponible en mi GitHub. Tengo experiencia manejando <strong>Zendesk, Jira y otros CRM</strong>,
-                            lo que me permite gestionar proyectos y atención al cliente de manera eficiente.
-                        </p>
-                        <p>
-                            En el ámbito musical, soy conocido como <strong>Katosx</strong>, donde combino mi conocimiento técnico 
-                            con la creatividad musical, produciendo beats y tracks usando Ableton Live y FL Studio.
-                        </p>
-                        
-                        <div class="about-philosophy">
-                            <h3>💭 Mi Filosofía</h3>
-                            <blockquote>
-                                "La ingeniería me enseñó precisión, la programación me dio versatilidad, 
-                                la docencia me mostró el valor de compartir conocimiento, enseñar en la penitenciaría 
-                                me demostró el poder transformador de la educación, y la música me dio el alma 
-                                para conectar todo con creatividad y pasión."
-                            </blockquote>
-                        </div>
-                        
-                        <div class="credentials">
-                            <h3>🎓 Credenciales</h3>
-                            <ul class="credentials-list">
-                                <li><i class="fas fa-graduation-cap"></i> Ingeniero Electricista</li>
-                                <li><i class="fas fa-industry"></i> Especialista en Automatización Industrial</li>
-                                <li><i class="fas fa-certificate"></i> Certificado AEA (Asociación Electrotécnica Argentina)</li>
-                                <li><i class="fas fa-chalkboard-teacher"></i> Profesor UPRO - Automatización y Electricidad</li>
-                                <li><i class="fas fa-heart"></i> Docente en Penitenciaría de San Luis</li>
-                                <li><i class="fas fa-code"></i> Full Stack Developer</li>
-                                <li><i class="fas fa-headset"></i> Especialista en CRM (Zendesk, Jira)</li>
-                                <li><i class="fas fa-music"></i> Productor Musical (Katosx)</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="about-stats">
-                            <div class="stat">
-                                <span class="stat-number">5+</span>
-                                <span class="stat-label">Años Ingeniería</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-number">3+</span>
-                                <span class="stat-label">Años Docencia</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-number">2+</span>
-                                <span class="stat-label">Años CRM</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-number">20+</span>
-                                <span class="stat-label">Proyectos IoT</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-number">∞</span>
-                                <span class="stat-label">Beats Creados</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="about-image">
-                        <div class="image-wrapper">
-                            <img src="https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg" 
-                                 alt="Daniel Salini - Ingeniero, Profesor y Músico"
-                                 width="400" 
-                                 height="400"
-                                 loading="lazy">
-                        </div>
-                        <div class="professional-badges">
-                            <span class="badge engineering">⚡ Ing. Electricista</span>
-                            <span class="badge teaching">👨‍🏫 Prof. UPRO</span>
-                            <span class="badge music">🎵 Katosx</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Skills Section -->
-        <section id="skills" class="section skills">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Expertise Multidisciplinario</h2>
-                    <p class="section-subtitle">Ingeniería, Programación, Docencia y Música</p>
-                </div>
-                
-                <div class="skills-grid">
-                    <div class="skill-category engineering-skills">
-                        <h3 class="category-title">⚡ Ingeniería Eléctrica</h3>
-                        <div class="skills-list">
-                            <div class="skill-item">
-                                <i class="fas fa-industry"></i>
-                                <span>Automatización Industrial</span>
-                                <div class="skill-level" data-level="95" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-microchip"></i>
-                                <span>ESP32/ESP8266</span>
-                                <div class="skill-level" data-level="90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-bolt"></i>
-                                <span>Normativas AEA</span>
-                                <div class="skill-level" data-level="95" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-shield-alt"></i>
-                                <span>Sistemas de Alarmas</span>
-                                <div class="skill-level" data-level="90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="skill-category">
-                        <h3 class="category-title">💻 Desarrollo</h3>
-                        <div class="skills-list">
-                            <div class="skill-item">
-                                <i class="fab fa-js-square"></i>
-                                <span>JavaScript</span>
-                                <div class="skill-level" data-level="95" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fab fa-react"></i>
-                                <span>React</span>
-                                <div class="skill-level" data-level="90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fab fa-node-js"></i>
-                                <span>Node.js</span>
-                                <div class="skill-level" data-level="85" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-map"></i>
-                                <span>Leaflet Maps</span>
-                                <div class="skill-level" data-level="85" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="skill-category music-skills">
-                        <h3 class="category-title">🎵 Música (Katosx)</h3>
-                        <div class="skills-list">
-                            <div class="skill-item">
-                                <i class="fas fa-music"></i>
-                                <span>Ableton Live</span>
-                                <div class="skill-level" data-level="90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-sliders-h"></i>
-                                <span>FL Studio</span>
-                                <div class="skill-level" data-level="85" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-headphones"></i>
-                                <span>Mezcla & Mastering</span>
-                                <div class="skill-level" data-level="85" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-microphone"></i>
-                                <span>Producción Musical</span>
-                                <div class="skill-level" data-level="90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="skill-category crm-skills">
-                        <h3 class="category-title">📊 Gestión y CRM</h3>
-                        <div class="skills-list">
-                            <div class="skill-item">
-                                <i class="fas fa-ticket-alt"></i>
-                                <span>Zendesk</span>
-                                <div class="skill-level" data-level="90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fab fa-atlassian"></i>
-                                <span>Jira</span>
-                                <div class="skill-level" data-level="85" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-users-cog"></i>
-                                <span>Customer Support</span>
-                                <div class="skill-level" data-level="90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-project-diagram"></i>
-                                <span>Project Management</span>
-                                <div class="skill-level" data-level="85" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="skill-category teaching-skills">
-                        <h3 class="category-title">👨‍🏫 Experiencia Docente</h3>
-                        <div class="skills-list">
-                            <div class="skill-item">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                                <span>UPRO - Automatización</span>
-                                <div class="skill-level" data-level="95" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-graduation-cap"></i>
-                                <span>UPRO - Electricidad</span>
-                                <div class="skill-level" data-level="95" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-heart"></i>
-                                <span>Penitenciaría San Luis</span>
-                                <div class="skill-level" data-level="90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="skill-item">
-                                <i class="fas fa-users"></i>
-                                <span>Educación Inclusiva</span>
-                                <div class="skill-level" data-level="95" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Projects Section -->
-        <section id="projects" class="section projects">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Proyectos Destacados</h2>
-                    <p class="section-subtitle">Ingeniería, Tecnología y Música</p>
-                </div>
-                
-                <div class="projects-grid">
-                    <article class="project-card featured">
-                        <div class="project-image">
-                            <div class="music-project-preview">
-                                <div class="music-icon" aria-hidden="true">🎵</div>
-                                <h3>Katosx - Electronic Music</h3>
-                                <p>Mi proyecto musical donde combino conocimiento técnico con creatividad</p>
-                                <div class="music-controls">
-                                    <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ&list=RDN4dmCNN2foQ&start_radio=1" 
-                                       target="_blank" 
-                                       rel="noopener" 
-                                       class="play-btn"
-                                       aria-label="Escuchar música de Katosx en YouTube">
-                                        ▶ Escuchar en YouTube
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="project-content">
-                            <h4 class="project-title">Katosx Music Project</h4>
-                            <p class="project-description">
-                                Producción musical usando Ableton Live y FL Studio. Combinando mi background 
-                                técnico de ingeniería con la creatividad musical para crear beats únicos.
-                            </p>
-                            <div class="project-tags">
-                                <span class="tag music">Ableton Live</span>
-                                <span class="tag music">FL Studio</span>
-                                <span class="tag music">Electronic</span>
-                                <span class="tag music">YouTube</span>
-                            </div>
-                        </div>
-                    </article>
-                    
-                    <article class="project-card engineering">
-                        <div class="project-image">
-                            <div class="engineering-preview">
-                                <div class="engineering-icon" aria-hidden="true">🚨</div>
-                                <h3>Sistema de Alarmas IoT</h3>
-                                <p>Sistema inteligente con ESP32/ESP8266 y mapas Leaflet</p>
-                            </div>
-                        </div>
-                        <div class="project-content">
-                            <h4 class="project-title">Smart Alarm System</h4>
-                            <p class="project-description">
-                                Sistema de alarmas inteligente usando ESP8266 y ESP32 con 
-                                visualización en tiempo real mediante mapas Leaflet. Todo el código disponible en GitHub.
-                            </p>
-                            <div class="project-tags">
-                                <span class="tag engineering">ESP32</span>
-                                <span class="tag engineering">ESP8266</span>
-                                <span class="tag">Leaflet</span>
-                                <span class="tag">IoT</span>
-                            </div>
-                        </div>
-                    </article>
-                    
-                    <article class="project-card">
-                        <div class="project-image">
-                            <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=250&fit=crop&auto=format" 
-                                 alt="Automatización Industrial" 
-                                 width="400" 
-                                 height="250"
-                                 loading="lazy">
-                        </div>
-                        <div class="project-content">
-                            <h4 class="project-title">Automatización Industrial</h4>
-                            <p class="project-description">
-                                Proyectos de automatización siguiendo estándares AEA para industrias, 
-                                incluyendo control de procesos y monitoreo remoto.
-                            </p>
-                            <div class="project-tags">
-                                <span class="tag engineering">AEA Standards</span>
-                                <span class="tag engineering">PLC</span>
-                                <span class="tag engineering">SCADA</span>
-                            </div>
-                        </div>
-                    </article>
-                    
-                    <article class="project-card teaching">
-                        <div class="project-image">
-                            <div class="teaching-preview">
-                                <div class="teaching-icon" aria-hidden="true">👨‍🏫</div>
-                                <h3>Docencia UPRO</h3>
-                                <p>Formando la próxima generación de ingenieros</p>
-                            </div>
-                        </div>
-                        <div class="project-content">
-                            <h4 class="project-title">Educación Técnica</h4>
-                            <p class="project-description">
-                                Profesor en UPRO especializado en Automatización Industrial y Electricidad,
-                                transmitiendo conocimiento práctico y teórico a futuros profesionales.
-                            </p>
-                            <div class="project-tags">
-                                <span class="tag teaching">UPRO</span>
-                                <span class="tag teaching">Automatización</span>
-                                <span class="tag teaching">Electricidad</span>
-                            </div>
-                        </div>
-                    </article>
-                    
-                    <article class="project-card crm">
-                        <div class="project-image">
-                            <div class="crm-preview">
-                                <div class="crm-icon" aria-hidden="true">📊</div>
-                                <h3>Gestión CRM & Support</h3>
-                                <p>Experiencia en atención al cliente y gestión de proyectos</p>
-                            </div>
-                        </div>
-                        <div class="project-content">
-                            <h4 class="project-title">Customer Relationship Management</h4>
-                            <p class="project-description">
-                                Gestión de tickets de soporte, seguimiento de proyectos y atención al cliente 
-                                usando Zendesk, Jira y otras plataformas CRM especializadas.
-                            </p>
-                            <div class="project-tags">
-                                <span class="tag crm">Zendesk</span>
-                                <span class="tag crm">Jira</span>
-                                <span class="tag crm">Customer Support</span>
-                                <span class="tag crm">Project Management</span>
-                            </div>
-                        </div>
-                    </article>
-                    
-                    <article class="project-card social-impact">
-                        <div class="project-image">
-                            <div class="social-preview">
-                                <div class="social-icon" aria-hidden="true">❤️</div>
-                                <h3>Educación Social</h3>
-                                <p>Docencia in contextos de encierro</p>
-                            </div>
-                        </div>
-                        <div class="project-content">
-                            <h4 class="project-title">Penitenciaría San Luis</h4>
-                            <p class="project-description">
-                                Experiencia docente en la Penitenciaría de San Luis, enseñando electricidad 
-                                y oficios técnicos, contribuyendo a la reinserción social y educación inclusiva.
-                            </p>
-                            <div class="project-tags">
-                                <span class="tag social">Educación Social</span>
-                                <span class="tag social">Reinserción</span>
-                                <span class="tag social">Electricidad</span>
-                                <span class="tag social">Compromiso Social</span>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <!-- Contact Section -->
-        <section id="contact" class="section contact">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Contacto Profesional</h2>
-                    <p class="section-subtitle">Ingeniería, Desarrollo, Docencia o Colaboración Musical</p>
-                </div>
-                
-                <div class="contact-content">
-                    <div class="contact-info">
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="fas fa-envelope" aria-hidden="true"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h3>Email Profesional</h3>
-                                <a href="mailto:danielsalini77@gmail.com" aria-label="Enviar email profesional">danielsalini77@gmail.com</a>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="fab fa-github" aria-hidden="true"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h3>GitHub</h3>
-                                <a href="https://github.com/Gureboy" target="_blank" rel="noopener" aria-label="Ver proyectos en GitHub">github.com/Gureboy</a>
-                                <small>Proyectos IoT y sistemas de alarmas</small>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-item music-contact">
-                            <div class="contact-icon">
-                                <i class="fas fa-music" aria-hidden="true"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h3>Katosx Music</h3>
-                                <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ&list=RDN4dmCNN2foQ&start_radio=1" 
-                                   target="_blank" 
-                                   rel="noopener" 
-                                   aria-label="Escuchar música de Katosx">YouTube - Katosx</a>
-                                <small>Producción musical con Ableton & FL Studio</small>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-item teaching-contact">
-                            <div class="contact-icon">
-                                <i class="fas fa-university" aria-hidden="true"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h3>UPRO</h3>
-                                <span>Profesor de Automatización Industrial</span>
-                                <small>Electricidad y sistemas automatizados</small>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="fab fa-linkedin" aria-hidden="true"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h3>LinkedIn</h3>
-                                <a href="https://www.linkedin.com/in/katosx/" target="_blank" rel="noopener" aria-label="Ver perfil de LinkedIn">linkedin.com/in/katosx</a>
-                                <small>Perfil profesional y networking</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <form class="contact-form" id="contact-form" novalidate>
-                        <div class="form-group">
-                            <label for="project-type" class="sr-only">Tipo de consulta</label>
-                            <select id="project-type" name="project-type" required>
-                                <option value="">Selecciona el tipo de consulta</option>
-                                <option value="engineering">Proyecto de Ingeniería</option>
-                                <option value="web-dev">Desarrollo Web/Software</option>
-                                <option value="iot">Proyecto IoT/Automatización</option>
-                                <option value="crm">Consultoría CRM/Soporte</option>
-                                <option value="teaching">Consulta Académica</option>
-                                <option value="social">Educación Social/Inclusiva</option>
-                                <option value="music">Colaboración Musical</option>
-                                <option value="other">Otro</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="name" class="sr-only">Nombre</label>
-                            <input type="text" id="name" name="name" placeholder="Tu nombre" required aria-required="true">
-                        </div>
-                        <div class="form-group">
-                            <label for="email" class="sr-only">Email</label>
-                            <input type="email" id="email" name="email" placeholder="Tu email" required aria-required="true">
-                        </div>
-                        <div class="form-group">
-                            <label for="message" class="sr-only">Mensaje</label>
-                            <textarea id="message" name="message" placeholder="Cuéntame sobre tu proyecto o consulta..." rows="5" required aria-required="true"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Enviar Consulta</button>
-                    </form>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Enhanced Footer -->
-    <footer class="footer modern-footer" role="contentinfo">
-        <div class="footer-background">
-            <div class="footer-gradient"></div>
-            <div class="footer-pattern"></div>
-        </div>
-        
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-info">
-                    <div class="footer-brand modern-footer-brand">
-                        <h3 class="footer-title">Daniel Salini</h3>
-                        <div class="footer-badges">
-                            <span class="footer-badge engineering-badge">
-                                <i class="fas fa-bolt"></i>
-                                Ing. Electricista
-                            </span>
-                            <span class="footer-badge dev-badge">
-                                <i class="fas fa-code"></i>
-                                Full Stack Dev
-                            </span>
-                            <span class="footer-badge teaching-badge">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                                Prof. UPRO
-                            </span>
-                            <span class="footer-badge music-badge">
-                                <i class="fas fa-music"></i>
-                                Katosx
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <blockquote class="footer-philosophy modern-philosophy">
-                        <div class="quote-mark">"</div>
-                        <p>Donde la ingeniería encuentra la creatividad, la educación transforma vidas, 
-                        y la música conecta el alma</p>
-                        <div class="quote-mark closing">"</div>
-                    </blockquote>
-                    
-                    <div class="footer-credentials modern-credentials">
-                        <div class="credentials-grid">
-                            <span class="credential-item">Automatización Industrial</span>
-                            <span class="credential-item">Estándares AEA</span>
-                            <span class="credential-item">IoT & Smart Systems</span>
-                            <span class="credential-item">Zendesk & Jira</span>
-                            <span class="credential-item">Educación Inclusiva</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="footer-links modern-footer-links">
-                    <div class="footer-section">
-                        <h4 class="footer-section-title">
-                            <i class="fas fa-address-card"></i>
-                            Contacto Profesional
-                        </h4>
-                        <ul class="footer-links-list">
-                            <li>
-                                <a href="mailto:danielsalini77@gmail.com" class="footer-link" aria-label="Enviar email">
-                                    <div class="link-content">
-                                        <i class="fas fa-envelope" aria-hidden="true"></i>
-                                        <span>Email Profesional</span>
-                                    </div>
-                                    <div class="link-arrow">
-                                        <i class="fas fa-arrow-right"></i>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="https://www.linkedin.com/in/katosx/" target="_blank" rel="noopener" class="footer-link" aria-label="LinkedIn">
-                                    <div class="link-content">
-                                        <i class="fab fa-linkedin" aria-hidden="true"></i>
-                                        <span>LinkedIn</span>
-                                    </div>
-                                    <div class="link-arrow">
-                                        <i class="fas fa-external-link-alt"></i>
-                                    </div>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <div class="footer-section">
-                        <h4 class="footer-section-title">
-                            <i class="fas fa-rocket"></i>
-                            Proyectos & Música
-                        </h4>
-                        <ul class="footer-links-list">
-                            <li>
-                                <a href="https://github.com/Gureboy" target="_blank" rel="noopener" class="footer-link" aria-label="GitHub">
-                                    <div class="link-content">
-                                        <i class="fab fa-github" aria-hidden="true"></i>
-                                        <span>GitHub</span>
-                                    </div>
-                                    <div class="link-arrow">
-                                        <i class="fas fa-external-link-alt"></i>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" target="_blank" rel="noopener" class="footer-link music-link" aria-label="YouTube Katosx">
-                                    <div class="link-content">
-                                        <i class="fab fa-youtube" aria-hidden="true"></i>
-                                        <span>Katosx Music</span>
-                                    </div>
-                                    <div class="link-arrow">
-                                        <i class="fas fa-external-link-alt"></i>
-                                    </div>
-                                    <div class="music-visualizer">
-                                        <span class="bar"></span>
-                                        <span class="bar"></span>
-                                        <span class="bar"></span>
-                                    </div>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="footer-bottom modern-footer-bottom">
-                <div class="footer-bottom-content">
-                    <div class="copyright">
-                        <p>&copy; 2025 Daniel Salini - Ingeniero Electricista. Todos los derechos reservados.</p>
-                    </div>
-                    <div class="footer-tech">
-                        <span>Construido con</span>
-                        <div class="heart-container">
-                            <i class="fas fa-heart animated-heart" aria-hidden="true"></i>
-                        </div>
-                        <span>y tecnología moderna</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Enhanced back to top button -->
-    <button class="back-to-top modern-back-to-top" id="back-to-top" 
-            aria-label="Volver arriba" 
-            title="Volver al inicio de la página">
-        <div class="back-to-top-content">
-            <i class="fas fa-arrow-up" aria-hidden="true"></i>
-            <div class="progress-ring">
-                <svg class="progress-ring-svg" width="50" height="50">
-                    <circle class="progress-ring-circle" 
-                            cx="25" cy="25" r="20" 
-                            fill="transparent" 
-                            stroke-width="2"></circle>
-                </svg>
-            </div>
-        </div>
-        <div class="back-to-top-glow"></div>
+<!-- EASTER EGG TRIGGER -->
+<div class="easter-egg-zone" aria-hidden="true">
+    <button class="dnd-trigger" id="dndTrigger" title="D&amp;D Easter Egg" aria-label="Hidden Easter Egg">
+        <span class="dnd-rune">⚔️</span>
+        <span class="dnd-trigger-text">
+            <span class="dnd-label" data-i18n="egg.btn">Púlsame</span>
+            <span class="dnd-hint" data-i18n="egg.hint">¿Te atreves a explorar?</span>
+        </span>
+        <span class="dnd-pulse"></span>
+        <span class="dnd-pulse dnd-pulse-2"></span>
     </button>
+</div>
 
-    <!-- Scripts with async loading -->
-    <script>
-        // Remove no-js class
-        document.documentElement.classList.remove('no-js');
-        
-        // Critical performance optimization
-        window.addEventListener('load', () => {
-            document.getElementById('preloader').classList.add('hidden');
-        });
-    </script>
-    
-    <!-- Main script with defer -->
-    <script src="main.js" defer></script>
-    
-    <!-- Service Worker registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW registration failed'));
-            });
-        }
-    </script>
+<footer class="main-footer" role="contentinfo">
+    <div class="footer-container">
+        <div class="footer-content">
+            <div class="footer-text-wrapper">
+                <p class="footer-text">
+                    <span class="footer-copyright">&copy; 2025 Daniel Salini</span>
+                    <span class="footer-divider" aria-hidden="true">&bull;</span>
+                    <span class="footer-built" data-i18n="footer.built">Construido con pasión y código</span>
+                </p>
+                <p class="footer-author">
+                    <span>by</span>
+                    <a href="https://www.linkedin.com/in/katosx/" target="_blank" rel="noopener noreferrer" class="footer-author-link">
+                        <i class="fas fa-code" aria-hidden="true"></i><span>Katosx</span>
+                    </a>
+                </p>
+            </div>
+            <div class="footer-social">
+                <a href="https://github.com/Gureboy" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/katosx/" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.youtube.com/watch?v=N4dmCNN2foQ" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="YouTube Katosx"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script src="i18n.js"></script>
+<script src="dnd-easter-egg.js"></script>
+<script src="main.js"></script>
+<!-- BACK TO TOP -->
+<button class="back-to-top" id="backToTop" aria-label="Volver al inicio" title="Volver al inicio">
+    <i class="fas fa-chevron-up"></i>
+</button>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- DND OVERLAY (injected by dnd-easter-egg.js) -->
+<div id="dndOverlay"><canvas id="dndCanvas" style="position:absolute;top:0;left:0;pointer-events:none;z-index:1;"></canvas></div>
+
 </body>
 </html>
