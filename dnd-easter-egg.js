@@ -3759,13 +3759,16 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
           hasAdvantage: char.hasCondition('hunters_mark') || char.hasCondition('rage'),
           hasDisadvantage: char.hasCondition('stunned') || char.hasCondition('paralyzed')
         });
+        if (res.hits && res.dmg > 0) {
+          enemy.hp = Math.max(0, enemy.hp - res.dmg);
+        }
         if (res.isCrit) {
           combatState.log.push(`💥 ¡CRÍTICO! Atacas a ${enemy.name}: ${res.dmg} daño! (${res.dmgBreakdown}) nat${res.nat}`);
           P.Particles.spawnBurst('fire');
         } else if (res.isFumble) {
           combatState.log.push(`💢 ¡FALLO CRÍTICO! Pierdes el turno.`);
         } else if (res.hits) {
-          combatState.log.push(`⚔️ Atacas a ${enemy.name}: ${res.dmg} daño. (${res.nat}+${char.attackBonus})`);
+          combatState.log.push(`⚔️ Atacas a ${enemy.name}: ${res.dmg} daño. (${res.nat}+${char.attackBonus}) [HP: ${enemy.hp}/${enemy.maxHP}]`);
         } else {
           combatState.log.push(`❌ Fallas el ataque. (${res.atkRoll} vs CA${enemy.ac})`);
         }
@@ -3775,6 +3778,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
           endPlayerTurn();
         });
       });
+      return;
     } else if (action === 'ability') {
       const ability = char.abilities.find(a => a.curUses > 0);
       if (!ability) { combatState.phase = 'player'; return; }
@@ -3812,7 +3816,10 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     } else if (action === 'smite') {
       animateDice(() => {
         const res = P.playerAttack(char, enemy, { divineSmite: true });
-        combatState.log.push(res.hits ? `⚡ GOLPE DIVINO: ${res.dmg} daño a ${enemy.name}!` : `❌ Golpe Divino falla.`);
+        if (res.hits && res.dmg > 0) {
+          enemy.hp = Math.max(0, enemy.hp - res.dmg);
+        }
+        combatState.log.push(res.hits ? `⚡ GOLPE DIVINO: ${res.dmg} daño a ${enemy.name}! [HP: ${enemy.hp}/${enemy.maxHP}]` : `❌ Golpe Divino falla.`);
         checkEnemyDeath(enemy, endPlayerTurn);
       });
       return;

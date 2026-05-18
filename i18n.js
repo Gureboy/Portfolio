@@ -290,7 +290,7 @@ window.PortfolioI18n = (function () {
       'tag.education':    'Education',
 
       // ── Easter Egg ──────────────────────────────────────
-      'egg.btn':          'Press Me',
+      'egg.btn':          'Hello adventurer',
       'egg.hint':         'Do you dare to explore?',
     }
   };
