@@ -839,6 +839,26 @@
       desc:'"¿Dónde está tu informe del IEEE?", susurra mientras lanza un conjuro de Burocracia Letal.',
       lore:'Nadie sabe desde cuándo está en la facultad. Algunos dicen que es más viejo que el edificio.',
       traits:[{name:'Tecnicismo Fatal',desc:'Si fallas un saving throw, también pierdes acceso a una habilidad por 2 rounds (trabas administrativas).'}]
+    },
+
+    // ─── ZONE BOSSES ──────────────────────────────────────────
+    { id:'goblin_king',  name:'Rey Goblin Krax',     icon:'👑', hp:52,  ac:16, atk:5,  dmg:8,  cr:2,   xp:400, gold:80, tier:1, type:'humanoid', boss:true,
+      loot:['goblin_ear','dagger_rusty','short_sword'],
+      desc:'"¡Krax aplastará! ¡Krax matará! ¡Krax... huirá si es necesario!" Su corona es un cuchillo oxidado atado con cuero.',
+      lore:'Lleva dos nombres: Krax el Devastador (el suyo) y "ese problema del norte" (el del alcalde). La disparidad lo obsesiona.',
+      traits:[
+        {name:'Grito de Batalla',desc:'Al inicio del combate, los goblins aliados ganan +2 ATK por 2 turnos.'},
+        {name:'Cobardía Táctica',desc:'Por debajo de 25% HP, gana +3 AC al esquivar frenéticamente.'}
+      ]
+    },
+    { id:'forest_guardian', name:'Guardián del Bosque', icon:'🌿', hp:95,  ac:15, atk:6,  dmg:10, cr:5,   xp:750, gold:60, tier:2, type:'fey', boss:true,
+      loot:['wolf_pelt','elven_mail'],
+      desc:'Una amalgama de raíces, piedra y algo antiguo. El bosque lo envió. No negocia.',
+      lore:'No es malicioso. Es un guardián. Llevas semanas matando su fauna. Llegó el momento de la cuenta.',
+      traits:[
+        {name:'Raíces Enredadoras',desc:'Al golpear, STR save DC13 o Restringido hasta el próximo turno.'},
+        {name:'Regeneración del Bosque',desc:'Recupera 5 HP al inicio de su turno si hay menos del 50% de la localización explorada.'}
+      ]
     }
   ];
 
