@@ -1451,10 +1451,33 @@
       this.deathCount = 0;
 
       // Stats tracking
-      this.stats  = { kills:0, deaths:0, crits:0, questsDone:0, goldEarned:0, damageDone:0, healingDone:0, highestDmg:0 };
+      this.stats  = { kills:0, deaths:0, crits:0, questsDone:0, goldEarned:0, damageDone:0, healingDone:0, highestDmg:0, maxStreak:0 };
 
       // Reputation (affects NPC reactions, quest rewards, shop prices)
       this.reputation = 0; // -10 to +10
+
+      // Death saving throws (3 successes = stable, 3 failures = dead)
+      this._deathSaves = { success:0, fail:0 };
+      this._isDown = false; // currently making death saves
+
+      // Inspiration (advantage on next roll)
+      this._inspiration = false;
+
+      // Kill streak (consecutive kills without taking damage)
+      this._killStreak = 0;
+
+      // Injury (below 25% maxHP — tracked as rounds to remind)
+      this._injuryFlag = false;
+
+      // Concentration (active concentration spell id)
+      this._concentration = null;
+
+      // Boon/bane for current zone
+      this._zoneBoon = null;
+      this._zoneBane = null;
+
+      // Achievements earned
+      this._achievements = [];
 
       // Discovered lore
       this.loreFound = [];
@@ -1763,7 +1786,13 @@
         loreFound:data.loreFound||[], quests:data.quests||[],
         currentLocation:data.currentLocation, visitedLocations:data.visitedLocations||[],
         worldTime:data.worldTime||6, day:data.day||1, weather:data.weather||'clear',
-        deathCount:data.deathCount||0, startTime:data.startTime||Date.now()
+        deathCount:data.deathCount||0, startTime:data.startTime||Date.now(),
+        _deathSaves:data._deathSaves||{success:0,fail:0}, _isDown:false,
+        _inspiration:data._inspiration||false, _killStreak:data._killStreak||0,
+        _injuryFlag:false, _concentration:data._concentration||null,
+        _zoneBoon:null, _zoneBane:null,
+        _achievements:data._achievements||[], _pendingASI:data._pendingASI||false,
+        _feats:data._feats||[]
       });
       ch.prof = LEVEL_TABLE[ch.level-1].prof;
       return ch;
@@ -1827,6 +1856,16 @@
   const { d4, d6, d8, d10, d12, d20, roll, clamp, mod, pick, clone } = P.utils;
 
   // ── ENEMY FACTORY ────────────────────────────────────────────
+  // Procedural extra traits pool
+  const PROC_TRAITS = [
+    { id:'regenerator', name:'Regenerador',  icon:'💚', desc:'Recupera 3 HP por turno.',     onTurnStart(e){ e.hp = Math.min(e.maxHP, e.hp + 3); } },
+    { id:'venomous',    name:'Venenoso',     icon:'☠️', desc:'Envenena al atacar.',           onHit(e, char){ P.applyStatusEffect(char,'poisoned',2); } },
+    { id:'berserker',   name:'Berserker',    icon:'🔥', desc:'+50% daño al 30% HP.',          dmgMod(e){ return e.hp <= e.maxHP*0.3 ? 1.5 : 1; } },
+    { id:'evasive',     name:'Escurridizo',  icon:'💨', desc:'25% esquivar ataques.',         dodgeChance:0.25 },
+    { id:'armored',     name:'Blindado',     icon:'🛡️', desc:'+2 CA adicional.',              acBonus:2 },
+    { id:'spellward',   name:'Warded',       icon:'🔵', desc:'Reduce daño mágico en 2.',      magicDR:2 },
+  ];
+
   function createEnemy(templateId, levelMod = 0) {
     const tpl = P.ENEMIES.find(e => e.id === templateId) || P.ENEMIES[0];
     const e   = clone(tpl);
@@ -1840,8 +1879,26 @@
     }
     e.maxHP = e.hp;
     e.conditions = [];
+
+    // ── ELITE check (20% for non-boss non-secret enemies) ──
+    if (!e.boss && !e.secret && Math.random() < 0.20) {
+      e.isElite = true;
+      e.name    = '⭐ ' + e.name;
+      e.hp      = Math.round(e.hp  * 1.5);
+      e.maxHP   = e.hp;
+      e.atk     = Math.round(e.atk * 1.25);
+      e.xp      = Math.round(e.xp  * 1.5);
+      e.gold    = Math.round((e.gold||10) * 2);
+      // Add a random procedural trait
+      const trait = PROC_TRAITS[Math.floor(Math.random() * PROC_TRAITS.length)];
+      e._procTrait = trait;
+      e.ac = Math.min(e.ac + 1, 22);
+    }
+
     return e;
   }
+
+  root._dndParts.PROC_TRAITS = PROC_TRAITS;
 
   // ── INITIATIVE SYSTEM ─────────────────────────────────────────
   function rollInitiative(char, enemy) {
@@ -2356,6 +2413,29 @@
       enemy.hp = Math.min(enemy.maxHP, enemy.hp + regen);
     }
 
+    // ── PROCEDURAL TRAIT: Regenerator ───────────────────────────
+    if (enemy._procTrait?.id === 'regenerator') {
+      const regen = Math.min(3, enemy.maxHP - enemy.hp);
+      if (regen > 0) { enemy.hp += regen; }
+    }
+
+    // ── VARIED ACTIONS (non-boss) ────────────────────────────────
+    if (!enemy.boss) {
+      const hpPct = enemy.hp / enemy.maxHP;
+      // Flee at 10% HP (non-elite, non-undead)
+      if (hpPct < 0.10 && !enemy.isElite && !enemy._fleeing && !/undead|construct/.test(enemy.type||'') && Math.random() < 0.6) {
+        enemy._fleeing = true;
+        return { skipped:true, msg:`💨 ${enemy.name} intenta huir! (Herido gravemente)` };
+      }
+      // Defend: 15% chance when healthy — buff AC for this turn
+      if (!enemy._defending && hpPct > 0.4 && Math.random() < 0.15) {
+        enemy._defending = true;
+        enemy.ac = Math.min(enemy.ac + 2, 24);
+        setTimeout(() => { if (enemy) enemy.ac = Math.max(5, enemy.ac - 2); }, 500);
+        return { skipped:true, msg:`🛡️ ${enemy.name} se pone en guardia! (+2 CA este turno)` };
+      }
+    }
+
     // Paralyzed enemy can't act
     const paralyzed = enemy.conditions?.find(c => c.id === 'paralyzed');
     if (paralyzed) {
@@ -2437,10 +2517,33 @@
       if (polymorph.rounds <= 0) enemy.conditions = enemy.conditions.filter(c => c.id !== 'polymorph');
     }
     const bleedNote = res.isCrit && bleedEnemies.includes(enemy.id) ? ' 🩸 ¡Sangrando!' : '';
+    // Proc trait: venomous applies poison on any hit
+    if (res.hits && enemy._procTrait?.id === 'venomous') {
+      P.applyStatusEffect(char, 'poisoned', 2);
+    }
+    // Proc trait: evasive — retroactively negate if dodge roll succeeds
+    if (enemy._procTrait?.id === 'evasive' && Math.random() < 0.25) {
+      return { skipped:true, msg:`💨 ${enemy.name} esquiva tu ataque!` };
+    }
     return { ...res, msg: res.hits ? `${enemy.name} ataca: ${res.dmg} daño${res.isCrit?' ¡CRÍTICO!':''}!${bleedNote}` : `${enemy.name} falla el ataque.` };
   }
 
   // ── LOOT GENERATION ──────────────────────────────────────────
+  const UNKNOWN_POTIONS = [
+    { id:'unk_red',     name:'Líquido Rojo Turbio',   icon:'🧪', r:'common',   p:0, e:'unknown_potion', _real:'potion_minor',  desc:'???' },
+    { id:'unk_blue',    name:'Brebaje Azul Brillante', icon:'🔵', r:'uncommon', p:0, e:'unknown_potion', _real:'potion_major',  desc:'???' },
+    { id:'unk_green',   name:'Viscosa Verde',          icon:'💚', r:'common',   p:0, e:'unknown_potion', _real:'potion_antidote',desc:'???' },
+    { id:'unk_purple',  name:'Esencia Violeta',        icon:'🟣', r:'rare',     p:0, e:'unknown_potion', _real:'potion_heroism', desc:'???' },
+    { id:'unk_black',   name:'Néctar Oscuro',          icon:'⚫', r:'uncommon', p:0, e:'unknown_potion', _real:'potion_poison',  desc:'???' },
+    { id:'unk_gold',    name:'Ampollas Doradas',       icon:'🟡', r:'rare',     p:0, e:'unknown_potion', _real:'elixir_strength',desc:'???' },
+  ];
+
+  const CURSED_ITEMS_POOL = [
+    { id:'cursed_blade',   name:'Espada Sedienta', icon:'⚔️', r:'rare', p:0, e:'weapon', slot:'weapon', dmgDice:10, atkBonus:3, dmgBonus:2, cursed:true, desc:'[MALDITA] Poderosa, pero no puedes quitarla.', curse:'No puedes desequiparte esta arma hasta lanzar Remove Curse.' },
+    { id:'cursed_ring',    name:'Anillo del Tormento', icon:'💍', r:'uncommon', p:0, e:'accessory', slot:'ring', acBonus:2, cursed:true, statBonus:{con:-2}, desc:'[MALDITA] +2 CA pero -2 CON.', curse:'Este anillo no puede quitarse.' },
+    { id:'cursed_helm',    name:'Yelmo del Vacío', icon:'⛑️', r:'rare', p:0, e:'accessory', slot:'head', acBonus:3, cursed:true, statBonus:{wis:-3}, desc:'[MALDITA] +3 CA pero -3 SAB.', curse:'El yelmo susurra. No lo quitarás pronto.' },
+  ];
+
   function generateLoot(enemy, playerLevel) {
     const loot = [];
     // Base gold
@@ -2457,6 +2560,22 @@
       }
     }
 
+    // Unknown potion drop (12% chance for non-boss)
+    if (!enemy.boss && Math.random() < 0.12) {
+      loot.push({ type:'item', item: clone(pick(UNKNOWN_POTIONS)) });
+    }
+
+    // Cursed item drop (5% chance, rare+ enemies only)
+    if ((enemy.cr||0) >= 3 && Math.random() < 0.05) {
+      loot.push({ type:'item', item: clone(pick(CURSED_ITEMS_POOL)), isCursed:true });
+    }
+
+    // Elite guaranteed bonus loot
+    if (enemy.isElite) {
+      const elitePool = P.ITEMS.filter(i => ['uncommon','rare'].includes(i.r));
+      if (elitePool.length) loot.push({ type:'item', item: clone(pick(elitePool)), isRareDrop:true });
+    }
+
     // Rare drop system
     const rareChance = enemy.boss ? 0.4 : enemy.secret ? 0.2 : 0.05;
     if (Math.random() < rareChance) {
@@ -2466,6 +2585,9 @@
 
     return loot;
   }
+
+  root._dndParts.UNKNOWN_POTIONS   = UNKNOWN_POTIONS;
+  root._dndParts.CURSED_ITEMS_POOL = CURSED_ITEMS_POOL;
 
   root._dndParts.createEnemy        = createEnemy;
   root._dndParts.rollInitiative     = rollInitiative;
@@ -3323,7 +3445,8 @@
                 <button class="dnd-btn dnd-btn-ghost dnd-half" onclick="root._dndGame.worldRest('short')">💤 Descanso corto</button>
                 <button class="dnd-btn dnd-btn-ghost dnd-half" onclick="root._dndGame.worldRest('long')">🛌 Descanso largo</button>
                 <button class="dnd-btn dnd-btn-ghost dnd-half" onclick="root._dndGame.navigate('lore')">📖 Codex</button>
-                <button class="dnd-btn dnd-btn-ghost dnd-full" onclick="root._dndGame.navigate('stats')">📊 Estadísticas</button>
+                <button class="dnd-btn dnd-btn-ghost dnd-half" onclick="root._dndGame.navigate('stats')">📊 Stats</button>
+                <button class="dnd-btn dnd-btn-ghost dnd-half" onclick="root._dndGame.navigate('charsheet')">📋 Ficha de PJ</button>
                 ${char._pendingASI ? `<button class="dnd-btn dnd-btn-primary dnd-pulse-btn dnd-full" onclick="root._dndGame.showASIScreen()">⬆️ ¡Mejora disponible!</button>` : ''}
               </div>
             </div>
@@ -3384,10 +3507,24 @@
     const allAbilities = char.abilities || [];
     const spells       = char.spells || [];
     const _bonusUsed   = bonusActionUsed === true;
+    const isDeathSaves = phase === 'death_saves';
+    const ds           = char._deathSaves || { success:0, fail:0 };
+
+    // Kill streak display
+    const streakHtml = (char._killStreak||0) > 1
+      ? `<div class="dnd-streak-counter">🔥 RACHA x${char._killStreak} (+${char._killStreak * 5}% dmg)</div>`
+      : '';
+
+    // Elite badge
+    const eliteBadge = enemy.isElite ? `<span class="dnd-elite-badge">⭐ ÉLITE</span>` : '';
+    // Proc trait badge
+    const traitBadge = enemy._procTrait
+      ? `<span class="dnd-trait-badge">${enemy._procTrait.icon} ${esc(enemy._procTrait.name)}</span>` : '';
 
     return `
       <div id="dnd-combat" class="dnd-screen dnd-active">
         ${buildHUD(char)}
+        ${streakHtml}
         <div class="dnd-combat-layout">
           <!-- Combatants -->
           <div class="dnd-combatants">
@@ -3397,17 +3534,28 @@
               <div class="dnd-fighter-icon dnd-player-icon">${esc(char.cls.icon)}</div>
               <div class="dnd-hp-bar-wrap">
                 <div class="dnd-hp-bar"><div class="dnd-hp-fill" style="width:${pHpPct}%;background:${pColor}"></div></div>
-                <span>${char.hp}/${char.maxHP}</span>
+                <span>${char.hp}/${char.maxHP}${char._concentration?` 🔵${esc(char._concentration.name)}`:''}</span>
               </div>
               <div class="dnd-cond-row">${char.conditions.map(c=>`<span class="dnd-cbadge" style="color:${c.id==='burning'?'#f97316':c.id==='bleeding'?'#ef4444':c.id==='poisoned'?'#a3e635':c.id==='chilled'?'#67e8f9':'#e2e8f0'}">${c.icon||'⚡'}${c.name}</span>`).join('')}</div>
+              ${isDeathSaves ? `
+              <div class="dnd-death-saves">
+                <div class="dnd-ds-row">
+                  <span>✅ Éxitos:</span>
+                  ${[0,1,2].map(i=>`<span class="dnd-ds-dot ${ds.success>i?'success':''}">${ds.success>i?'✅':'○'}</span>`).join('')}
+                </div>
+                <div class="dnd-ds-row">
+                  <span>❌ Fallos:</span>
+                  ${[0,1,2].map(i=>`<span class="dnd-ds-dot ${ds.fail>i?'fail':''}">${ds.fail>i?'💀':'○'}</span>`).join('')}
+                </div>
+              </div>` : ''}
             </div>
             <div class="dnd-vs-center">
               <div id="dnd-dice-anim" class="dnd-dice">🎲</div>
               <div class="dnd-vs-text">VS</div>
             </div>
             <div class="dnd-fighter dnd-enemy-side">
-              <div class="dnd-fighter-name">${esc(enemy.name)}</div>
-              <div class="dnd-fighter-sub">${esc(enemy.icon||'👹')} CR${enemy.cr||'?'} · CA ${enemy.ac}</div>
+              <div class="dnd-fighter-name">${esc(enemy.name)} ${eliteBadge}</div>
+              <div class="dnd-fighter-sub">${esc(enemy.icon||'👹')} CR${enemy.cr||'?'} · CA ${enemy.ac} ${traitBadge}</div>
               <div class="dnd-fighter-icon dnd-enemy-icon">${enemy.icon||'👹'}</div>
               <div class="dnd-hp-bar-wrap">
                 <div class="dnd-hp-bar"><div class="dnd-hp-fill" style="width:${hpPct}%;background:${phColor}"></div></div>
@@ -3422,7 +3570,12 @@
             ${combatLog.slice(-12).map((l,i) => `<div class="dnd-log-entry${i===combatLog.slice(-12).length-1?' dnd-log-latest':''}">${esc(l)}</div>`).join('')}
           </div>
 
-          <!-- Actions -->
+          <!-- Actions — death saves OR normal -->
+          ${isDeathSaves ? `
+          <div class="dnd-combat-actions" id="dnd-actions">
+            <p class="dnd-ds-notice">💀 <b>TIRADA DE SALVACIÓN VS MUERTE</b> — 3 éxitos = estabilizado · 3 fallos = muerte</p>
+            <button class="dnd-btn dnd-btn-attack" onclick="root._dndGame.combatAction('death_save')">🎲 Tirar d20</button>
+          </div>` : `
           <div class="dnd-combat-actions" id="dnd-actions" ${phase!=='player'?'style="pointer-events:none;opacity:.5"':''}>
             <div class="dnd-action-row">
               ${!_bonusUsed ? `<button class="dnd-btn dnd-btn-attack" onclick="root._dndGame.combatAction('attack')">⚔️ Atacar</button>` : `<button class="dnd-btn dnd-btn-attack" style="opacity:.4;pointer-events:none" disabled>⚔️ Atacar</button>`}
@@ -3451,7 +3604,7 @@
               <button class="dnd-btn dnd-btn-ghost" onclick="root._dndGame.combatAction('flee')">🏃 Huir</button>
               ${char.equipment.weapon?.id === 'vorpal_sword' ? `<button class="dnd-btn dnd-btn-smite" onclick="root._dndGame.combatAction('smite')">⚡ Golpe</button>` : ''}
             </div>
-          </div>
+          </div>`}
 
           ${enemies.length > 1 ? `<div class="dnd-multi-enemy">+${enemies.length-1} enemigos más esperando...</div>` : ''}
         </div>
@@ -3642,9 +3795,210 @@
       </div>`;
   }
 
+  // ── SCREEN: CHARACTER SHEET (DnD style) ──────────────────────
+  function buildCharacterSheet(char) {
+    const modStr = P.utils.modStr;
+    const statLabels = { str:'Fuerza', dex:'Destreza', con:'Constitución', int:'Inteligencia', wis:'Sabiduría', cha:'Carisma' };
+    const stats = ['str','dex','con','int','wis','cha'];
+    // Saving throws — proficiency if in cls.savingThrows
+    const svProf = char.cls.savingThrows || [];
+    // Skills (DnD 5e standard, mapped to ability)
+    const SKILLS = [
+      {name:'Acrobacias',       stat:'dex'}, {name:'Atletismo',       stat:'str'},
+      {name:'Arcanos',          stat:'int'}, {name:'Engaño',          stat:'cha'},
+      {name:'Historia',         stat:'int'}, {name:'Intimidación',    stat:'cha'},
+      {name:'Intuición',        stat:'wis'}, {name:'Investigación',   stat:'int'},
+      {name:'Juego de Manos',   stat:'dex'}, {name:'Medicina',        stat:'wis'},
+      {name:'Naturaleza',       stat:'int'}, {name:'Percepción',      stat:'wis'},
+      {name:'Persuasión',       stat:'cha'}, {name:'Religión',        stat:'int'},
+      {name:'Sigilo',           stat:'dex'}, {name:'Supervivencia',   stat:'wis'},
+      {name:'Trato con Animales',stat:'wis'},{name:'Actuación',       stat:'cha'},
+    ];
+    const classProf = char.cls.skillProficiencies || [];
+    const hpPct = Math.round(char.hp / char.maxHP * 100);
+    const hpColor = hpPct > 60 ? '#22c55e' : hpPct > 30 ? '#f59e0b' : '#ef4444';
+
+    return `
+      <div id="dnd-charsheet" class="dnd-screen dnd-active">
+        ${buildHUD(char)}
+        <div class="dnd-cs-layout">
+
+          <!-- ── TOP HEADER ──────────────────────────────── -->
+          <div class="dnd-cs-header">
+            <div class="dnd-cs-identity">
+              <div class="dnd-cs-portrait">${esc(char.cls.icon)} ${esc(char.race.icon)}</div>
+              <div class="dnd-cs-id-info">
+                <div class="dnd-cs-name">${esc(char.name)}</div>
+                <div class="dnd-cs-subtitle">${esc(char.cls.name)} · ${esc(char.race.name)} · Nivel ${char.level}</div>
+                <div class="dnd-cs-subtitle">Competencia +${char.prof} · XP ${char.xp}</div>
+                ${char._inspiration ? '<span class="dnd-cs-inspi">✨ INSPIRACIÓN</span>' : ''}
+                ${char._zoneBoon  ? `<span class="dnd-cs-boon">🌟 ${esc(char._zoneBoon.name)}</span>` : ''}
+                ${char._zoneBane  ? `<span class="dnd-cs-bane">☠️ ${esc(char._zoneBane.name)}</span>` : ''}
+              </div>
+            </div>
+            <div class="dnd-cs-derived">
+              <div class="dnd-cs-derived-box">
+                <div class="dnd-cs-d-val">${char.AC}</div>
+                <div class="dnd-cs-d-lbl">CA</div>
+              </div>
+              <div class="dnd-cs-derived-box">
+                <div class="dnd-cs-d-val">${char.getMod('dex') + char.level + (char._alertBonus||0)}</div>
+                <div class="dnd-cs-d-lbl">Init</div>
+              </div>
+              <div class="dnd-cs-derived-box">
+                <div class="dnd-cs-d-val" style="color:${hpColor}">${char.hp}/${char.maxHP}</div>
+                <div class="dnd-cs-d-lbl">HP</div>
+              </div>
+              <div class="dnd-cs-derived-box">
+                <div class="dnd-cs-d-val">+${char.attackBonus}</div>
+                <div class="dnd-cs-d-lbl">Ataque</div>
+              </div>
+              <div class="dnd-cs-derived-box">
+                <div class="dnd-cs-d-val">💰${P.utils.fmtGold(char.gold)}</div>
+                <div class="dnd-cs-d-lbl">Oro</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── MAIN 3-COLUMN GRID ─────────────────────── -->
+          <div class="dnd-cs-grid">
+
+            <!-- COL 1: Stats + Saves ──────────────────── -->
+            <div class="dnd-cs-col">
+              <div class="dnd-cs-section">
+                <div class="dnd-cs-section-title">ESTADÍSTICAS</div>
+                ${stats.map(s => {
+                  const val  = char.getStat(s);
+                  const mval = char.getMod(s);
+                  const mstr = mval >= 0 ? '+'+mval : String(mval);
+                  const color= val >= 16 ? '#22c55e' : val >= 12 ? '#fbbf24' : val >= 8 ? '#9ca3af' : '#ef4444';
+                  return `<div class="dnd-cs-stat-row">
+                    <div class="dnd-cs-stat-box" style="border-color:${color}">
+                      <div class="dnd-cs-stat-mod">${mstr}</div>
+                      <div class="dnd-cs-stat-val">${val}</div>
+                    </div>
+                    <div class="dnd-cs-stat-name">${esc(statLabels[s])}</div>
+                  </div>`;
+                }).join('')}
+              </div>
+
+              <div class="dnd-cs-section">
+                <div class="dnd-cs-section-title">TIRADAS DE SALVACIÓN</div>
+                ${stats.map(s => {
+                  const prof = svProf.includes(s);
+                  const bonus= char.getMod(s) + (prof ? char.prof : 0);
+                  const bstr = bonus >= 0 ? '+'+bonus : String(bonus);
+                  return `<div class="dnd-cs-sv-row">
+                    <span class="dnd-cs-sv-dot ${prof?'filled':''}"></span>
+                    <span class="dnd-cs-sv-val">${bstr}</span>
+                    <span class="dnd-cs-sv-name">${esc(statLabels[s])}</span>
+                  </div>`;
+                }).join('')}
+              </div>
+
+              <div class="dnd-cs-section">
+                <div class="dnd-cs-section-title">PERCEPCIÓN PASIVA</div>
+                <div class="dnd-cs-passive">${10 + char.getMod('wis') + (classProf.includes('perception') ? char.prof : 0)}</div>
+              </div>
+            </div>
+
+            <!-- COL 2: Skills + Combat ───────────────── -->
+            <div class="dnd-cs-col">
+              <div class="dnd-cs-section">
+                <div class="dnd-cs-section-title">HABILIDADES</div>
+                <div class="dnd-cs-skills-list">
+                  ${SKILLS.map(sk => {
+                    const prof = classProf.includes(sk.name.toLowerCase().replace(/ /g,'_'));
+                    const bonus= char.getMod(sk.stat) + (prof ? char.prof : 0);
+                    const bstr = bonus >= 0 ? '+'+bonus : String(bonus);
+                    return `<div class="dnd-cs-skill-row">
+                      <span class="dnd-cs-sv-dot ${prof?'filled':''}"></span>
+                      <span class="dnd-cs-skill-val">${bstr}</span>
+                      <span class="dnd-cs-skill-name">${esc(sk.name)}</span>
+                      <span class="dnd-cs-skill-stat">${sk.stat.toUpperCase()}</span>
+                    </div>`;
+                  }).join('')}
+                </div>
+              </div>
+            </div>
+
+            <!-- COL 3: Equipment + Abilities + Traits ── -->
+            <div class="dnd-cs-col">
+              <div class="dnd-cs-section">
+                <div class="dnd-cs-section-title">EQUIPAMIENTO</div>
+                ${['weapon','armor','ring','neck','cloak','head','hands','feet','belt','trinket'].map(slot => {
+                  const item = char.equipment[slot];
+                  const slotLabels = {weapon:'⚔️ Arma',armor:'🛡️ Armadura',ring:'💍 Anillo',neck:'📿 Collar',cloak:'🧥 Capa',head:'⛑️ Cabeza',hands:'🧤 Manos',feet:'👢 Pies',belt:'🎽 Cinturón',trinket:'🔮 Trinket'};
+                  return `<div class="dnd-cs-equip-row ${item?.cursed?'cursed':''}">
+                    <span class="dnd-cs-equip-slot">${slotLabels[slot]||slot}</span>
+                    <span class="dnd-cs-equip-item">${item ? esc(item.icon+' '+item.name+(item.cursed?'🔒':'')) : '—'}</span>
+                  </div>`;
+                }).join('')}
+              </div>
+
+              <div class="dnd-cs-section">
+                <div class="dnd-cs-section-title">HABILIDADES DE CLASE</div>
+                ${(char.abilities||[]).map(a => `
+                  <div class="dnd-cs-ability-row">
+                    <span>${a.icon||'⚡'} ${esc(a.name)}</span>
+                    <span class="dnd-cs-ab-uses">${a.maxUses>0?a.curUses+'/'+a.maxUses:'∞'}</span>
+                  </div>`).join('') || '<p class="dnd-cs-empty">Sin habilidades</p>'}
+              </div>
+
+              ${char.spells?.length ? `
+              <div class="dnd-cs-section">
+                <div class="dnd-cs-section-title">HECHIZOS CONOCIDOS</div>
+                ${char.spells.map(sp => `<div class="dnd-cs-spell-row">${sp.icon||'🔮'} ${esc(sp.name)}</div>`).join('')}
+              </div>` : ''}
+
+              <div class="dnd-cs-section">
+                <div class="dnd-cs-section-title">RASGOS Y TALENTOS</div>
+                ${(char._feats||[]).length === 0 ? '<p class="dnd-cs-empty">Sin talentos. Disponibles al nivel 4/8/12.</p>'
+                  : (char._feats||[]).map(fid => {
+                    const feat = (P.FEATS||[]).find(f=>f.id===fid);
+                    return feat ? `<div class="dnd-cs-feat-row">${feat.icon} ${esc(feat.name)} <span class="dnd-cs-feat-desc">${esc(feat.desc)}</span></div>` : '';
+                  }).join('')}
+                <div class="dnd-cs-trait-row">
+                  <b>Raza:</b> ${esc(char.race.name)} — ${esc((char.race.traits||[]).join(', '))}
+                </div>
+                <div class="dnd-cs-trait-row">
+                  <b>Clase:</b> ${esc(char.cls.name)} — Dado de Vida d${char.cls.hd}
+                </div>
+              </div>
+
+              ${(char.conditions||[]).length ? `
+              <div class="dnd-cs-section">
+                <div class="dnd-cs-section-title">CONDICIONES ACTIVAS</div>
+                ${char.conditions.map(c => `<div class="dnd-cs-cond-row">${c.icon||'⚡'} ${esc(c.name)} ${c.rounds?'('+c.rounds+' rounds)':''}</div>`).join('')}
+              </div>` : ''}
+            </div>
+          </div><!-- end grid -->
+        </div><!-- end layout -->
+
+        <div class="dnd-cs-footer">
+          <button class="dnd-btn dnd-btn-ghost" onclick="root._dndGame.navigate('world')">← Volver al Mapa</button>
+          <button class="dnd-btn dnd-btn-ghost" onclick="root._dndGame.navigate('inventory')">🎒 Inventario</button>
+          <button class="dnd-btn dnd-btn-ghost" onclick="root._dndGame.navigate('stats')">📊 Estadísticas</button>
+        </div>
+      </div>`;
+  }
+
+  root._dndParts.buildCharacterSheet = buildCharacterSheet;
+
   // ── SCREEN: GAME OVER ─────────────────────────────────────────
+  function getRunRank(score) {
+    if (score >= 6000) return { rank:'S+', color:'#f59e0b', title:'Legendario' };
+    if (score >= 3500) return { rank:'S',  color:'#a78bfa', title:'Héroe' };
+    if (score >= 2000) return { rank:'A',  color:'#22c55e', title:'Veterano' };
+    if (score >= 1000) return { rank:'B',  color:'#06b6d4', title:'Aventurero' };
+    if (score >= 400)  return { rank:'C',  color:'#9ca3af', title:'Aprendiz' };
+    return               { rank:'D',  color:'#ef4444', title:'Novato' };
+  }
+
   function buildGameOverScreen(char, killMsg) {
-    const score = P.Storage.calcScore(char);
+    const score    = P.Storage.calcScore(char);
+    const rankInfo = getRunRank(score);
+    const minutes  = Math.round((Date.now() - char.startTime) / 60000);
     return `
       <div id="dnd-gameover" class="dnd-screen dnd-active">
         <div class="dnd-go-bg"></div>
@@ -3652,14 +4006,31 @@
           <div class="dnd-go-skull">💀</div>
           <h1 class="dnd-go-title">${char.permadeath ? 'PERMADEATH' : 'HAS CAÍDO'}</h1>
           <p class="dnd-go-cause">${esc(killMsg || 'Las heridas fueron demasiado.')}</p>
+          <div class="dnd-go-rank" style="border-color:${rankInfo.color}">
+            <span class="dnd-go-rank-letter" style="color:${rankInfo.color}">${rankInfo.rank}</span>
+            <span class="dnd-go-rank-title">${rankInfo.title}</span>
+          </div>
           <div class="dnd-go-stats">
             <div class="dnd-go-stat"><span>Nivel alcanzado</span><b>${char.level}</b></div>
             <div class="dnd-go-stat"><span>Enemigos derrotados</span><b>${char.stats.kills}</b></div>
+            <div class="dnd-go-stat"><span>Racha máxima</span><b>🔥 x${char.stats.maxStreak||0}</b></div>
+            <div class="dnd-go-stat"><span>Críticos</span><b>${char.stats.crits}</b></div>
+            <div class="dnd-go-stat"><span>Mayor golpe</span><b>${char.stats.highestDmg}</b></div>
             <div class="dnd-go-stat"><span>Misiones completadas</span><b>${char.stats.questsDone}</b></div>
-            <div class="dnd-go-stat"><span>Daño infligido</span><b>${char.stats.damageDone}</b></div>
-            <div class="dnd-go-stat"><span>Crit más alto</span><b>${char.stats.highestDmg}</b></div>
-            <div class="dnd-go-stat dnd-go-score"><span>PUNTUACIÓN</span><b>${score}</b></div>
+            <div class="dnd-go-stat"><span>Oro acumulado</span><b>💰${char.stats.goldEarned}</b></div>
+            <div class="dnd-go-stat"><span>Tiempo</span><b>⏱️ ${minutes} min</b></div>
+            <div class="dnd-go-stat dnd-go-score"><span>PUNTUACIÓN TOTAL</span><b>${score}</b></div>
           </div>
+          ${(char._achievements||[]).length ? `
+          <div class="dnd-go-ach">
+            <div class="dnd-go-ach-title">🏆 Logros esta partida</div>
+            <div class="dnd-go-ach-list">
+              ${char._achievements.map(id => {
+                const a = (P.ACHIEVEMENTS||[]).find(x=>x.id===id);
+                return a ? `<span class="dnd-go-ach-badge">${a.icon} ${esc(a.name)}</span>` : '';
+              }).join('')}
+            </div>
+          </div>` : ''}
           <div class="dnd-go-btns">
             <button class="dnd-btn dnd-btn-primary" onclick="root._dndGame.navigate('char-create')">⚔️ Nueva Partida</button>
             ${!char.permadeath && P.SaveSystem.hasSave() ? `<button class="dnd-btn dnd-btn-secondary" onclick="root._dndGame.loadGame()">💾 Cargar guardado</button>` : ''}
@@ -3943,6 +4314,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   root._dndParts.buildCombatScreen    = buildCombatScreen;
   root._dndParts.buildASIScreen       = buildASIScreen;
   root._dndParts.buildStatsScreen     = buildStatsScreen;
+  root._dndParts.buildCharacterSheet  = buildCharacterSheet;
   root._dndParts.buildInventoryScreen = buildInventoryScreen;
   root._dndParts.buildMerchantScreen  = buildMerchantScreen;
   root._dndParts.buildQuestScreen     = buildQuestScreen;
@@ -3964,6 +4336,33 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
 
   const P = root._dndParts;
   const { d20, roll, pick, shuffle, clone, clamp, esc, fmtGold, modStr } = P.utils;
+
+  // ── ACHIEVEMENTS ─────────────────────────────────────────────
+  const ACHIEVEMENTS = [
+    { id:'first_blood',   name:'Primera Sangre',    icon:'🩸', desc:'Derrota tu primer enemigo',        check: c => (c.stats.kills||0) >= 1 },
+    { id:'pure_crit',     name:'Crítico Puro',       icon:'💥', desc:'Consigue 10 golpes críticos',      check: c => (c.stats.crits||0) >= 10 },
+    { id:'died_lived',    name:'Muerto y Vivo',      icon:'💀', desc:'Sobrevive a tiradas de muerte',    check: c => c._survivedDeathSaves === true },
+    { id:'collector',     name:'Coleccionista',      icon:'🎒', desc:'Ten 15+ objetos en inventario',    check: c => (c.inventory||[]).length >= 15 },
+    { id:'millionaire',   name:'Acaudalado',          icon:'💰', desc:'Acumula 1000 de oro de una vez',   check: c => (c.gold||0) >= 1000 },
+    { id:'bookworm',      name:'Sabio',              icon:'📖', desc:'Desbloquea 5 entradas de lore',    check: c => (c.loreFound||[]).length >= 5 },
+    { id:'dragonslayer',  name:'Cazadragones',       icon:'🐉', desc:'Derrota al Dragón Anciano',        check: c => !!c.flags?.killed_dragon_ancient },
+    { id:'streak_5',      name:'Imparable',          icon:'🔥', desc:'Consigue una racha de 5 kills',    check: c => (c.stats.maxStreak||0) >= 5 },
+    { id:'untouchable',   name:'Intocable',          icon:'🛡️', desc:'Gana un combate sin recibir daño', check: c => c._noDamageLastFight === true },
+    { id:'elite_slayer',  name:'Cazador de Élites',  icon:'⭐', desc:'Derrota a 3 enemigos élite',       check: c => (c._eliteKills||0) >= 3 },
+    { id:'speed_run',     name:'Veloz',              icon:'⚡', desc:'Completa una zona en menos de 3 días', check: c => c._fastZoneComplete === true },
+    { id:'easter_egg',    name:'Descubridor',        icon:'🥚', desc:'Accede a la Sala del Desarrollador', check: c => !!c.flags?.devRoomUnlocked },
+  ];
+  P.ACHIEVEMENTS = ACHIEVEMENTS;
+
+  function checkAchievements(char) {
+    if (!char._achievements) char._achievements = [];
+    ACHIEVEMENTS.forEach(ach => {
+      if (!char._achievements.includes(ach.id) && ach.check(char)) {
+        char._achievements.push(ach.id);
+        P.showNotification(`🏆 ¡Logro: ${ach.icon} ${ach.name}! — ${ach.desc}`, 'success', 5000);
+      }
+    });
+  }
 
   // ── RANDOM NAMES ─────────────────────────────────────────────
   const NAMES_FIRST = ['Aeron','Bael','Caelum','Dara','Eryn','Faelith','Gorn','Hela','Iven','Jax','Kael','Lyra','Morg','Nyx','Oryn','Petra','Quen','Rael','Sera','Thorn','Ulric','Vex','Wyrd','Xar','Ysolde','Zira'];
@@ -4017,6 +4416,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       case 'lore':        render(P.buildLoreScreen(char)); break;
       case 'stats':       render(P.buildStatsScreen(char)); break;
       case 'asi':         render(P.buildASIScreen(char)); break;
+      case 'charsheet':   render(P.buildCharacterSheet(char)); break;
       case 'gameover':    render(P.buildGameOverScreen(char, combatState?.deathMsg || '')); break;
       case 'victory':     render(P.buildVictoryScreen(char)); break;
       case 'devroom':     enterDevRoom(); break;
@@ -4191,6 +4591,38 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       P.showNotification(`Necesitas nivel ${loc.minLevel} para entrar aquí. Tienes nivel ${char.level}.`, 'warn'); return;
     }
     char.currentLocation = locationId;
+
+    // ── BOON / BANE / INSPIRATION on zone entry ──
+    char._zoneBoon = null; char._zoneBane = null;
+    const ZONE_BOONS = [
+      { name:'Terreno Sagrado',  icon:'✨', msg:'+2 a tiradas de salvación en esta zona.', svBonus:2 },
+      { name:'Frenesí de Batalla', icon:'⚔️', msg:'+1 al daño en esta zona.',             dmgBonus:1 },
+      { name:'Vientos de Suerte', icon:'🍀', msg:'Ventaja en tu próxima tirada.',           advantage:true },
+    ];
+    const ZONE_BANES = [
+      { name:'Maldición de Sangre', icon:'💀', msg:'Los enemigos hacen +1 daño extra.',      enemyDmg:1 },
+      { name:'Niebla Arcana',       icon:'🌫️', msg:'Penalización -2 a tus ataques de hechizo.', spellPenalty:2 },
+      { name:'Fiebre Oscura',       icon:'🖤', msg:'Empiezas con -5 HP hasta descansar.',     hpPenalty:5 },
+    ];
+    const zoneRoll = Math.random();
+    if (zoneRoll < 0.28) {
+      const b = pick(ZONE_BOONS);
+      char._zoneBoon = b;
+      P.showNotification(`${b.icon} Bendición: ${b.name} — ${b.msg}`, 'success', 5000);
+      if (b.hpBonus) char.hp = Math.min(char.maxHP, char.hp + b.hpBonus);
+    } else if (zoneRoll < 0.56) {
+      const b = pick(ZONE_BANES);
+      char._zoneBane = b;
+      P.showNotification(`${b.icon} Maldición: ${b.name} — ${b.msg}`, 'warn', 5000);
+      if (b.hpPenalty) char.hp = Math.max(1, char.hp - b.hpPenalty);
+    }
+
+    // Inspiration (15% chance, once per zone)
+    if (Math.random() < 0.15 && !char._inspiration) {
+      char._inspiration = true;
+      P.showNotification('✨ ¡Inspiración! Ventaja en tu próxima tirada.', 'success', 4000);
+    }
+
     explore();
   }
 
@@ -4292,8 +4724,50 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   }
 
   function combatAction(action, param) {
-    if (!combatState || combatState.phase !== 'player') return;
-    const enemy = combatState.enemies[combatState.currentEnemyIdx];
+    if (!combatState) return;
+    const enemy = combatState.enemies?.[combatState.currentEnemyIdx] || null;
+    // Allow death_save action even in death_saves phase
+    if (action === 'death_save') {
+      const nat = d20();
+      const ds  = char._deathSaves;
+      if (nat === 20) {
+        // Nat 20 — instant recover
+        char.hp = 1; char._isDown = false; char._deathSaves = { success:0, fail:0 };
+        char._survivedDeathSaves = true;
+        combatState.phase = 'player';
+        combatState.log.push(`🎲 ¡NAT 20! ¡Te recuperas milagrosamente con 1 HP!`);
+        P.Particles.spawnBurst('magic');
+        refreshCombatScreen();
+      } else if (nat === 1) {
+        ds.fail = Math.min(3, ds.fail + 2);
+        combatState.log.push(`💀 ¡Nat 1! ¡Dos fracasos simultáneos! (${ds.fail}/3 fallos)`);
+        if (ds.fail >= 3) { _triggerActualDeath(enemy); return; }
+        refreshCombatScreen();
+        setTimeout(() => enemyTurn(), 800);
+      } else if (nat >= 10) {
+        ds.success++;
+        combatState.log.push(`✅ Tirada ${nat} — Éxito (${ds.success}/3)`);
+        if (ds.success >= 3) {
+          char.hp = 1; char._isDown = false; char._deathSaves = { success:0, fail:0 };
+          char._survivedDeathSaves = true;
+          combatState.phase = 'player';
+          combatState.log.push('💚 ¡Estabilizado! Sobrevives con 1 HP.');
+          refreshCombatScreen();
+        } else {
+          refreshCombatScreen();
+          setTimeout(() => enemyTurn(), 800);
+        }
+      } else {
+        ds.fail++;
+        combatState.log.push(`❌ Tirada ${nat} — Fracaso (${ds.fail}/3 fallos)`);
+        if (ds.fail >= 3) { _triggerActualDeath(enemy); return; }
+        refreshCombatScreen();
+        setTimeout(() => enemyTurn(), 800);
+      }
+      return;
+    }
+
+    if (combatState.phase !== 'player') return;
     if (!enemy || enemy.hp <= 0) return;
 
     combatState.phase = 'busy';
@@ -4303,11 +4777,17 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     if (action === 'attack') {
       animateDice(() => {
         const wMod = combatState.weatherMod || { atkMod:0, dmgMod:0 };
+        // Inspiration: grant advantage on attack
+        const hasInspiration = char._inspiration === true;
+        if (hasInspiration) { char._inspiration = false; }
+        // Kill streak damage bonus
+        const streakBonus = Math.round((char._killStreak||0) * 0.05 * (combatState.baseDmgBonus||1));
         const res = P.playerAttack(char, enemy, {
-          hasAdvantage: char.hasCondition('hunters_mark') || char.hasCondition('rage'),
-          hasDisadvantage: char.hasCondition('stunned') || char.hasCondition('paralyzed'),
+          hasAdvantage: hasInspiration || char.hasCondition('hunters_mark') || char.hasCondition('rage'),
+          hasDisadvantage: char.hasCondition('stunned') || char.hasCondition('paralyzed') || !!char._zoneBane?.disadvantage,
           weatherAtkMod: wMod.atkMod,
-          weatherDmgMod: wMod.dmgMod
+          weatherDmgMod: wMod.dmgMod + (char._zoneBoon?.dmgBonus||0),
+          extraDmg: streakBonus
         });
         if (res.hits && res.dmg > 0) {
           enemy.hp = Math.max(0, enemy.hp - res.dmg);
@@ -4340,7 +4820,6 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       if (res.dmg > 0) {
         enemy.hp = Math.max(0, enemy.hp - res.dmg);
         if (ability.bonusAction) {
-          // Bonus action: player keeps their main attack turn
           combatState._bonusActionUsed = true;
           checkEnemyDeath(enemy, () => {
             combatState.phase = 'player';
@@ -4361,6 +4840,25 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     } else if (action === 'spell') {
       openSpellMenu(); return;
     } else if (action === 'item') {
+      // Unknown potion handling
+      const invItem = char.inventory.find(i => i.id === param);
+      if (invItem && invItem.e === 'unknown_potion') {
+        const realId = invItem._real;
+        const realItem = P.ITEMS.find(i => i.id === realId) || { name:'Poción Básica', e:'heal', val:10, id: realId };
+        combatState.log.push(`🧪 Usas el ${esc(invItem.name)} — ¡Es ${esc(realItem.name||realId)}!`);
+        char.inventory = char.inventory.filter(i => i !== invItem);
+        if (realItem.e === 'heal') {
+          const healed = realItem.val || 10;
+          char.hp = Math.min(char.maxHP, char.hp + healed);
+          char.stats.healingDone += healed;
+          combatState.log.push(`💚 Recuperas ${healed} HP.`);
+        } else if (realItem.e === 'poison') {
+          P.applyStatusEffect(char, 'poisoned', 3);
+          combatState.log.push(`☠️ ¡Era veneno! Envenenado.`);
+        }
+        endPlayerTurn();
+        return;
+      }
       const itemMsg = char.useItem(param);
       if (itemMsg) {
         combatState.log.push(`🧪 ${itemMsg}`);
@@ -4393,6 +4891,20 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       return;
     }
     refreshCombatScreen();
+  }
+
+  // Helper — true death when 3 death save failures
+  function _triggerActualDeath(enemy) {
+    char.deathCount++;
+    char.stats.deaths++;
+    char._isDown = false;
+    combatState.deathMsg = `Caído ante ${enemy?.name||'un enemigo'} en ${P.LOCATIONS?.find(l=>l.id===char.currentLocation)?.name||'el camino'}.`;
+    P.Audio.sfx.death();
+    P.Storage.addScore(P.Storage.calcScore(char));
+    combatState.log.push('💀 Tres fallos... La oscuridad te envuelve.');
+    refreshCombatScreen();
+    if (char.permadeath) P.SaveSystem.deleteSave();
+    setTimeout(() => navigate('gameover'), 2200);
   }
 
   function openSpellMenu() {
@@ -4462,6 +4974,18 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       char.stats.kills++;
       P.Storage.unlock('killed_' + enemy.id);
 
+      // Kill streak
+      char._killStreak = (char._killStreak || 0) + 1;
+      char.stats.maxStreak = Math.max(char.stats.maxStreak || 0, char._killStreak);
+      if (char._killStreak > 1) {
+        combatState.log.push(`🔥 ¡RACHA x${char._killStreak}! +${char._killStreak * 5}% daño`);
+        P.Particles.spawnBurst('sparks');
+      }
+      // Elite kill tracking
+      if (enemy.isElite) char._eliteKills = (char._eliteKills||0) + 1;
+      // No-damage tracking
+      if (!combatState._tookDamageThisFight) char._noDamageLastFight = true;
+
       // Quest update
       P.QuestTracker.update(char, 'kill', { id: enemy.id });
       if (enemy.boss) P.QuestTracker.update(char, 'kill_boss', { id: enemy.id });
@@ -4515,6 +5039,9 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
         P.showNotification(`📜 ¡Misión completada: ${q.title}! +${fmtGold(q.reward?.gold||0)}, +${q.reward?.xp||0} XP`, 'success', 5000);
       });
 
+      // Check achievements after combat
+      checkAchievements(char);
+
       autoSaveIfNeeded();
       setTimeout(() => {
         combatState = null;
@@ -4556,6 +5083,23 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       return;
     }
 
+    // Reset kill streak if enemy hit the player
+    if (result.hits && result.dmg > 0) {
+      char._killStreak = 0;
+      combatState._tookDamageThisFight = true;
+      // Concentration break check
+      if (char._concentration) {
+        const conSave = d20() + char.getMod('con');
+        const dc = Math.max(10, Math.floor(result.dmg / 2));
+        if (conSave < dc) {
+          combatState.log.push(`💨 ¡Concentración rota! ${char._concentration.name} se cancela. (${conSave}<${dc})`);
+          char._concentration = null;
+        }
+      }
+      // Spawn damage float on player
+      spawnDmgFloat(result.dmg, result.isCrit, 'player');
+    }
+
     // Check player death
     if (char.isDead) {
       // last_stand trinket: survive once at 1 HP
@@ -4569,27 +5113,36 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
         refreshCombatScreen();
         return;
       }
+
+      // ── DEATH SAVING THROWS (non-permadeath) ────────────────
+      if (!char.permadeath) {
+        if (!char._isDown) {
+          char._isDown = true;
+          char._deathSaves = { success:0, fail:0 };
+          combatState.log.push('💀 ¡HP a 0! Iniciando Tiradas de Salvación vs Muerte...');
+        }
+        combatState.phase = 'death_saves';
+        refreshCombatScreen();
+        return;
+      }
+
+      // Permadeath → instant death
       char.deathCount++;
       char.stats.deaths++;
       combatState.deathMsg = `Caído ante ${enemy.name} en ${P.LOCATIONS.find(l=>l.id===char.currentLocation)?.name||'el camino'}.`;
-      if (!char.permadeath) {
-        char.hp = 1; // Near-death survival
-        combatState.log.push(`💔 Has caído... Pero algo te da fuerzas para sobrevivir (1 HP).`);
-        combatState.phase = 'player';
-        refreshCombatScreen();
-        P.showNotification('⚠️ ¡Casi mueres! HP: 1', 'warn', 3000);
-        // Save (with low HP)
-        if (!char.hardcore) P.SaveSystem.save(char, world);
-      } else {
-        // True death
-        P.Audio.sfx.death();
-        P.Storage.addScore(P.Storage.calcScore(char));
-        combatState.log.push('💀 MUERTE PERMANENTE. Partida terminada.');
-        refreshCombatScreen();
-        if (char.permadeath) P.SaveSystem.deleteSave();
-        setTimeout(() => navigate('gameover'), 2000);
-      }
+      P.Audio.sfx.death();
+      P.Storage.addScore(P.Storage.calcScore(char));
+      combatState.log.push('💀 MUERTE PERMANENTE. Partida terminada.');
+      refreshCombatScreen();
+      P.SaveSystem.deleteSave();
+      setTimeout(() => navigate('gameover'), 2000);
       return;
+    }
+
+    // ── INJURY CHECK ─────────────────────────────────────────
+    if (char.hp <= Math.floor(char.maxHP * 0.25) && !char.hasCondition('injured') && char.hp > 0) {
+      char.addCondition({ id:'injured', name:'Herido', icon:'⚠️', desc:'-1 a tiradas', rounds:-1 });
+      combatState.log.push('⚠️ ¡Herido! -1 a todas las tiradas hasta largo descanso.');
     }
 
     combatState.phase = 'player';
@@ -4876,7 +5429,8 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     equipItem, unequip, useItem, sellItem, sortInv, buyItem,
     showTooltip, hideTooltip, acceptQuest, worldRest, loreTab,
     devCommand, enterDevRoom,
-    showASIScreen, toggleASIDual, applyASIDual, applyASI
+    showASIScreen, toggleASIDual, applyASIDual, applyASI,
+    checkAchievements
   };
 
   // ── INITIALIZATION ───────────────────────────────────────────
