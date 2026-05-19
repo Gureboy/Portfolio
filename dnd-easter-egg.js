@@ -762,8 +762,8 @@
     { id:'rat',       name:'Rata Gigante',     icon:'🐀', hp:7,   ac:12, atk:4,  dmg:4,  cr:0.1, xp:10,  gold:2,  tier:1, type:'beast',    loot:['rat_tail'],   desc:'Roedores del tamaño de un perro, ojos rojizos y hambrientos.', traits:[] },
     { id:'kobold',    name:'Kobold',            icon:'🦎', hp:5,   ac:12, atk:4,  dmg:4,  cr:0.1, xp:10,  gold:5,  tier:1, type:'humanoid', loot:['copper_coin']},
     { id:'goblin',    name:'Goblin',            icon:'👺', hp:7,   ac:15, atk:4,  dmg:6,  cr:0.25,xp:25,  gold:10, tier:1, type:'humanoid', loot:['dagger_rusty','goblin_ear'], desc:'Pequeños, rápidos y cobardes. Mortales en grupo.', traits:[{name:'Escape Ágil',desc:'Se desengaña como acción bonus cada turno.'}] },
-    { id:'zombie',    name:'Zombie',            icon:'🧟', hp:22,  ac:8,  atk:3,  dmg:8,  cr:0.25,xp:25,  gold:5,  tier:1, type:'undead',   loot:['rotten_cloth'], desc:'Se mueve lento. No para.', traits:[{name:'No Muerto',desc:'Inmune a veneno. Si llega a 0 HP, tira d20 – si saca 7+, vuelve con 1 HP una vez.'}] },
-    { id:'skeleton',  name:'Esqueleto',         icon:'💀', hp:13,  ac:13, atk:4,  dmg:6,  cr:0.25,xp:25,  gold:8,  tier:1, type:'undead',   loot:['bone_fragment'], traits:[{name:'Vulnerable a Contundente',desc:'×1.5 daño contundente.'},{name:'Inmune a Veneno',desc:'Inmune a daño veneno y envenenado.'}] },
+    { id:'zombie',    name:'Zombie',            icon:'🧟', hp:22,  ac:8,  atk:3,  dmg:8,  cr:0.25,xp:25,  gold:5,  tier:1, type:'undead',   loot:['rotten_cloth'], desc:'Se mueve lento. No para.', imm:['poison','poisoned'], traits:[{name:'No Muerto',desc:'Inmune a veneno. Si llega a 0 HP, tira d20 – si saca 7+, vuelve con 1 HP una vez.'}] },
+    { id:'skeleton',  name:'Esqueleto',         icon:'💀', hp:13,  ac:13, atk:4,  dmg:6,  cr:0.25,xp:25,  gold:8,  tier:1, type:'undead',   loot:['bone_fragment'], imm:['poison','poisoned'], res:['piercing'], vuln:['bludgeoning'], traits:[{name:'Vulnerable a Contundente',desc:'×1.5 daño contundente.'},{name:'Inmune a Veneno',desc:'Inmune a daño veneno y envenenado.'}] },
     { id:'wolf',      name:'Lobo',              icon:'🐺', hp:11,  ac:13, atk:4,  dmg:6,  cr:0.25,xp:25,  gold:3,  tier:1, type:'beast',    loot:['wolf_pelt'], traits:[{name:'Tumbado',desc:'Si el ataque falla, el objetivo tira STR o cae derribado.'}] },
     { id:'bandit',    name:'Bandido',           icon:'🗡️', hp:11,  ac:12, atk:3,  dmg:6,  cr:0.25,xp:25,  gold:20, tier:1, type:'humanoid', loot:['leather_armor','short_sword'], desc:'Desesperados. Eso los hace peligrosos.', traits:[] },
     { id:'stirge',    name:'Stirge',            icon:'🦇', hp:2,   ac:14, atk:5,  dmg:4,  cr:0.1, xp:10,  gold:0,  tier:1, type:'beast',    loot:[], traits:[{name:'Drenaje de Sangre',desc:'Si golpea, se aferra y drena 1d4 HP adicionales por turno hasta que sea sacudido.'}] },
@@ -779,18 +779,18 @@
 
     // ─── TIER 3: CR 3–6 ─────────────────────────────────────
     { id:'basilisk',  name:'Basílisco',         icon:'🦎', hp:52,  ac:15, atk:5,  dmg:8,  cr:3,   xp:300, gold:60, tier:3, type:'monstrosity', loot:['basilisk_eye','petrified_shard'], traits:[{name:'Mirada Pétrea',desc:'CON save DC12 por turno o Restringido → Petrificado.'}] },
-    { id:'wight',     name:'Aparecido',         icon:'👻', hp:45,  ac:14, atk:4,  dmg:8,  cr:3,   xp:300, gold:55, tier:3, type:'undead',   loot:['cursed_blade','life_drain_amulet'], traits:[{name:'Drenaje de Vida',desc:'Reduce el máximo de HP del objetivo en el daño causado.'}] },
-    { id:'werewolf',  name:'Hombre Lobo',       icon:'🐺', hp:58,  ac:11, atk:4,  dmg:10, cr:3,   xp:300, gold:70, tier:3, type:'shapechanger', loot:['silver_shard','wolf_pelt'], traits:[{name:'Inmunidad',desc:'Inmune a daño no mágico excepto plata.'}] },
-    { id:'gargoyle',  name:'Gárgola',           icon:'🗿', hp:52,  ac:15, atk:4,  dmg:6,  cr:2,   xp:200, gold:45, tier:3, type:'elemental', loot:['stone_dust','carved_rune'], traits:[{name:'Falsa Apariencia',desc:'Inmóvil, parece una estatua.'}] },
+    { id:'wight',     name:'Aparecido',         icon:'👻', hp:45,  ac:14, atk:4,  dmg:8,  cr:3,   xp:300, gold:55, tier:3, type:'undead',   loot:['cursed_blade','life_drain_amulet'], imm:['poison','poisoned'], res:['necrotic'], traits:[{name:'Drenaje de Vida',desc:'Reduce el máximo de HP del objetivo en el daño causado.'}] },
+    { id:'werewolf',  name:'Hombre Lobo',       icon:'🐺', hp:58,  ac:11, atk:4,  dmg:10, cr:3,   xp:300, gold:70, tier:3, type:'shapechanger', loot:['silver_shard','wolf_pelt'], imm:['nonmagical_bps'], traits:[{name:'Inmunidad',desc:'Inmune a daño no mágico excepto plata.'}] },
+    { id:'gargoyle',  name:'Gárgola',           icon:'🗿', hp:52,  ac:15, atk:4,  dmg:6,  cr:2,   xp:200, gold:45, tier:3, type:'elemental', loot:['stone_dust','carved_rune'], imm:['poison','nonmagical_bps'], traits:[{name:'Falsa Apariencia',desc:'Inmóvil, parece una estatua.'},{name:'Resistencia Piedra',desc:'Inmune a daño no mágico y veneno.'}] },
     { id:'oni',       name:'Oni',               icon:'👺', hp:110, ac:16, atk:7,  dmg:12, cr:7,   xp:700, gold:150,tier:3, type:'giant',    loot:['oni_club','shapechanger_oil'], traits:[{name:'Cambiaformas',desc:'Puede adoptar una forma humanoid pequeña.'}] },
     { id:'night_hag', name:'Bruja Nocturna',    icon:'🧙', hp:112, ac:17, atk:7,  dmg:8,  cr:5,   xp:500, gold:120,tier:3, type:'fiend',    loot:['heartstone','soul_gem'], traits:[{name:'Visión Etérea',desc:'Puede ver el plano etéreo a 60 ft.'}] },
 
     // ─── TIER 4: CR 6–10 ─────────────────────────────────────
-    { id:'troll',     name:'Troll',             icon:'👾', hp:84,  ac:15, atk:7,  dmg:10, cr:5,   xp:500, gold:100,tier:4, type:'giant',    loot:['troll_arm','regeneration_gland'], desc:'El troll regenera. Para matarlo necesitas fuego o ácido.', traits:[{name:'Regeneración',desc:'Recupera 10 HP al inicio de su turno. Se niega si recibió fuego/ácido.'}] },
-    { id:'golem_stone',name:'Gólem de Piedra',  icon:'🗿', hp:178, ac:17, atk:7,  dmg:12, cr:10,  xp:1000,gold:200,tier:4, type:'construct', loot:['stone_heart','binding_rune'], traits:[{name:'Inmune a Magia',desc:'Inmune a casi todos los hechizos. Haste/Slow lo afectan diferente.'}] },
+    { id:'troll',     name:'Troll',             icon:'👾', hp:84,  ac:15, atk:7,  dmg:10, cr:5,   xp:500, gold:100,tier:4, type:'giant',    loot:['troll_arm','regeneration_gland'], desc:'El troll regenera. Para matarlo necesitas fuego o ácido.', vuln:['fire','acid'], traits:[{name:'Regeneración',desc:'Recupera 10 HP al inicio de su turno. Se niega si recibió fuego/ácido.'},{name:'Vuln. Fuego/Ácido',desc:'Recibe daño doble de fuego y ácido. La regeneración se detiene.'}] },
+    { id:'golem_stone',name:'Gólem de Piedra',  icon:'🗿', hp:178, ac:17, atk:7,  dmg:12, cr:10,  xp:1000,gold:200,tier:4, type:'construct', loot:['stone_heart','binding_rune'], imm:['poison','psychic','nonmagical_bps'], phase2Msg:'[ACTIVANDO MODO DESTRUCCIÓN]', traits:[{name:'Inmune a Magia',desc:'Inmune a casi todos los hechizos. Haste/Slow lo afectan diferente.'},{name:'Resistencia Piedra',desc:'Inmune a daño no mágico, veneno y psíquico.'}] },
     { id:'lich_minor',name:'Lich Menor',        icon:'💀', hp:135, ac:17, atk:7,  dmg:8,  cr:11,  xp:1100,gold:300,tier:4, type:'undead',   loot:['phylactery_fragment','necrotic_tome'], boss:true, traits:[{name:'Resistencia Legendaria',desc:'Falla → éxito 2/día.'}] },
     { id:'mindflayer',name:'Devorador de Mentes',icon:'🧠',hp:71, ac:15, atk:7,  dmg:8,  cr:7,   xp:700, gold:180,tier:4, type:'aberration', loot:['brain_matter','psionic_crystal'], secret:true, traits:[{name:'Explosión Mental',desc:'3d8+4 psiqu daño en 5ft, INT save DC15 o Aturdido 1 round.'}] },
-    { id:'vampire_spawn',name:'Engendro Vampiro',icon:'🧛',hp:82, ac:15, atk:6,  dmg:8,  cr:5,   xp:500, gold:130,tier:4, type:'undead',   loot:['vampire_fang','blood_vial'], traits:[{name:'Drenaje de Vida',desc:'Recupera HP en daño causado. Repelido por luz solar.'}] },
+    { id:'vampire_spawn',name:'Engendro Vampiro',icon:'🧛',hp:82, ac:15, atk:6,  dmg:8,  cr:5,   xp:500, gold:130,tier:4, type:'undead',   loot:['vampire_fang','blood_vial'], imm:['poison','poisoned'], res:['necrotic'], traits:[{name:'Drenaje de Vida',desc:'Recupera HP en daño causado. Repelido por luz solar.'}] },
 
     // ─── TIER 5: CR 11+ (BOSSES) ─────────────────────────────
     { id:'beholder',  name:'Contemplador',      icon:'👁️', hp:180, ac:18, atk:8,  dmg:10, cr:13,  xp:2000,gold:400,tier:5, type:'aberration', boss:true, secret:true,
@@ -803,6 +803,7 @@
     },
     { id:'dragon_ancient',name:'Dragón Anciano',icon:'🐉', hp:350, ac:22, atk:14, dmg:20, cr:24,  xp:5000,gold:1000,tier:5, type:'dragon', boss:true, secret:true,
       loot:['dragon_scale','hoard_key','legendary_egg'],
+      imm:['fire'], phase2Msg:'¡El dragón ruge y su escama brilla al rojo vivo!',
       desc:'Viejo como montañas. Su inteligencia es la mayor amenaza. Su fuego, solo la más visible.',
       traits:[
         {name:'Resistencia Legendaria',desc:'Puede convertir fallos en éxitos 3 veces por día.'},
@@ -814,6 +815,7 @@
       loot:['fragment_of_code','debug_token','katosx_memory'],
       desc:'Una entidad digital hecha carne. ¿Es el creador? ¿O algo que se quedó atrapado en el código?',
       lore:'Dicen que cuando el programador durmió mientras el servidor corría, algo en el código tomó forma. No tiene nombre propio. Lleva el del programador como ironía.',
+      phase2Msg:'"git push --force origin life"',
       traits:[
         {name:'Metaparadoja',desc:'Cada vez que usas una habilidad especial, este enemigo aprende a contrarrestarla el próximo turno.'},
         {name:'Stack Overflow',desc:'Al caer a 50% HP, divide su HP en dos instancias. Debes eliminar ambas.'},
@@ -839,6 +841,7 @@
       loot:['grade_correction','rubber_stamp'],
       desc:'"¿Dónde está tu informe del IEEE?", susurra mientras lanza un conjuro de Burocracia Letal.',
       lore:'Nadie sabe desde cuándo está en la facultad. Algunos dicen que es más viejo que el edificio.',
+      phase2Msg:'"¡RECURSO DENEGADO! ¡Les llamaré a las autoridades académicas!"',
       traits:[{name:'Tecnicismo Fatal',desc:'Si fallas un saving throw, también pierdes acceso a una habilidad por 2 rounds (trabas administrativas).'}]
     },
 
@@ -856,6 +859,7 @@
       loot:['wolf_pelt','elven_mail'],
       desc:'Una amalgama de raíces, piedra y algo antiguo. El bosque lo envió. No negocia.',
       lore:'No es malicioso. Es un guardián. Llevas semanas matando su fauna. Llegó el momento de la cuenta.',
+      phase2Msg:'¡El guardián se fusiona con el bosque! Raíces y ramas lo envuelven.',
       traits:[
         {name:'Raíces Enredadoras',desc:'Al golpear, STR save DC13 o Restringido hasta el próximo turno.'},
         {name:'Regeneración del Bosque',desc:'Recupera 5 HP al inicio de su turno si hay menos del 50% de la localización explorada.'}
@@ -1476,7 +1480,10 @@
     get AC() {
       let ac = this.baseAC;
       if (this.equipment.armor) ac = 10 + mod(this.getStat('dex')) + (this.equipment.armor.acBonus || 0);
-      if (this.equipment.ring)  ac += (this.equipment.ring.acBonus || 0);
+      // Sum acBonus from all non-armor slots
+      ['ring','neck','cloak','feet','hands','head','belt','trinket'].forEach(slot => {
+        if (this.equipment[slot]?.acBonus) ac += this.equipment[slot].acBonus;
+      });
       return ac + this._conditionACBonus();
     }
 
@@ -1623,17 +1630,12 @@
       // Ability uses refresh on level-up
       this.abilities.forEach(a => { if (a.maxUses > 0) a.curUses = a.maxUses; });
 
-      // ASI at levels 4, 8, 12, 16, 19
+      // ASI at levels 4, 8, 12, 16, 19 — defer to player choice screen
       if (row.feats.includes('asi_1') || row.feats.includes('asi_2') ||
           row.feats.includes('asi_3') || row.feats.includes('asi_4') ||
           row.feats.includes('asi_5') || row.feats.includes('asi_6') ||
           row.feats.includes('asi_7') || row.feats.includes('asi_8')) {
-        const primary = this.cls.primaryStats[0];
-        if (this.baseStats[primary] < 20) this.baseStats[primary] += 2;
-        else {
-          const sec = this.cls.primaryStats[1] || 'con';
-          if (this.baseStats[sec] < 20) this.baseStats[sec] += 2;
-        }
+        this._pendingASI = true; // Player will choose via overlay
       }
 
       // Extra attack at level 5+
@@ -1854,9 +1856,9 @@
     const isCrit = nat === 20 || (nat >= 18 && char.cls.id === 'rogue' && options.hasAdvantage);
     const isFumble = nat === 1;
 
-    let atkRoll  = nat + char.attackBonus;
-    if (options.hasAdvantage)    atkRoll = Math.max(atkRoll, d20() + char.attackBonus);
-    if (options.hasDisadvantage) atkRoll = Math.min(atkRoll, d20() + char.attackBonus);
+    let atkRoll  = nat + char.attackBonus + (options.weatherAtkMod || 0) + (char._alertBonus ? 0 : 0);
+    if (options.hasAdvantage)    atkRoll = Math.max(atkRoll, d20() + char.attackBonus + (options.weatherAtkMod || 0));
+    if (options.hasDisadvantage) atkRoll = Math.min(atkRoll, d20() + char.attackBonus + (options.weatherAtkMod || 0));
 
     const hits   = isCrit || (!isFumble && atkRoll >= enemy.ac);
 
@@ -1909,14 +1911,28 @@
       // Curse (enemy debuff)
       if (enemy.conditions?.find(c => c.id === 'cursed_target')) bonusDmg += d8();
 
-      dmg = Math.max(1, baseRoll + char.damageBonus + elemDmg + bonusDmg);
+      dmg = Math.max(1, baseRoll + char.damageBonus + elemDmg + bonusDmg + (options.weatherDmgMod || 0));
       if (isCrit && char.equipment.weapon?.id === 'vorpal_sword' && (enemy.cr || 0) < 8) {
         return { hits:true, dmg:enemy.hp+100, isCrit:true, isFumble:false, nat:20, atkRoll, special:'decapitate' };
       }
 
-      // Resistance / immunity
-      if (enemy.traits?.some(t => t.name === 'Inmune a Veneno') && options.type === 'poison') dmg = 0;
-      if (enemy.traits?.some(t => t.name === 'Vulnerable a Contundente') && options.type === 'bludgeoning') dmg = Math.round(dmg * 1.5);
+      // Resistance / immunity — use structured fields first, then legacy trait checks
+      const weapElem = char.equipment.weapon?.elemental || '';
+      const isMagicWpn = !!(char.equipment.weapon?.magical || char.equipment.weapon?.atkBonus >= 3);
+      const dmgType = weapElem || 'slashing';
+      if (dmg > 0) {
+        if (enemy.imm) {
+          if (enemy.imm.includes(dmgType) ||
+             (enemy.imm.includes('nonmagical_bps') && !isMagicWpn && ['slashing','piercing','bludgeoning'].includes(dmgType))) {
+            dmg = 0; dmgBreakdown += ' [INMUNE]';
+          }
+        }
+        if (dmg > 0 && enemy.res?.includes(dmgType)) { dmg = Math.floor(dmg / 2); dmgBreakdown += ' [RESISTE ½]'; }
+        if (dmg > 0 && enemy.vuln?.includes(dmgType)) { dmg = Math.floor(dmg * 1.5); dmgBreakdown += ' [VULN ×1.5]'; }
+        // Legacy trait checks (fallback)
+        if (enemy.traits?.some(t => t.name === 'Inmune a Veneno') && options.type === 'poison') dmg = 0;
+        if (enemy.traits?.some(t => t.name === 'Vulnerable a Contundente') && options.type === 'bludgeoning') dmg = Math.round(dmg * 1.5);
+      }
 
       dmgBreakdown = `[${baseRoll}+${char.damageBonus}${elemDmg?'+'+elemDmg+'elem':''}${bonusDmg?'+'+bonusDmg:''}]`;
       char.stats.damageDone += dmg;
@@ -1973,6 +1989,20 @@
 
     return { hits, dmg, isCrit, nat };
   }
+
+  // ── FEATS ─────────────────────────────────────────────────────
+  const FEATS = [
+    { id:'tough',         name:'Robusto',             icon:'❤️', desc:'+2 HP máximo por cada nivel actual y futuro.', apply(c){ c.maxHP += c.level*2; c.hp = c.maxHP; } },
+    { id:'alert',         name:'Alerta',               icon:'👁️', desc:'+5 a iniciativa. No puedes ser sorprendido.', apply(c){ c._alertBonus = (c._alertBonus||0) + 5; } },
+    { id:'lucky',         name:'Suertudo',             icon:'🍀', desc:'3 puntos de suerte por descanso largo para re-lanzar tiradas.', apply(c){ c._luckyPoints = (c._luckyPoints||0) + 3; } },
+    { id:'mobile',        name:'Móvil',                icon:'🏃', desc:'+1 DEX. Velocidad aumentada y movimiento mejorado.', apply(c){ c.baseStats.dex = Math.min(20, c.baseStats.dex + 1); } },
+    { id:'resilient_con', name:'Resistente (CON)',     icon:'💪', desc:'+1 CON. Proficiencia en saving throws de Constitución.', apply(c){ c.baseStats.con = Math.min(20, c.baseStats.con + 1); } },
+    { id:'war_caster',    name:'Luchador Arcano',      icon:'🔮', desc:'+1 INT. Ventaja en CON saves para concentración. Hechizos como reacción.', apply(c){ c.baseStats.int = Math.min(20, c.baseStats.int + 1); } },
+    { id:'great_weapon',  name:'Maestro de Armas',     icon:'⚔️', desc:'+1 STR. Re-lanza 1s y 2s en daño con armas grandes.', apply(c){ c.baseStats.str = Math.min(20, c.baseStats.str + 1); } },
+    { id:'sharpshooter',  name:'Tirador Certero',      icon:'🏹', desc:'+1 DEX. +1 al daño con ataques a distancia o arco.', apply(c){ c.baseStats.dex = Math.min(20, c.baseStats.dex + 1); } },
+    { id:'sentinel',      name:'Centinela',             icon:'🛡️', desc:'+1 WIS. Reaccionas a enemigos que intentan alejarse.', apply(c){ c.baseStats.wis = Math.min(20, c.baseStats.wis + 1); } },
+    { id:'magic_init',    name:'Iniciado Mágico',       icon:'✨', desc:'+1 CHA. Aprendes hechizos básicos fuera de tu lista.', apply(c){ c.baseStats.cha = Math.min(20, c.baseStats.cha + 1); } },
+  ];
 
   // ── STATUS EFFECTS ────────────────────────────────────────────
   const STATUS_EFFECT_DEFS = {
@@ -2451,6 +2481,7 @@
   root._dndParts.triggerWildMagic   = triggerWildMagic;
   root._dndParts.WILD_MAGIC_SURGES  = WILD_MAGIC_SURGES;
   root._dndParts.STATUS_EFFECT_DEFS = STATUS_EFFECT_DEFS;
+  root._dndParts.FEATS              = FEATS;
   console.log('%c[DND] Part 6 loaded — Combat engine, spells, AI, loot, status effects, wild magic', 'color:#8b5cf6;');
 
 })(window);
@@ -2931,6 +2962,23 @@
       char.gainXP(baseXP);
       char.gold += loc.tier * 50;
       P.Storage.unlock('completed_' + locationId);
+
+      // Zone completion artifact reward
+      const ZONE_ARTIFACTS = {
+        village:  { id:'village_crest',    name:'Escudo de Keldrath',     icon:'🏡', r:'uncommon', p:0, e:'accessory', slot:'trinket', acBonus:1,  desc:'Símbolo de haber pacificado el pueblo. +1 CA.', noSell:true },
+        forest:   { id:'forest_heart',     name:'Corazón del Bosque',     icon:'🌿', r:'rare',     p:0, e:'accessory', slot:'trinket', hpBonus:10, desc:'Latido del bosque susurrante. +10 HP máx.', noSell:true },
+        ruins:    { id:'vaelthar_shard',   name:'Fragmento de Vaelthar',  icon:'🏛️', r:'rare',     p:0, e:'accessory', slot:'trinket', svBonus:2,  desc:'Ruina de un imperio caído. +2 saving throws.', noSell:true },
+        dungeon:  { id:'korrath_seal',     name:'Sello de Korrath',       icon:'⛏️', r:'epic',     p:0, e:'accessory', slot:'trinket', atkBonus:2, desc:'El sello de las mazmorras profundas. +2 ataques.', noSell:true },
+        underdark:{ id:'void_crown',       name:'Corona del Vacío',       icon:'🌑', r:'epic',     p:0, e:'accessory', slot:'trinket', acBonus:2,  desc:'Corona de las profundidades. +2 CA.', noSell:true },
+        peak:     { id:'dragonslayer_mark',name:'Marca del Cazadragones', icon:'🏔️', r:'legendary',p:0, e:'accessory', slot:'trinket', atkBonus:3, hpBonus:15, desc:'Solo los más valientes. +3 ATK, +15 HP.', noSell:true },
+        academy:  { id:'upro_diploma',     name:'Diploma UPRO Mágico',    icon:'🎓', r:'rare',     p:0, e:'accessory', slot:'trinket', svBonus:3,  desc:'Egresado de la academia más peligrosa. +3 a saves.', noSell:true },
+      };
+      const artifact = ZONE_ARTIFACTS[locationId];
+      if (artifact) {
+        char.addItem({ ...artifact, count: 1 });
+        P.showNotification(`🏆 ¡Zona completada! Obtienes: ${artifact.icon} ${artifact.name}`, 'success', 6000);
+      }
+
       return { xp: baseXP, gold: loc.tier*50 };
     },
 
@@ -3275,6 +3323,8 @@
                 <button class="dnd-btn dnd-btn-ghost dnd-half" onclick="root._dndGame.worldRest('short')">💤 Descanso corto</button>
                 <button class="dnd-btn dnd-btn-ghost dnd-half" onclick="root._dndGame.worldRest('long')">🛌 Descanso largo</button>
                 <button class="dnd-btn dnd-btn-ghost dnd-half" onclick="root._dndGame.navigate('lore')">📖 Codex</button>
+                <button class="dnd-btn dnd-btn-ghost dnd-full" onclick="root._dndGame.navigate('stats')">📊 Estadísticas</button>
+                ${char._pendingASI ? `<button class="dnd-btn dnd-btn-primary dnd-pulse-btn dnd-full" onclick="root._dndGame.showASIScreen()">⬆️ ¡Mejora disponible!</button>` : ''}
               </div>
             </div>
             ${char.flags.devRoomUnlocked ? `<button class="dnd-btn dnd-btn-dev dnd-full" onclick="root._dndGame.navigate('devroom')">💾 SALA DE DEBUG</button>` : ''}
@@ -3369,7 +3419,7 @@
 
           <!-- Combat log -->
           <div class="dnd-combat-log" id="dnd-combat-log">
-            ${combatLog.slice(-8).map(l => `<div class="dnd-log-entry">${esc(l)}</div>`).join('')}
+            ${combatLog.slice(-12).map((l,i) => `<div class="dnd-log-entry${i===combatLog.slice(-12).length-1?' dnd-log-latest':''}">${esc(l)}</div>`).join('')}
           </div>
 
           <!-- Actions -->
@@ -3715,7 +3765,160 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
             <div style="font-size:1.1rem;margin:4px 0">${newAbility.icon||'✨'} ${esc(newAbility.name)}</div>
             <div style="font-size:0.72rem;color:var(--dnd-text2)">${esc(newAbility.desc||'')}</div>
           </div>` : ''}
-          <button class="dnd-btn dnd-btn-primary" onclick="this.closest('.dnd-levelup-overlay').remove()">¡Continuar!</button>
+          ${char._pendingASI ? `<p style="color:var(--dnd-gold);font-size:0.85rem">⬆️ ¡Puedes mejorar tus estadísticas!</p>` : ''}
+          <button class="dnd-btn dnd-btn-primary" onclick="this.closest('.dnd-levelup-overlay').remove();${char._pendingASI ? 'root._dndGame.showASIScreen()' : ''}">
+            ${char._pendingASI ? '⬆️ Elegir Mejora →' : '¡Continuar!'}
+          </button>
+        </div>
+      </div>`;
+  }
+
+  // ── ASI / FEAT SCREEN ─────────────────────────────────────────
+  function buildASIScreen(char) {
+    const stats = ['str','dex','con','int','wis','cha'];
+    const statNames = { str:'Fuerza',dex:'Destreza',con:'Constitución',int:'Inteligencia',wis:'Sabiduría',cha:'Carisma' };
+    return `
+      <div id="dnd-asi" class="dnd-screen dnd-active dnd-asi-screen">
+        ${buildHUD(char)}
+        <div class="dnd-asi-layout">
+          <h2 class="dnd-asi-title">⬆️ Mejora de Estadísticas</h2>
+          <p class="dnd-asi-subtitle">Nivel ${char.level}: elige cómo mejorar tu personaje.</p>
+
+          <div class="dnd-asi-options">
+            <!-- Option A: +2 to one stat -->
+            <div class="dnd-asi-card">
+              <h3>+2 a una estadística</h3>
+              <div class="dnd-asi-stat-row">
+                ${stats.map(s => {
+                  const cur = char.getStat(s);
+                  const maxed = cur >= 20;
+                  return `<button class="dnd-btn dnd-btn-choice dnd-asi-stat-btn ${maxed?'dnd-btn-disabled':''}"
+                    ${maxed?'disabled':''} onclick="root._dndGame.applyASI('stat2','${s}')">
+                    ${statNames[s]}<br><b>${cur}</b>${maxed?'<br><small>Máx</small>':''}
+                  </button>`;
+                }).join('')}
+              </div>
+            </div>
+
+            <!-- Option B: +1/+1 to two stats -->
+            <div class="dnd-asi-card">
+              <h3>+1 a dos estadísticas</h3>
+              <p style="font-size:0.75rem;color:var(--dnd-text2)">Haz clic en dos estadísticas diferentes</p>
+              <div class="dnd-asi-stat-row" id="dnd-asi-dual">
+                ${stats.map(s => {
+                  const cur = char.getStat(s);
+                  const maxed = cur >= 20;
+                  return `<button class="dnd-btn dnd-btn-choice dnd-asi-stat-btn dnd-asi-dual-btn ${maxed?'dnd-btn-disabled':''}"
+                    ${maxed?'disabled':''} data-stat="${s}" onclick="root._dndGame.toggleASIDual(this,'${s}')">
+                    ${statNames[s]}<br><b>${cur}</b>
+                  </button>`;
+                }).join('')}
+              </div>
+              <button class="dnd-btn dnd-btn-primary" id="dnd-asi-dual-confirm" style="display:none;margin-top:8px"
+                onclick="root._dndGame.applyASIDual()">Confirmar +1/+1 →</button>
+            </div>
+
+            <!-- Option C: Feat -->
+            <div class="dnd-asi-card">
+              <h3>✦ Elegir un Talento (Feat)</h3>
+              <div class="dnd-feat-list">
+                ${P.FEATS.map(f => `
+                  <button class="dnd-btn dnd-btn-choice dnd-feat-btn" onclick="root._dndGame.applyASI('feat','${f.id}')"
+                    title="${esc(f.desc)}">
+                    ${f.icon} <b>${esc(f.name)}</b><br>
+                    <small>${esc(f.desc)}</small>
+                  </button>`).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── STATS SCREEN ──────────────────────────────────────────────
+  function buildStatsScreen(char) {
+    const s = char.stats;
+    const winRate = s.kills > 0 ? Math.round((s.kills / Math.max(1, s.kills + s.deaths)) * 100) : 0;
+    const avgDmg  = s.kills > 0 ? Math.round(s.damageDone / Math.max(1, s.kills)) : 0;
+    return `
+      <div id="dnd-stats-screen" class="dnd-screen dnd-active">
+        ${buildHUD(char)}
+        <div class="dnd-stats-layout">
+          <h2 class="dnd-section-title">📊 Estadísticas de ${esc(char.name)}</h2>
+          <div class="dnd-stats-grid">
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">⚔️</div>
+              <div class="dnd-stat-card-val">${s.kills}</div>
+              <div class="dnd-stat-card-lbl">Enemigos Derrotados</div>
+            </div>
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">💀</div>
+              <div class="dnd-stat-card-val">${s.deaths}</div>
+              <div class="dnd-stat-card-lbl">Muertes</div>
+            </div>
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">🎯</div>
+              <div class="dnd-stat-card-val">${winRate}%</div>
+              <div class="dnd-stat-card-lbl">Tasa de Victoria</div>
+            </div>
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">💥</div>
+              <div class="dnd-stat-card-val">${s.damageDone}</div>
+              <div class="dnd-stat-card-lbl">Daño Total</div>
+            </div>
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">🔥</div>
+              <div class="dnd-stat-card-val">${s.highestDmg}</div>
+              <div class="dnd-stat-card-lbl">Mayor Golpe</div>
+            </div>
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">💚</div>
+              <div class="dnd-stat-card-val">${s.healingDone}</div>
+              <div class="dnd-stat-card-lbl">Curación Total</div>
+            </div>
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">💰</div>
+              <div class="dnd-stat-card-val">${fmtGold(s.goldEarned)}</div>
+              <div class="dnd-stat-card-lbl">Oro Ganado</div>
+            </div>
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">💎</div>
+              <div class="dnd-stat-card-val">${s.crits}</div>
+              <div class="dnd-stat-card-lbl">Críticos</div>
+            </div>
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">📜</div>
+              <div class="dnd-stat-card-val">${s.questsDone}</div>
+              <div class="dnd-stat-card-lbl">Misiones Completadas</div>
+            </div>
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">📊</div>
+              <div class="dnd-stat-card-val">${avgDmg}</div>
+              <div class="dnd-stat-card-lbl">Daño Prom/Combate</div>
+            </div>
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">🏅</div>
+              <div class="dnd-stat-card-val">${char.reputation > 0 ? '+' : ''}${char.reputation}</div>
+              <div class="dnd-stat-card-lbl">Reputación</div>
+            </div>
+            <div class="dnd-stat-card">
+              <div class="dnd-stat-card-icon">📅</div>
+              <div class="dnd-stat-card-val">${char.day}</div>
+              <div class="dnd-stat-card-lbl">Días de Aventura</div>
+            </div>
+          </div>
+          <div class="dnd-stats-feats">
+            <h3>✦ Talentos</h3>
+            <div class="dnd-feat-badges">
+              ${(char._feats||[]).length === 0
+                ? '<em style="color:var(--dnd-text2)">Sin talentos aún. Consíguelos al nivel 4/8/12/16.</em>'
+                : (char._feats||[]).map(fid => {
+                    const f = P.FEATS.find(x => x.id === fid);
+                    return f ? `<span class="dnd-cbadge" style="color:var(--dnd-gold)">${f.icon} ${esc(f.name)}</span>` : '';
+                  }).join('')}
+            </div>
+          </div>
+          <button class="dnd-btn dnd-btn-ghost" style="margin-top:16px" onclick="root._dndGame.navigate('world')">← Volver al Mapa</button>
         </div>
       </div>`;
   }
@@ -3738,6 +3941,8 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   root._dndParts.buildWorldScreen     = buildWorldScreen;
   root._dndParts.buildExploreScreen   = buildExploreScreen;
   root._dndParts.buildCombatScreen    = buildCombatScreen;
+  root._dndParts.buildASIScreen       = buildASIScreen;
+  root._dndParts.buildStatsScreen     = buildStatsScreen;
   root._dndParts.buildInventoryScreen = buildInventoryScreen;
   root._dndParts.buildMerchantScreen  = buildMerchantScreen;
   root._dndParts.buildQuestScreen     = buildQuestScreen;
@@ -3810,6 +4015,8 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       case 'inventory':   render(P.buildInventoryScreen(char)); break;
       case 'quests':      render(P.buildQuestScreen(char)); break;
       case 'lore':        render(P.buildLoreScreen(char)); break;
+      case 'stats':       render(P.buildStatsScreen(char)); break;
+      case 'asi':         render(P.buildASIScreen(char)); break;
       case 'gameover':    render(P.buildGameOverScreen(char, combatState?.deathMsg || '')); break;
       case 'victory':     render(P.buildVictoryScreen(char)); break;
       case 'devroom':     enterDevRoom(); break;
@@ -4045,18 +4252,36 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   function startCombat(enemies) {
     if (!char || !enemies || enemies.length === 0) return;
     char._lastStandUsed = false; // reset last_stand trinket per combat
+
+    // Weather combat modifiers
+    const weatherMod = { atkMod:0, dmgMod:0, msg:'' };
+    switch(char.weather) {
+      case 'rainy':   weatherMod.atkMod = -1; weatherMod.msg = '🌧️ Lluvia: -1 al ataque (armas mojadas).'; break;
+      case 'foggy':   weatherMod.atkMod = -2; weatherMod.msg = '🌫️ Niebla: -2 al ataque (visibilidad reducida).'; break;
+      case 'stormy':  weatherMod.atkMod = -1; weatherMod.dmgMod = 2; weatherMod.msg = '⛈️ Tormenta: -1 ataque, +2 daño relámpago.'; break;
+    }
+    // Undead buff at night
+    const hour = char.worldTime || 12;
+    const isNight = hour >= 20 || hour <= 5;
+    if (isNight && enemies.some(e => e.type === 'undead')) {
+      enemies.forEach(e => { if (e.type === 'undead') e.atk = (e.atk||0) + 2; });
+    }
+
     const init = P.rollInitiative(char, enemies[0]);
     combatState = {
       enemies: enemies,
       log: [
         `⚔️ ¡Encuentro de combate!`,
         `Iniciativa: tú (${init.playerRoll}) vs ${enemies[0].name} (${init.enemyRoll})`,
-        `${init.playerFirst ? '⚡ Actúas primero!' : `⚡ ${enemies[0].name} actúa primero!`}`
+        `${init.playerFirst ? '⚡ Actúas primero!' : `⚡ ${enemies[0].name} actúa primero!`}`,
+        ...(weatherMod.msg ? [weatherMod.msg] : []),
+        ...(isNight && enemies.some(e => e.type === 'undead') ? ['🌑 Noche: los no-muertos empoderados (+2 ATK).'] : [])
       ],
       phase: init.playerFirst ? 'player' : 'enemy',
       currentEnemyIdx: 0,
       deathMsg: '',
-      _bonusActionUsed: false
+      _bonusActionUsed: false,
+      weatherMod
     };
     render(P.buildCombatScreen(char, [enemies[combatState.currentEnemyIdx]], combatState.log, combatState.phase, combatState._bonusActionUsed));
 
@@ -4077,12 +4302,16 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
 
     if (action === 'attack') {
       animateDice(() => {
+        const wMod = combatState.weatherMod || { atkMod:0, dmgMod:0 };
         const res = P.playerAttack(char, enemy, {
           hasAdvantage: char.hasCondition('hunters_mark') || char.hasCondition('rage'),
-          hasDisadvantage: char.hasCondition('stunned') || char.hasCondition('paralyzed')
+          hasDisadvantage: char.hasCondition('stunned') || char.hasCondition('paralyzed'),
+          weatherAtkMod: wMod.atkMod,
+          weatherDmgMod: wMod.dmgMod
         });
         if (res.hits && res.dmg > 0) {
           enemy.hp = Math.max(0, enemy.hp - res.dmg);
+          spawnDmgFloat(res.dmg, res.isCrit, 'enemy');
         }
         if (res.isCrit) {
           combatState.log.push(`💥 ¡CRÍTICO! Atacas a ${enemy.name}: ${res.dmg} daño! (${res.dmgBreakdown}) nat${res.nat}`);
@@ -4207,6 +4436,27 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   }
 
   function checkEnemyDeath(enemy, callback) {
+    // Boss phase 2 at 50% HP
+    const PHASE2_MSGS = {
+      goblin_king: '"\u00a1KRAX NO SE RINDE! \u00a1KRAX ES ETERNOOO!"',
+      forest_guardian: '\u00a1El guardi\u00e1n se fusiona con el bosque! Ra\u00edces y ramas lo envuelven.',
+      lich_minor: '"Mi filacte\u00e1ria no puede destruirse..."',
+      golem_stone: '[ACTIVANDO MODO DESTRUCCI\u00d3N]',
+      beholder: '"Tu existencia\u2026 es un error."',
+      dragon_ancient: '\u00a1El drag\u00f3n abre sus alas, listo para el aliento final!',
+      katosx_shade: '"git push --force origin life"',
+      elder_brain: '[La red ps\u00edquica colapsa y se reconstituye]',
+      el_decano: '"\u00a1RECURSO DENEGADO! \u00a1Les llamar\u00e9 a las autoridades acad\u00e9micas!"',
+    };
+    if (enemy.boss && !enemy._phase2Triggered && enemy.hp > 0 && enemy.hp <= Math.floor(enemy.maxHP / 2)) {
+      enemy._phase2Triggered = true;
+      enemy.atk = Math.ceil(enemy.atk * 1.2);
+      enemy.ac  = Math.min(enemy.ac + 1, 25);
+      const p2msg = enemy.phase2Msg || PHASE2_MSGS[enemy.id] || '';
+      combatState.log.push(`\u26a1 \u00a1${enemy.name} entra en FASE 2! Furia desatada. (+ATK, +CA)`);
+      if (p2msg) combatState.log.push(`💬 ${p2msg}`);
+      P.Particles.spawnBurst('fire');
+    }
     if (enemy.hp <= 0) {
       enemy.hp = 0;
       char.stats.kills++;
@@ -4357,6 +4607,24 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     const enemy = combatState.enemies[combatState.currentEnemyIdx];
     if (!enemy) return;
     render(P.buildCombatScreen(char, [enemy], combatState.log, combatState.phase, combatState._bonusActionUsed));
+    // Auto-scroll log to bottom
+    setTimeout(() => {
+      const log = document.getElementById('dnd-combat-log');
+      if (log) log.scrollTop = log.scrollHeight;
+    }, 50);
+  }
+
+  // Floating damage number
+  function spawnDmgFloat(dmg, isCrit, side = 'enemy') {
+    const el = document.createElement('div');
+    el.className = `dnd-dmg-float${isCrit ? ' dnd-dmg-crit' : ''}`;
+    el.textContent = isCrit ? `💥 ${dmg}!` : `-${dmg}`;
+    const target = document.querySelector(side === 'enemy' ? '.dnd-enemy-side' : '.dnd-player-side');
+    if (target) {
+      target.style.position = 'relative';
+      target.appendChild(el);
+      setTimeout(() => el.remove(), 1200);
+    }
   }
 
   function animateDice(callback) {
@@ -4378,6 +4646,57 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     overlay().insertAdjacentHTML('beforeend', html);
     P.Particles.spawnBurst('magic');
     P.QuestTracker.update(char, 'level_up', {});
+  }
+
+  // ── ASI / FEAT SCREEN ────────────────────────────────────────
+  function showASIScreen() {
+    render(P.buildASIScreen(char));
+  }
+
+  // _asiDualPick: tracks dual stat selection
+  let _asiDualSelected = [];
+
+  function toggleASIDual(btn, stat) {
+    const idx = _asiDualSelected.indexOf(stat);
+    if (idx >= 0) {
+      _asiDualSelected.splice(idx, 1);
+      btn.classList.remove('dnd-asi-selected');
+    } else if (_asiDualSelected.length < 2) {
+      _asiDualSelected.push(stat);
+      btn.classList.add('dnd-asi-selected');
+    }
+    const confirmBtn = document.getElementById('dnd-asi-dual-confirm');
+    if (confirmBtn) confirmBtn.style.display = _asiDualSelected.length === 2 ? 'block' : 'none';
+  }
+
+  function applyASIDual() {
+    if (_asiDualSelected.length !== 2) return;
+    const [s1, s2] = _asiDualSelected;
+    if (char.baseStats[s1] < 20) char.baseStats[s1]++;
+    if (char.baseStats[s2] < 20) char.baseStats[s2]++;
+    _asiDualSelected = [];
+    char._pendingASI = false;
+    P.showNotification(`⬆️ +1 ${s1.toUpperCase()} y +1 ${s2.toUpperCase()}`, 'success', 3000);
+    navigate('world');
+  }
+
+  function applyASI(type, value) {
+    if (type === 'stat2') {
+      if (char.baseStats[value] < 20) char.baseStats[value] += 2;
+      char._pendingASI = false;
+      P.showNotification(`⬆️ +2 ${value.toUpperCase()}`, 'success', 3000);
+      navigate('world');
+    } else if (type === 'feat') {
+      const feat = P.FEATS.find(f => f.id === value);
+      if (feat) {
+        feat.apply(char);
+        char._feats = char._feats || [];
+        if (!char._feats.includes(feat.id)) char._feats.push(feat.id);
+        char._pendingASI = false;
+        P.showNotification(`✦ Talento obtenido: ${feat.icon} ${feat.name}`, 'success', 4000);
+        navigate('world');
+      }
+    }
   }
 
   // ── INVENTORY ACTIONS ─────────────────────────────────────────
@@ -4556,7 +4875,8 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     enterLocation, combatAction, openSpellMenu, castSpellAction,
     equipItem, unequip, useItem, sellItem, sortInv, buyItem,
     showTooltip, hideTooltip, acceptQuest, worldRest, loreTab,
-    devCommand, enterDevRoom
+    devCommand, enterDevRoom,
+    showASIScreen, toggleASIDual, applyASIDual, applyASI
   };
 
   // ── INITIALIZATION ───────────────────────────────────────────

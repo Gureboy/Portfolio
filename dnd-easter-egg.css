@@ -1770,3 +1770,30 @@
 /* Trinket slot in inventory */
 .dnd-eq-slot[data-slot="trinket"] .dnd-eq-icon { color: var(--dnd-purple); }
 
+
+/* ── ASI SCREEN ────────────────────────────────────────────── */
+.dnd-asi-card { border: 1px solid var(--dnd-border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+.dnd-asi-stat-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.dnd-asi-stat-btn { min-width: 80px; text-align: center; }
+.dnd-asi-selected { border-color: var(--dnd-gold) !important; background: rgba(245,158,11,0.2) !important; }
+.dnd-feat-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.dnd-feat-btn { text-align: left; min-width: 180px; font-size: 0.75rem; }
+
+/* ── STATS SCREEN ───────────────────────────────────────────── */
+.dnd-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+.dnd-stat-card { background: rgba(139,92,246,0.1); border: 1px solid var(--dnd-border); border-radius: 8px; padding: 12px; text-align: center; }
+.dnd-stat-card-icon { font-size: 1.5rem; }
+.dnd-stat-card-val { font-size: 1.4rem; font-weight: bold; color: var(--dnd-gold); }
+.dnd-stat-card-lbl { font-size: 0.65rem; color: var(--dnd-text2); margin-top: 2px; }
+.dnd-feat-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.dnd-feat-badge { background: rgba(245,158,11,0.15); border: 1px solid var(--dnd-gold); border-radius: 20px; padding: 3px 10px; font-size: 0.75rem; }
+.dnd-pulse-btn { animation: dndPulseGlow 1.5s ease-in-out infinite; }
+
+/* ── FLOATING DAMAGE NUMBERS ─────────────────────────────────── */
+.dnd-dmg-float { position: absolute; top: 30%; left: 50%; transform: translateX(-50%); font-size: 1.5rem; font-weight: bold; color: #ef4444; pointer-events: none; text-shadow: 0 1px 4px rgba(0,0,0,0.8); animation: dndDmgFloat 1.2s ease-out forwards; z-index: 200; white-space: nowrap; }
+.dnd-dmg-crit { color: #fb923c; font-size: 2rem; }
+@keyframes dndDmgFloat { 0% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(-60px); } }
+
+/* ── COMBAT LOG SCROLLABLE ────────────────────────────────────── */
+.dnd-combat-log { max-height: 160px; overflow-y: auto; }
+.dnd-log-latest { color: var(--dnd-gold); font-weight: 500; }
