@@ -3618,14 +3618,7 @@
         ba.push(`<button class="dnd-btn dnd-ba-btn" onclick="root._dndGame.combatAction('bonus_cunning_hide')" title="Esconderse: Ventaja en tu próximo ataque">👁️ Esconder</button>`);
         ba.push(`<button class="dnd-btn dnd-ba-btn" onclick="root._dndGame.combatAction('bonus_cunning_dash')" title="Correr: intento de huida gratis">🏃 Correr</button>`);
       }
-      if (cid === 'fighter') {
-        const swUsed = char._secondWindUsed === true;
-        ba.push(`<button class="dnd-btn dnd-ba-btn${swUsed?' dnd-btn-disabled':''}" ${swUsed?'disabled':''} onclick="root._dndGame.combatAction('bonus_second_wind')" title="Segunda Oportunidad: Cura 1d10+nivel HP. 1 vez por descanso corto">🩹 2ª Oport.</button>`);
-      }
-      if (cid === 'fighter' && char.level >= 2) {
-        const asUsed = char._actionSurgeUsed === true;
-        ba.push(`<button class="dnd-btn dnd-ba-btn${asUsed?' dnd-btn-disabled':''}" ${asUsed?'disabled':''} onclick="root._dndGame.combatAction('bonus_action_surge')" title="Oleada de Acción: Ataca de nuevo inmediatamente. 1/descanso largo">⚡ Oleada</button>`);
-      }
+      // Fighter: Second Wind & Action Surge are already in the class abilities row — no duplicate here
       if (cid === 'warlock') {
         const hexActive = char.hasCondition('hex');
         if (!hexActive) ba.push(`<button class="dnd-btn dnd-ba-btn" onclick="root._dndGame.combatAction('bonus_hex')" title="Maldición: +1d6 daño por turno al objetivo">🔮 Maldecir</button>`);
