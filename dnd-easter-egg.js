@@ -665,7 +665,7 @@
       armorProf: 'none', weaponProf: 'simple', shieldProf: false,
       startingGold: 50,
       abilities: [
-        { name:'Lluvia de Golpes', icon:'👊', desc:'Dos ataques adicionales con manos desnudas como acción bonus. Cuesta 1 ki.', uses:3, maxUses:4, recharge:'rest', type:'attack' },
+        { name:'Lluvia de Golpes', icon:'👊', desc:'Dos ataques adicionales con manos desnudas como acción bonus. Cuesta 1 ki.', uses:3, maxUses:4, recharge:'rest', type:'attack', bonusAction:true },
         { name:'Movimiento Etéreo', icon:'💨', desc:'Velocidad doble, ignoras terreno difícil, puedes caminar por paredes. Dura 1 round.', uses:1, maxUses:2, recharge:'rest', type:'utility' },
         { name:'Golpe Paralizante', icon:'⚡', desc:'El objetivo tira CON o queda Paralizado 1 round. Cuesta 1 ki.', uses:2, maxUses:3, recharge:'rest', type:'debuff' }
       ],
@@ -683,7 +683,7 @@
       abilities: [
         { name:'Forma Salvaje', icon:'🐺', desc:'Te transformas en un animal (lobo o oso). HP extra, ataques naturales.', uses:2, maxUses:3, recharge:'rest', type:'transform' },
         { name:'Llamado de la Naturaleza', icon:'🌱', desc:'Invocas raíces que inmovilizan a un enemigo 2 rounds. STR save.', uses:2, maxUses:2, recharge:'rest', type:'debuff' },
-        { name:'Tormenta de Esporas', icon:'🍄', desc:'Nube de esporas tóxicas: 2d6 veneno, envenenado 2 rounds. CON save.', uses:1, maxUses:2, recharge:'rest', type:'spell' }
+        { name:'Tormenta de Esporas', icon:'🍄', desc:'Nube de esporas tóxicas: 2d6 veneno, envenenado 2 rounds. CON save.', uses:1, maxUses:2, recharge:'rest', type:'spell', statusEffect:'poisoned' }
       ],
       bonusHP: 0, bonusAC: 0,
       spellcasting: true, specialMechanic: 'wild_shape', startSpells: 3
@@ -699,10 +699,11 @@
       abilities: [
         { name:'Metamagia: Potenciado', icon:'💥', desc:'Gasta 2 puntos de hechicería: el hechizo usa el dado de daño más alto.', uses:3, maxUses:4, recharge:'rest', type:'buff' },
         { name:'Metamagia: Distante', icon:'🌀', desc:'El hechizo alcanza el doble de rango. Gasta 1 punto.', uses:3, maxUses:4, recharge:'rest', type:'utility' },
-        { name:'Torrente Arcano', icon:'⚡', desc:'Liberas toda tu magia: 3d8+CHA daño a todos los enemigos. Solo en emergencias.', uses:1, maxUses:1, recharge:'rest', type:'spell' }
+        { name:'Torrente Arcano', icon:'⚡', desc:'Liberas toda tu magia: 3d8+CHA daño a todos los enemigos. Solo en emergencias.', uses:1, maxUses:1, recharge:'rest', type:'spell' },
+        { name:'Oleada Salvaje', icon:'🌀', desc:'Libera tu magia salvaje deliberadamente: gatilla una oleada de magia caótica con efecto impredecible.', uses:2, maxUses:2, recharge:'rest', type:'wildmagic' }
       ],
       bonusHP: -2, bonusAC: 0,
-      spellcasting: true, specialMechanic: 'metamagic', startSpells: 4
+      spellcasting: true, specialMechanic: 'wild_magic', startSpells: 4
     },
     // ─── SECRET CLASSES ────────────────────────────────────────
     {
@@ -941,7 +942,17 @@
     { id:'belt_hill_giant',name:'Cinturón del Gigante', icon:'🪨', r:'epic',    p:400, e:'accessory',slot:'belt', statBonus:{str:6}, desc:'+6 STR. Como cargar piedras, pero con estilo.' },
     { id:'lucky_stone',    name:'Piedra de la Suerte',  icon:'🍀', r:'uncommon', p:70, e:'accessory',slot:'ring', special:'lucky', desc:'Una vez/descanso, repite cualquier tirada y quédate con el mejor resultado.' },
 
-    // CRAFTING MATERIALS
+    // TRINKETS — minor magical keepsakes with passive effects
+    { id:'trinket_rabbit_foot', name:'Pata de Conejo',     icon:'🐰', r:'common',   p:25,  e:'accessory', slot:'trinket', svBonus:1,  special:'lucky_minor',   desc:'Suerte menor: +1 a saving throws. El conejo no tuvo tanta suerte.' },
+    { id:'trinket_crystal_eye', name:'Ojo de Cristal',     icon:'🔮', r:'common',   p:30,  e:'accessory', slot:'trinket',             special:'detect_magic',   desc:'+2 a chequeos de Percepción e Investigación.' },
+    { id:'trinket_iron_flask',  name:'Frasco de Hierro',   icon:'⚗️', r:'uncommon', p:80,  e:'accessory', slot:'trinket', svBonus:1,  special:'resist_poison',  desc:'Resistencia a veneno: reduce daño de veneno a la mitad. +1 CON save.' },
+    { id:'trinket_last_coin',   name:'Moneda del Último Soldado', icon:'🪙', r:'uncommon', p:60, e:'accessory', slot:'trinket', special:'last_stand', desc:'Una vez por combate: si caes a 0 HP, quedas en 1 HP.' },
+    { id:'trinket_arcane_focus',name:'Foco Arcano Roto',   icon:'🌀', r:'uncommon', p:90,  e:'accessory', slot:'trinket', dmgBonus:1, special:'spell_boost',    desc:'+1 daño en todos los hechizos. Roto pero funcional.' },
+    { id:'trinket_war_medal',   name:'Medalla de Guerra',  icon:'🏅', r:'uncommon', p:70,  e:'accessory', slot:'trinket', atkBonus:1, special:'bravery',        desc:'+1 a ataques. El valor nace del miedo.' },
+    { id:'trinket_void_shard',  name:'Fragmento de Vacío', icon:'🌌', r:'rare',     p:150, e:'accessory', slot:'trinket', hpBonus:5,  special:'dark_resilience', desc:'+5 HP máx. Murmura suavemente al amanecer.' },
+    { id:'trinket_soul_gem',    name:'Gema del Alma',       icon:'💠', r:'rare',     p:200, e:'accessory', slot:'trinket', acBonus:1,  special:'soul_link',      desc:'+1 AC. Cuando un aliado muere, ganas ventaja en el siguiente ataque.' },
+    { id:'trinket_time_sand',   name:'Arena del Tiempo',    icon:'⌛', r:'rare',     p:180, e:'accessory', slot:'trinket', initBonus:2,special:'haste_minor',    desc:'+2 a iniciativa. El tiempo fluye diferente.' },
+    { id:'trinket_dragons_tooth',name:'Diente de Dragón',  icon:'🦷', r:'epic',     p:350, e:'accessory', slot:'trinket', atkBonus:2, special:'fire_resist',    desc:'Resistencia a fuego. +2 a ataques. Un recuerdo peligroso.' },
     { id:'wolf_pelt',   name:'Piel de Lobo',   icon:'🐺', r:'common',  p:15, e:'material', desc:'Material de manufactura.' },
     { id:'dragon_scale',name:'Escama de Dragón',icon:'🐉',r:'legendary',p:500,e:'material', desc:'Solo para los artesanos más audaces.' },
     { id:'mithral_ore', name:'Mineral de Mithral',icon:'💎',r:'epic',  p:300, e:'material', desc:'Un metal que sueña.' },
@@ -989,7 +1000,7 @@
       lore:'Keldrath fue próspera hace treinta años. Antes de que el bosque empezara a susurrar.',
       encounters: ['goblin','kobold','rat','bandit','zombie'],
       eventPool: ['village_well','old_soldier','haunted_barn','merchant_caravan','drunken_sage'],
-      shopInv: ['potion_minor','short_sword','leather_armor','antidote','bow_short','rope','torch'],
+      shopInv: ['potion_minor','short_sword','leather_armor','antidote','bow_short','rope','torch','trinket_rabbit_foot','trinket_last_coin'],
       minLevel:1, maxLevel:4, progress:0, totalEncounters:6, boss:'goblin_king',
       unlocked:true, completed:false
     },
@@ -1009,7 +1020,7 @@
       lore:'Vaelthar fue la capital de un imperio que desafió a los dioses. Los dioses respondieron.',
       encounters: ['skeleton','zombie','ghoul','wight','cult_fanatic','gargoyle'],
       eventPool: ['inscription','collapsed_wall','spirit_trial','forbidden_library','rune_altar'],
-      shopInv: ['potion_supreme','staff_arcane','chainmail','amulet_health','ring_protection','mana_potion'],
+      shopInv: ['potion_supreme','staff_arcane','chainmail','amulet_health','ring_protection','mana_potion','trinket_arcane_focus','trinket_crystal_eye','trinket_war_medal'],
       minLevel:5, maxLevel:10, progress:0, totalEncounters:8, boss:'lich_minor',
       unlocked:false, completed:false
     },
@@ -1019,7 +1030,7 @@
       lore:'Nadie sabe quién construyó estas mazmorras ni para qué. Lo que queda claro es que quien las construyó no quería que nadie saliera.',
       encounters: ['kobold','gnoll','troll','golem_stone','vampire_spawn','mimic_small','mimic_chest','mimic_door'],
       eventPool: ['trapped_corridor','forge_ancient','prisoner_cell','echoing_voice','flooded_chamber'],
-      shopInv: ['plate_armor','morningstar','boots_speed','ring_strength','headband_int','mithral_ore'],
+      shopInv: ['plate_armor','morningstar','boots_speed','ring_strength','headband_int','mithral_ore','trinket_iron_flask','trinket_void_shard','trinket_time_sand'],
       minLevel:6, maxLevel:12, progress:0, totalEncounters:10, boss:'golem_stone',
       unlocked:false, completed:false
     },
@@ -1029,7 +1040,7 @@
       lore:'Bajo los reinos del mundo hay otro reino. Viejo, extraño, hostil. Los Drow lo llaman hogar. El resto, lo evita.',
       encounters: ['mindflayer','vampire_spawn','elder_brain','night_hag','oni'],
       eventPool: ['drow_patrol','myconid_grove','psionic_storm','lost_expedition','void_gate'],
-      shopInv: ['dragonhide','flametongue','frostbrand','belt_hill_giant','gloves_ogre','void_shard'],
+      shopInv: ['dragonhide','flametongue','frostbrand','belt_hill_giant','gloves_ogre','void_shard','trinket_soul_gem','trinket_dragons_tooth'],
       minLevel:10, maxLevel:18, progress:0, totalEncounters:10, boss:'elder_brain',
       unlocked:false, completed:false,
       hiddenUnlock: 'drow' // Playing as Drow unlocks this from start
@@ -1413,7 +1424,7 @@
       this.gold    = cls.startingGold + roll4d6();
 
       // Equipment
-      this.equipment = { weapon: null, armor: null, ring: null, neck: null, cloak: null, feet: null, hands: null, head: null, belt: null };
+      this.equipment = { weapon: null, armor: null, ring: null, neck: null, cloak: null, feet: null, hands: null, head: null, belt: null, trinket: null };
 
       // Inventory (flat list, stacks by id)
       this.inventory = [];
@@ -1631,6 +1642,49 @@
         if (atk) atk.maxUses++;
       }
 
+      // Class-specific ability unlocks
+      const classAbilityUnlocks = {
+        fighter:    { 5:{ name:'Oleada de Acción', icon:'💨', desc:'Una acción adicional completa. Una vez por descanso.', uses:1, maxUses:1, recharge:'rest', type:'attack' },
+                      7:{ name:'Voluntad de Hierro', icon:'🗿', desc:'Ventaja en saving throws contra ser asustado o parálisis.', uses:0, maxUses:0, type:'passive' } },
+        rogue:      { 5:{ name:'Evasión', icon:'💨', desc:'En DEX saves: éxito = sin daño, fallo = mitad.', uses:0, maxUses:0, type:'passive' },
+                      9:{ name:'Esquiva Suprema', icon:'👁️', desc:'Desventaja en ataques contra ti si no estás incapacitado.', uses:0, maxUses:0, type:'passive' } },
+        wizard:     { 5:{ name:'Recuperación Arcana', icon:'🔮', desc:'Una vez por día recuperas usos de hechizo.', uses:1, maxUses:1, recharge:'rest', type:'utility' },
+                      10:{ name:'Maestría en Hechizos', icon:'✨', desc:'Un hechizo de bajo nivel se vuelve innato.', uses:2, maxUses:2, recharge:'rest', type:'spell', dmgDice:6, dmgCount:3 } },
+        cleric:     { 5:{ name:'Destruir No-Muertos', icon:'☀️', desc:'Los no-muertos de CR1 son destruidos automáticamente.', uses:1, maxUses:1, recharge:'rest', type:'spell', dmgDice:8, dmgCount:2 },
+                      8:{ name:'Intervención Divina', icon:'⚡', desc:'Clamas ayuda divina con posibilidad de respuesta.', uses:1, maxUses:1, recharge:'rest', type:'utility' } },
+        paladin:    { 7:{ name:'Aura de Protección', icon:'🛡️', desc:'+CHA a los saving throws de todos los aliados.', uses:0, maxUses:0, type:'passive' },
+                      11:{ name:'Aura de Valor', icon:'✨', desc:'Inmunidad a condición aterrorizado.', uses:0, maxUses:0, type:'passive' } },
+        monk:       { 3:{ name:'Deflect Missiles', icon:'🎯', desc:'Reacción: reduce daño de proyectil en 1d10+DEX+nv.', uses:1, maxUses:1, recharge:'rest', type:'defense' },
+                      5:{ name:'Golpe Aturdidor', icon:'💫', desc:'Gasta 1 ki tras golpear: CON save o Aturdido.', uses:2, maxUses:2, recharge:'rest', type:'debuff', statusEffect:'stunned' } },
+        ranger:     { 5:{ name:'Paso Féerico', icon:'🌿', desc:'Bonus action: escóndete en entorno natural.', uses:1, maxUses:1, recharge:'rest', type:'utility' },
+                      7:{ name:'Defensa Evasiva', icon:'🏃', desc:'Si no llevas armadura pesada, +1 AC.', uses:0, maxUses:0, type:'passive' } },
+        bard:       { 5:{ name:'Inspiración de Combate', icon:'🎵', desc:'La inspiración bardic sirve para tiradas de ataque.', uses:0, maxUses:0, type:'passive' },
+                      10:{ name:'Secretos Mágicos', icon:'🔮', desc:'Aprendes hechizos de cualquier lista.', uses:2, maxUses:2, recharge:'rest', type:'spell', dmgDice:8, dmgCount:3 } },
+        barbarian:  { 7:{ name:'Presencia Salvaje', icon:'🐗', desc:'En furia: WIS save o enemigos adyacentes aterrados.', uses:1, maxUses:1, recharge:'rest', type:'buff' },
+                      11:{ name:'Furia Implacable', icon:'❤️', desc:'Si caes a 0 HP en furia, CON DC10 te deja en 1 HP.', uses:0, maxUses:0, type:'passive' } },
+        druid:      { 4:{ name:'Forma Salvaje Mejorada', icon:'🐻', desc:'Adoptas formas de CR1 máximo.', uses:0, maxUses:0, type:'passive' },
+                      9:{ name:'Amo del Bosque', icon:'🌿', desc:'Hablas con plantas y animales sin hechizo.', uses:0, maxUses:0, type:'passive' } },
+        warlock:    { 5:{ name:'Maldición del Viejo', icon:'👁️', desc:'Una vez/combate tu patrón te recarga un hechizo.', uses:1, maxUses:1, recharge:'rest', type:'utility' },
+                      10:{ name:'Conocimiento Prohibido', icon:'📚', desc:'Nuevas invocaciones del Anciano disponibles.', uses:0, maxUses:0, type:'passive' } },
+        sorcerer:   { 2:{ name:'Fuente de Magia', icon:'🌟', desc:'Conviertes slots en puntos de hechicería y viceversa.', uses:2, maxUses:2, recharge:'rest', type:'utility' },
+                      6:{ name:'Resistencia Mágica', icon:'🔵', desc:'Ventaja en saving throws contra hechizos.', uses:0, maxUses:0, type:'passive' } },
+        artificer:  { 5:{ name:'Ataque Extra (Herramienta)', icon:'⚙️', desc:'Tus herramientas atacan junto a ti.', uses:0, maxUses:0, type:'passive' } },
+        bloodhunter:{ 5:{ name:'Marca de Sangre', icon:'🩸', desc:'+2d6 daño necrótico en el primer golpe al objetivo marcado.', uses:2, maxUses:2, recharge:'rest', type:'debuff', statusEffect:'bleeding' },
+                      7:{ name:'Maldición de Sangre', icon:'💀', desc:'La criatura marcada tiene desventaja contra ti.', uses:0, maxUses:0, type:'passive' } },
+      };
+
+      const classId = this.cls.id;
+      const levelMap = classAbilityUnlocks[classId];
+      if (levelMap && levelMap[this.level]) {
+        const newAbility = { ...levelMap[this.level], curUses: levelMap[this.level].maxUses };
+        const already = this.abilities.find(a => a.name === newAbility.name);
+        if (!already) {
+          this.abilities.push(newAbility);
+          this._newAbilityUnlocked = newAbility; // Used by showLevelUp overlay
+          this.addLog(`🌟 Nueva habilidad desbloqueada: ${newAbility.icon} ${newAbility.name}`);
+        }
+      }
+
       P.Storage.unlock('reached_level_' + this.level);
       P.Audio.sfx.levelUp();
       this.addLog(`✦ ¡NIVEL ${this.level}! +${hpGain} HP. Prof: +${this.prof}.`);
@@ -1789,7 +1843,7 @@
 
   // ── INITIATIVE SYSTEM ─────────────────────────────────────────
   function rollInitiative(char, enemy) {
-    const playerInit = d20() + char.getMod('dex') + (char.equipment.feet?.initBonus || 0);
+    const playerInit = d20() + char.getMod('dex') + (char.equipment.feet?.initBonus || 0) + (char.equipment.trinket?.initBonus || 0);
     const enemyInit  = d20() + Math.floor((enemy.ac - 10) / 2);
     return { playerFirst: playerInit >= enemyInit, playerRoll: playerInit, enemyRoll: enemyInit };
   }
@@ -1920,6 +1974,130 @@
     return { hits, dmg, isCrit, nat };
   }
 
+  // ── STATUS EFFECTS ────────────────────────────────────────────
+  const STATUS_EFFECT_DEFS = {
+    burning:  { id:'burning',  name:'En llamas',  icon:'🔥', dmgDice:4, dmgCount:1, dmgType:'fuego'   },
+    bleeding: { id:'bleeding', name:'Sangrando',  icon:'🩸', dmgDice:4, dmgCount:1, dmgType:'físico'  },
+    poisoned: { id:'poisoned', name:'Envenenado', icon:'☠️', dmgDice:6, dmgCount:1, dmgType:'veneno'  },
+    chilled:  { id:'chilled',  name:'Congelado',  icon:'🧊', dmgDice:0, dmgCount:0, dmgType:'frío'    },
+    weakened: { id:'weakened', name:'Debilitado', icon:'💀', dmgDice:0, dmgCount:0, dmgType:'ninguno' },
+    stunned:  { id:'stunned',  name:'Aturdido',   icon:'💫', dmgDice:0, dmgCount:0, dmgType:'ninguno' },
+  };
+
+  function applyStatusEffect(target, effectId, rounds) {
+    const def = STATUS_EFFECT_DEFS[effectId];
+    if (!def) return;
+    target.conditions = target.conditions || [];
+    const existing = target.conditions.find(c => c.id === effectId);
+    if (existing) {
+      existing.rounds = Math.max(existing.rounds || 1, rounds || 2);
+    } else {
+      target.conditions.push({ ...def, rounds: rounds || 2 });
+    }
+  }
+
+  function tickStatusDamage(target, isPlayer) {
+    const msgs = [];
+    (target.conditions || []).filter(c => c.dmgDice > 0).forEach(c => {
+      let dmg = 0;
+      for (let i = 0; i < c.dmgCount; i++) dmg += roll(c.dmgDice);
+      dmg = Math.max(1, dmg);
+      if (isPlayer) { target.takeDamage(dmg); }
+      else { target.hp = Math.max(0, target.hp - dmg); }
+      msgs.push(`${c.icon} ${c.name}: ${dmg} daño de ${c.dmgType}`);
+    });
+    return msgs;
+  }
+
+  function tickEnemyConditions(enemy) {
+    (enemy.conditions || []).forEach(c => {
+      if (c.rounds !== undefined) c.rounds--;
+      if (c.dur    !== undefined) c.dur--;
+    });
+    enemy.conditions = (enemy.conditions || []).filter(c =>
+      (c.rounds === undefined || c.rounds > 0) &&
+      (c.dur    === undefined || c.dur    > 0)
+    );
+  }
+
+  // ── WILD MAGIC SURGES ─────────────────────────────────────────
+  const WILD_MAGIC_SURGES = [
+    { id:'double_dmg',   text:'¡MAGIA SALVAJE! ✨ La energía se duplica: el hechizo hace el DOBLE de daño.',           doubleDmg:true },
+    { id:'self_fire',    text:'¡MAGIA SALVAJE! 🔥 Explosión caótica centrada en ti: 3d6 de fuego.',                    selfDmg:true, dice:'3d6' },
+    { id:'self_heal',    text:'¡MAGIA SALVAJE! 💚 La magia se vuelve contra sí misma y te sana: +2d6 HP.',             selfHeal:true, dice:'2d6' },
+    { id:'skip_enemy',   text:'¡MAGIA SALVAJE! 💤 El enemigo queda Atontado: pierde su próximo turno.',                skipEnemy:true },
+    { id:'arcane_shield',text:'¡MAGIA SALVAJE! 🔵 Un escudo arcano caótico: +4 CA por 2 rounds.',                     shieldSelf:true },
+    { id:'bonus_dmg',    text:'¡MAGIA SALVAJE! ⚡ Descarga de relámpago extra: +2d8 daño eléctrico adicional.',        bonusDmg:true, dice:'2d8' },
+    { id:'feared',       text:'¡MAGIA SALVAJE! 😱 El enemigo queda Aterrorizado: -3 a sus ataques 2 rounds.',          feared:true },
+    { id:'poisoned_self',text:'¡MAGIA SALVAJE! ☠️ La magia tóxica rebota: quedas Envenenado 1 round.',                 selfPoison:true },
+    { id:'echo',         text:'¡MAGIA SALVAJE! 🌀 La magia resuena: el hechizo se lanza una SEGUNDA VEZ.',             echo:true },
+    { id:'quake',        text:'¡MAGIA SALVAJE! 🌍 El suelo tiembla: todos reciben 1d4 daño.',                         quake:true, dice:'1d4' },
+    { id:'invisible',    text:'¡MAGIA SALVAJE! 👁️ Te vuelves invisible por 1 round (ventaja próximo ataque).',         invisible:true },
+    { id:'polymorph',    text:'¡MAGIA SALVAJE! 🐑 El enemigo se convierte en oveja 1 round: ataque y CA reducidos.',   polymorph:true },
+  ];
+
+  function triggerWildMagic(char, enemy, baseResult) {
+    const surge = WILD_MAGIC_SURGES[Math.floor(Math.random() * WILD_MAGIC_SURGES.length)];
+    const msgs = [surge.text];
+
+    if (surge.doubleDmg && baseResult.dmg > 0) {
+      const extra = baseResult.dmg;
+      enemy.hp = Math.max(0, enemy.hp - extra);
+      baseResult.dmg += extra;
+      msgs.push(`Daño total: ${baseResult.dmg}.`);
+    }
+    if (surge.selfDmg) {
+      const selfDmg = roll(18) + 0; // 3d6
+      char.takeDamage(selfDmg);
+      msgs.push(`Tú recibes ${selfDmg} daño.`);
+    }
+    if (surge.selfHeal) {
+      const h = roll(6) + roll(6);
+      char.heal(h);
+      msgs.push(`Recuperas ${h} HP.`);
+    }
+    if (surge.skipEnemy) {
+      applyStatusEffect(enemy, 'stunned', 1);
+    }
+    if (surge.shieldSelf) {
+      char.addCondition({ id:'arcane_shield', name:'Escudo Arcano', icon:'🔵', acBonus:4, rounds:2 });
+    }
+    if (surge.bonusDmg) {
+      const bd = roll(8) + roll(8);
+      enemy.hp = Math.max(0, enemy.hp - bd);
+      baseResult.dmg += bd;
+      msgs.push(`+${bd} daño eléctrico adicional.`);
+    }
+    if (surge.feared) {
+      enemy.conditions = enemy.conditions || [];
+      enemy.conditions.push({ id:'feared', name:'Aterrorizado', icon:'😱', rounds:2, atkPenalty:-3 });
+    }
+    if (surge.selfPoison) {
+      char.addCondition({ id:'poisoned', name:'Envenenado', icon:'☠️', rounds:1 });
+    }
+    if (surge.echo) {
+      // Mark for second cast outside this function
+      baseResult._wildEcho = true;
+    }
+    if (surge.quake) {
+      const qd = roll(4);
+      char.takeDamage(qd);
+      enemy.hp = Math.max(0, enemy.hp - qd);
+      msgs.push(`${qd} daño al suelo a todos.`);
+    }
+    if (surge.invisible) {
+      char.addCondition({ id:'invisible', name:'Invisible', icon:'👁️', rounds:1, atkBonus:2 });
+    }
+    if (surge.polymorph) {
+      enemy.conditions = enemy.conditions || [];
+      enemy.conditions.push({ id:'polymorph', name:'Oveja 🐑', icon:'🐑', rounds:1, atkPenalty:-5 });
+      enemy.ac = Math.min(enemy.ac, 8);
+    }
+
+    baseResult._wildSurgeMsg = msgs.join(' ');
+    return baseResult;
+  }
+
   // ── SPELL ATTACK ──────────────────────────────────────────────
   function castSpell(char, spell, enemy) {
     let result = { dmg:0, heal:0, effect:'', success:false, msg:'' };
@@ -2007,6 +2185,24 @@
       }
     }
 
+    // Apply status effects based on spell type / id
+    if (result.success && result.dmg > 0) {
+      const spellId = spell.id || '';
+      const spellType = spell.type || '';
+      if (spellType === 'fire' || spellId === 'fireball' || spellId === 'burning_hands') {
+        applyStatusEffect(enemy, 'burning', 2);
+        result.msg += ' 🔥';
+      } else if (spellType === 'necrotic' || spellId === 'inflict_wounds') {
+        applyStatusEffect(enemy, 'bleeding', 2);
+        result.msg += ' 🩸';
+      } else if (spellType === 'lightning' || spellId === 'call_lightning') {
+        if (d20() >= 15) { applyStatusEffect(enemy, 'stunned', 1); result.msg += ' 💫 ¡Aturdido!'; }
+      } else if (spellType === 'thunder' || spellId === 'thunderwave' || spellId === 'shatter') {
+        applyStatusEffect(enemy, 'chilled', 2);
+        result.msg += ' 🧊';
+      }
+    }
+
     return result;
   }
 
@@ -2022,10 +2218,22 @@
         P.Audio.sfx.heal(); break;
       }
       case 'attack': {
-        // Extra attack = bonus roll
-        const res = playerAttack(char, enemy, {});
-        result.dmg = res.dmg;
-        result.msg = res.hits ? `${ability.name}: ${res.dmg} daño extra${res.isCrit?' ¡CRÍTICO!':''}!` : `${ability.name}: fallas el ataque extra.`;
+        // Extra attack — perform up to 2 bonus rolls (Lluvia de Golpes = 2 hits)
+        let totalDmg = 0;
+        const hits = ability.name.includes('Lluvia') ? 2 : 1;
+        let msgs = [];
+        for (let i = 0; i < hits; i++) {
+          const res = playerAttack(char, enemy, {});
+          if (res.hits) { totalDmg += res.dmg; msgs.push(`${res.dmg}${res.isCrit?'💥':''}`); }
+          else msgs.push('fallo');
+        }
+        result.dmg = totalDmg;
+        result.msg = `${ability.name}: ${msgs.join(', ')} daño extra${totalDmg===0?' (fallos)':''}!`;
+        // Apply bleeding on any hit if ability has statusEffect
+        if (totalDmg > 0 && ability.statusEffect) {
+          applyStatusEffect(enemy, ability.statusEffect, 2);
+          result.msg += ` ${STATUS_EFFECT_DEFS[ability.statusEffect]?.icon||''}`;
+        }
         break;
       }
       case 'buff': {
@@ -2043,8 +2251,47 @@
         if (enemy) {
           enemy.conditions = enemy.conditions || [];
           enemy.conditions.push({ id:'cursed_target', name:'Maldito', dur:3 });
-          result.msg = `${ability.name}: ${enemy.name} maldito. +1d6 daño en ataques contra él.`;
+          // If ability has a specific status effect, apply it
+          if (ability.statusEffect) {
+            applyStatusEffect(enemy, ability.statusEffect, 2);
+            const def = STATUS_EFFECT_DEFS[ability.statusEffect];
+            result.msg = `${ability.name}: ${enemy.name} maldito${def?' y '+def.name.toLowerCase():''}.`;
+          } else {
+            result.msg = `${ability.name}: ${enemy.name} maldito. +1d6 daño en ataques contra él.`;
+          }
         } break;
+      }
+      case 'spell': {
+        // Ability-as-spell (e.g. Druid's Tormenta de Esporas, Sorcerer's Torrente Arcano)
+        let dmg = 0;
+        for (let i = 0; i < (ability.dmgCount || 3); i++) dmg += roll(ability.dmgDice || 8);
+        dmg += char.getMod(char.cls.primaryStats[0] || 'cha');
+        dmg = Math.max(1, dmg);
+        const capped = Math.min(enemy.hp, dmg);
+        enemy.hp -= capped;
+        char.stats.damageDone += capped;
+        result.dmg = capped;
+        result.msg = `${ability.name}: ${capped} daño!`;
+        if (ability.statusEffect) {
+          applyStatusEffect(enemy, ability.statusEffect, 2);
+          const def = STATUS_EFFECT_DEFS[ability.statusEffect];
+          if (def) result.msg += ` ${def.icon} ${def.name}!`;
+        }
+        P.Audio.sfx.magic(); break;
+      }
+      case 'wildmagic': {
+        // Wild Magic surge — deliberate trigger
+        const surge = WILD_MAGIC_SURGES[Math.floor(Math.random() * WILD_MAGIC_SURGES.length)];
+        result._wildSurgeMsg = surge.text;
+        result.msg = `${ability.name}: ${surge.text}`;
+        // Apply the surge mechanics
+        const fakeResult = { dmg:0 };
+        triggerWildMagic(char, enemy, fakeResult);
+        result.dmg = fakeResult.dmg || 0;
+        if (result.dmg > 0) {
+          result.msg += ` (${result.dmg} daño)`;
+        }
+        P.Audio.sfx.magic(); break;
       }
       case 'defense': {
         char.addCondition({ id:'defensive_stance', name:'Guardia', icon:'🛡️', acBonus:3, rounds:2 });
@@ -2082,9 +2329,17 @@
     // Paralyzed enemy can't act
     const paralyzed = enemy.conditions?.find(c => c.id === 'paralyzed');
     if (paralyzed) {
-      paralyzed.dur--;
+      paralyzed.dur = (paralyzed.dur || 1) - 1;
       if (paralyzed.dur <= 0) enemy.conditions = enemy.conditions.filter(c => c.id !== 'paralyzed');
       return { skipped: true, msg:`${enemy.name} está paralizado y no puede actuar.` };
+    }
+
+    // Stunned (from status effects) — skip turn, tick down
+    const stunned = enemy.conditions?.find(c => c.id === 'stunned');
+    if (stunned) {
+      stunned.rounds = (stunned.rounds || 1) - 1;
+      if (stunned.rounds <= 0) enemy.conditions = enemy.conditions.filter(c => c.id !== 'stunned');
+      return { skipped: true, msg:`${enemy.name} está aturdido y no puede actuar.` };
     }
 
     // Beholder: random ray
@@ -2138,9 +2393,21 @@
       }
     }
 
-    // Standard attack
+    // Standard attack — certain enemies apply bleeding on crits
+    const bleedEnemies = ['werewolf','ghoul','ogre','vampire','katosx_shade'];
     const res = enemyAttack(enemy, char);
-    return { ...res, msg: res.hits ? `${enemy.name} ataca: ${res.dmg} daño${res.isCrit?' ¡CRÍTICO!':''}!` : `${enemy.name} falla el ataque.` };
+    if (res.hits && res.isCrit && bleedEnemies.includes(enemy.id)) {
+      char.addCondition({ id:'bleeding', name:'Sangrando', icon:'🩸', dmgDice:4, dmgCount:1, dmgType:'físico', rounds:2 });
+    }
+    // Fear penalty from feared condition
+    const feared = enemy.conditions?.find(c => c.id === 'feared');
+    const polymorph = enemy.conditions?.find(c => c.id === 'polymorph');
+    if (polymorph) {
+      polymorph.rounds = (polymorph.rounds||1) - 1;
+      if (polymorph.rounds <= 0) enemy.conditions = enemy.conditions.filter(c => c.id !== 'polymorph');
+    }
+    const bleedNote = res.isCrit && bleedEnemies.includes(enemy.id) ? ' 🩸 ¡Sangrando!' : '';
+    return { ...res, msg: res.hits ? `${enemy.name} ataca: ${res.dmg} daño${res.isCrit?' ¡CRÍTICO!':''}!${bleedNote}` : `${enemy.name} falla el ataque.` };
   }
 
   // ── LOOT GENERATION ──────────────────────────────────────────
@@ -2170,15 +2437,21 @@
     return loot;
   }
 
-  root._dndParts.createEnemy   = createEnemy;
-  root._dndParts.rollInitiative= rollInitiative;
-  root._dndParts.playerAttack  = playerAttack;
-  root._dndParts.enemyAttack   = enemyAttack;
-  root._dndParts.castSpell     = castSpell;
-  root._dndParts.useAbility    = useAbility;
-  root._dndParts.enemyAI       = enemyAI;
-  root._dndParts.generateLoot  = generateLoot;
-  console.log('%c[DND] Part 6 loaded — Combat engine, spells, AI, loot', 'color:#8b5cf6;');
+  root._dndParts.createEnemy        = createEnemy;
+  root._dndParts.rollInitiative     = rollInitiative;
+  root._dndParts.playerAttack       = playerAttack;
+  root._dndParts.enemyAttack        = enemyAttack;
+  root._dndParts.castSpell          = castSpell;
+  root._dndParts.useAbility         = useAbility;
+  root._dndParts.enemyAI            = enemyAI;
+  root._dndParts.generateLoot       = generateLoot;
+  root._dndParts.applyStatusEffect  = applyStatusEffect;
+  root._dndParts.tickStatusDamage   = tickStatusDamage;
+  root._dndParts.tickEnemyConditions= tickEnemyConditions;
+  root._dndParts.triggerWildMagic   = triggerWildMagic;
+  root._dndParts.WILD_MAGIC_SURGES  = WILD_MAGIC_SURGES;
+  root._dndParts.STATUS_EFFECT_DEFS = STATUS_EFFECT_DEFS;
+  console.log('%c[DND] Part 6 loaded — Combat engine, spells, AI, loot, status effects, wild magic', 'color:#8b5cf6;');
 
 })(window);
 
@@ -3051,15 +3324,17 @@
   }
 
   // ── SCREEN: COMBAT ────────────────────────────────────────────
-  function buildCombatScreen(char, enemies, combatLog, phase = 'player') {
+  function buildCombatScreen(char, enemies, combatLog, phase = 'player', bonusActionUsed = false) {
     const enemy = enemies[0];
     if (!enemy) return '<div class="dnd-screen dnd-active"><p>Error: sin enemigo.</p></div>';
     const hpPct   = Math.round((enemy.hp / enemy.maxHP) * 100);
     const phColor = hpPct > 60 ? '#22c55e' : hpPct > 30 ? '#f59e0b' : '#ef4444';
     const pHpPct  = Math.round((char.hp / char.maxHP) * 100);
     const pColor  = pHpPct > 60 ? '#22c55e' : pHpPct > 30 ? '#f59e0b' : '#ef4444';
-    const abilities = char.abilities.filter(a => a.curUses > 0);
-    const spells    = char.spells || [];
+    const allAbilities = char.abilities || [];
+    const spells       = char.spells || [];
+    const _bonusUsed   = bonusActionUsed === true;
+
     return `
       <div id="dnd-combat" class="dnd-screen dnd-active">
         ${buildHUD(char)}
@@ -3074,7 +3349,7 @@
                 <div class="dnd-hp-bar"><div class="dnd-hp-fill" style="width:${pHpPct}%;background:${pColor}"></div></div>
                 <span>${char.hp}/${char.maxHP}</span>
               </div>
-              <div class="dnd-cond-row">${char.conditions.map(c=>`<span class="dnd-cbadge">${c.icon||'⚡'}${c.name}</span>`).join('')}</div>
+              <div class="dnd-cond-row">${char.conditions.map(c=>`<span class="dnd-cbadge" style="color:${c.id==='burning'?'#f97316':c.id==='bleeding'?'#ef4444':c.id==='poisoned'?'#a3e635':c.id==='chilled'?'#67e8f9':'#e2e8f0'}">${c.icon||'⚡'}${c.name}</span>`).join('')}</div>
             </div>
             <div class="dnd-vs-center">
               <div id="dnd-dice-anim" class="dnd-dice">🎲</div>
@@ -3088,7 +3363,7 @@
                 <div class="dnd-hp-bar"><div class="dnd-hp-fill" style="width:${hpPct}%;background:${phColor}"></div></div>
                 <span>${enemy.hp}/${enemy.maxHP}</span>
               </div>
-              <div class="dnd-cond-row">${(enemy.conditions||[]).map(c=>`<span class="dnd-cbadge">${c.name}</span>`).join('')}</div>
+              <div class="dnd-cond-row">${(enemy.conditions||[]).map(c=>`<span class="dnd-cbadge" style="color:${c.id==='burning'?'#f97316':c.id==='bleeding'?'#ef4444':c.id==='poisoned'?'#a3e635':c.id==='chilled'?'#67e8f9':'#94a3b8'}">${c.icon||''}${c.name}${c.rounds?` (${c.rounds}r)`:''}</span>`).join('')}</div>
             </div>
           </div>
 
@@ -3100,10 +3375,26 @@
           <!-- Actions -->
           <div class="dnd-combat-actions" id="dnd-actions" ${phase!=='player'?'style="pointer-events:none;opacity:.5"':''}>
             <div class="dnd-action-row">
-              <button class="dnd-btn dnd-btn-attack" onclick="root._dndGame.combatAction('attack')">⚔️ Atacar</button>
-              ${abilities.length > 0 ? `<button class="dnd-btn dnd-btn-ability" onclick="root._dndGame.combatAction('ability', 0)">✨ ${esc(abilities[0].name)} (${abilities[0].curUses})</button>` : ''}
+              ${!_bonusUsed ? `<button class="dnd-btn dnd-btn-attack" onclick="root._dndGame.combatAction('attack')">⚔️ Atacar</button>` : `<button class="dnd-btn dnd-btn-attack" style="opacity:.4;pointer-events:none" disabled>⚔️ Atacar</button>`}
               ${spells.length > 0 ? `<button class="dnd-btn dnd-btn-spell" onclick="root._dndGame.openSpellMenu()">🔮 Hechizos (${spells.length})</button>` : ''}
             </div>
+            ${allAbilities.length > 0 ? `
+            <div class="dnd-ability-scroll">
+              ${allAbilities.map((ab, idx) => {
+                const hasUses   = ab.maxUses === 0 || ab.curUses > 0;
+                const isBonus   = ab.bonusAction === true;
+                const bonusLock = isBonus && _bonusUsed;
+                const disabled  = !hasUses || bonusLock;
+                const tag       = isBonus ? '<span class="dnd-bonus-tag">BONUS</span>' : '';
+                const usesText  = ab.maxUses > 0 ? ` (${ab.curUses}/${ab.maxUses})` : '';
+                return `<button class="dnd-btn dnd-btn-ability${disabled?' dnd-btn-disabled':''}"
+                  ${disabled ? 'disabled' : ''}
+                  onclick="root._dndGame.combatAction('ability', ${idx})"
+                  title="${esc(ab.desc||'')}">
+                  ${ab.icon||'✨'} ${esc(ab.name)}${usesText}${tag}
+                </button>`;
+              }).join('')}
+            </div>` : ''}
             <div class="dnd-action-row">
               ${char.inventory.filter(i=>i.e==='heal'||i.e==='mana'||i.e==='cure').slice(0,2).map(item =>
                 `<button class="dnd-btn dnd-btn-item" onclick="root._dndGame.combatAction('item', '${item.id}')">${item.icon} ${esc(item.name)} (${item.count||1})</button>`).join('')}
@@ -3122,7 +3413,8 @@
     const eqSlots = [
       ['weapon','⚔️','Arma'],['armor','🛡️','Armadura'],['ring','💍','Anillo'],
       ['neck','📿','Amuleto'],['cloak','🧥','Capa'],['feet','👟','Botas'],
-      ['hands','🧤','Guantes'],['head','👑','Yelmo'],['belt','🩱','Cinturón']
+      ['hands','🧤','Guantes'],['head','👑','Yelmo'],['belt','🩱','Cinturón'],
+      ['trinket','🔮','Trinquete']
     ];
     const inv     = P.InventoryManager.sort(char.inventory);
     const bonuses = P.InventoryManager.getEquipBonuses(char);
@@ -3408,6 +3700,8 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
 
   // ── LEVEL UP OVERLAY ─────────────────────────────────────────
   function buildLevelUpOverlay(char, newLevel) {
+    const newAbility = char._newAbilityUnlocked;
+    char._newAbilityUnlocked = null; // consume it
     return `
       <div class="dnd-levelup-overlay">
         <div class="dnd-levelup-inner">
@@ -3415,6 +3709,12 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
           <h2>¡NIVEL ${newLevel}!</h2>
           <p>${esc(char.name)} ha alcanzado el nivel ${newLevel}.</p>
           <p>Proficiencia: +${char.prof} · HP Máx: ${char.maxHP}</p>
+          ${newAbility ? `
+          <div style="margin:12px 0;padding:10px;border:1px solid var(--dnd-purple);border-radius:8px;background:rgba(139,92,246,0.1);">
+            <div style="color:var(--dnd-gold);font-size:0.8rem;letter-spacing:1px;">✦ NUEVA HABILIDAD DESBLOQUEADA</div>
+            <div style="font-size:1.1rem;margin:4px 0">${newAbility.icon||'✨'} ${esc(newAbility.name)}</div>
+            <div style="font-size:0.72rem;color:var(--dnd-text2)">${esc(newAbility.desc||'')}</div>
+          </div>` : ''}
           <button class="dnd-btn dnd-btn-primary" onclick="this.closest('.dnd-levelup-overlay').remove()">¡Continuar!</button>
         </div>
       </div>`;
@@ -3744,6 +4044,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   // ── COMBAT ────────────────────────────────────────────────────
   function startCombat(enemies) {
     if (!char || !enemies || enemies.length === 0) return;
+    char._lastStandUsed = false; // reset last_stand trinket per combat
     const init = P.rollInitiative(char, enemies[0]);
     combatState = {
       enemies: enemies,
@@ -3754,9 +4055,10 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       ],
       phase: init.playerFirst ? 'player' : 'enemy',
       currentEnemyIdx: 0,
-      deathMsg: ''
+      deathMsg: '',
+      _bonusActionUsed: false
     };
-    render(P.buildCombatScreen(char, [enemies[combatState.currentEnemyIdx]], combatState.log, combatState.phase));
+    render(P.buildCombatScreen(char, [enemies[combatState.currentEnemyIdx]], combatState.log, combatState.phase, combatState._bonusActionUsed));
 
     if (!init.playerFirst) {
       setTimeout(() => enemyTurn(), 1000);
@@ -3800,15 +4102,32 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       });
       return;
     } else if (action === 'ability') {
-      const ability = char.abilities.find(a => a.curUses > 0);
-      if (!ability) { combatState.phase = 'player'; return; }
+      const abilityIdx = (param !== undefined && param !== null) ? parseInt(param) : 0;
+      const ability = char.abilities[abilityIdx];
+      if (!ability || ability.curUses <= 0) { combatState.phase = 'player'; return; }
       const res = P.useAbility(char, ability, enemy);
       combatState.log.push(res.msg);
+      if (res._wildSurgeMsg) combatState.log.push(res._wildSurgeMsg);
       if (res.dmg > 0) {
         enemy.hp = Math.max(0, enemy.hp - res.dmg);
-        checkEnemyDeath(enemy, endPlayerTurn);
+        if (ability.bonusAction) {
+          // Bonus action: player keeps their main attack turn
+          combatState._bonusActionUsed = true;
+          checkEnemyDeath(enemy, () => {
+            combatState.phase = 'player';
+            refreshCombatScreen();
+          });
+        } else {
+          checkEnemyDeath(enemy, endPlayerTurn);
+        }
       } else {
-        endPlayerTurn();
+        if (ability.bonusAction) {
+          combatState._bonusActionUsed = true;
+          combatState.phase = 'player';
+          refreshCombatScreen();
+        } else {
+          endPlayerTurn();
+        }
       }
     } else if (action === 'spell') {
       openSpellMenu(); return;
@@ -3872,6 +4191,13 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     animateDice(() => {
       const res = P.castSpell(char, spell, enemy);
       combatState.log.push(res.msg);
+
+      // Wild Magic surge for Sorcerer (20% chance per spell cast)
+      if (char.cls.id === 'sorcerer' && Math.random() < 0.20) {
+        P.triggerWildMagic(char, enemy, res);
+        if (res._wildSurgeMsg) combatState.log.push(res._wildSurgeMsg);
+      }
+
       if (res.dmg > 0) {
         checkEnemyDeath(enemy, endPlayerTurn);
       } else {
@@ -3921,8 +4247,9 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       if (combatState.currentEnemyIdx < combatState.enemies.length) {
         const next = combatState.enemies[combatState.currentEnemyIdx];
         combatState.log.push(`⚔️ ¡Nuevo enemigo! ${next.name} entra en combate!`);
+        combatState.phase = 'player';   // ← must be set BEFORE render so buttons are enabled
+        combatState._bonusActionUsed = false;
         refreshCombatScreen();
-        combatState.phase = 'player';
         return;
       }
 
@@ -3949,6 +4276,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   }
 
   function endPlayerTurn() {
+    combatState._bonusActionUsed = false;
     combatState.phase = 'enemy';
     refreshCombatScreen();
     setTimeout(() => enemyTurn(), 1200);
@@ -3957,6 +4285,18 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   function enemyTurn() {
     const enemy = combatState?.enemies[combatState.currentEnemyIdx];
     if (!enemy || combatState?.phase !== 'enemy') return;
+
+    // Tick status effects on ENEMY at start of their turn
+    const enemyStatusMsgs = P.tickStatusDamage(enemy, false);
+    enemyStatusMsgs.forEach(m => combatState.log.push(m));
+    P.tickEnemyConditions(enemy);
+
+    // If enemy died from status effects, trigger death
+    if (enemy.hp <= 0) {
+      checkEnemyDeath(enemy, () => {});
+      return;
+    }
+
     const result = P.enemyAI(enemy, char);
     combatState.log.push(result.msg || '');
 
@@ -3968,6 +4308,17 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
 
     // Check player death
     if (char.isDead) {
+      // last_stand trinket: survive once at 1 HP
+      const lastCoin = char.equipment?.trinket?.special === 'last_stand' && !char._lastStandUsed;
+      if (lastCoin) {
+        char._lastStandUsed = true;
+        char.hp = 1;
+        char.isDead = false;
+        combatState.log.push(`🪙 ¡La Moneda del Último Soldado activa su magia! Sobrevives con 1 HP.`);
+        combatState.phase = 'player';
+        refreshCombatScreen();
+        return;
+      }
       char.deathCount++;
       char.stats.deaths++;
       combatState.deathMsg = `Caído ante ${enemy.name} en ${P.LOCATIONS.find(l=>l.id===char.currentLocation)?.name||'el camino'}.`;
@@ -3992,6 +4343,10 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     }
 
     combatState.phase = 'player';
+    combatState._bonusActionUsed = false;
+    // Tick player status effect damage at end of enemy turn
+    const playerStatusMsgs = P.tickStatusDamage(char, true);
+    playerStatusMsgs.forEach(m => combatState.log.push(m));
     char.tickConditions();
     refreshCombatScreen();
     P.Audio.sfx.attack();
@@ -4001,7 +4356,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     if (!combatState) return;
     const enemy = combatState.enemies[combatState.currentEnemyIdx];
     if (!enemy) return;
-    render(P.buildCombatScreen(char, [enemy], combatState.log, combatState.phase));
+    render(P.buildCombatScreen(char, [enemy], combatState.log, combatState.phase, combatState._bonusActionUsed));
   }
 
   function animateDice(callback) {
