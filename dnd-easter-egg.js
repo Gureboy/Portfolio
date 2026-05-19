@@ -1909,6 +1909,11 @@
 
   // ── ATTACK CALCULATION ────────────────────────────────────────
   function playerAttack(char, enemy, options = {}) {
+    // Prone: player has advantage attacking a prone enemy (melee)
+    if (enemy.conditions?.find(c => c.id === 'prone') && !options.isRanged) {
+      options = { ...options, hasAdvantage: true };
+    }
+    // Cover: player removes cover condition after being targeted (enemy spent turn)
     const nat    = d20();
     const isCrit = nat === 20 || (nat >= 18 && char.cls.id === 'rogue' && options.hasAdvantage);
     const isFumble = nat === 1;
@@ -1986,6 +1991,10 @@
         }
         if (dmg > 0 && enemy.res?.includes(dmgType)) { dmg = Math.floor(dmg / 2); dmgBreakdown += ' [RESISTE ½]'; }
         if (dmg > 0 && enemy.vuln?.includes(dmgType)) { dmg = Math.floor(dmg * 1.5); dmgBreakdown += ' [VULN ×1.5]'; }
+        // Wet condition: vulnerability to lightning and cold
+        if (dmg > 0 && enemy.conditions?.find(c => c.id === 'wet') && ['lightning','cold','thunder','electric'].includes(dmgType)) {
+          dmg = Math.floor(dmg * 2); dmgBreakdown += ' [MOJADO ×2]';
+        }
         // Legacy trait checks (fallback)
         if (enemy.traits?.some(t => t.name === 'Inmune a Veneno') && options.type === 'poison') dmg = 0;
         if (enemy.traits?.some(t => t.name === 'Vulnerable a Contundente') && options.type === 'bludgeoning') dmg = Math.round(dmg * 1.5);
@@ -2005,6 +2014,13 @@
 
   // ── ENEMY ATTACK ──────────────────────────────────────────────
   function enemyAttack(enemy, char) {
+    // Prone: enemy must spend action to stand up
+    const proneIdx = (enemy.conditions||[]).findIndex(c => c.id === 'prone');
+    if (proneIdx !== -1) {
+      enemy.conditions.splice(proneIdx, 1);
+      return { hits:false, dmg:0, isCrit:false, nat:0, msg:`${enemy.name} se levanta del suelo. [se levanta]` };
+    }
+
     const nat   = d20();
     const isCrit= nat === 20;
     const isMiss= nat === 1;
@@ -2063,13 +2079,48 @@
 
   // ── STATUS EFFECTS ────────────────────────────────────────────
   const STATUS_EFFECT_DEFS = {
-    burning:  { id:'burning',  name:'En llamas',  icon:'🔥', dmgDice:4, dmgCount:1, dmgType:'fuego'   },
-    bleeding: { id:'bleeding', name:'Sangrando',  icon:'🩸', dmgDice:4, dmgCount:1, dmgType:'físico'  },
-    poisoned: { id:'poisoned', name:'Envenenado', icon:'☠️', dmgDice:6, dmgCount:1, dmgType:'veneno'  },
-    chilled:  { id:'chilled',  name:'Congelado',  icon:'🧊', dmgDice:0, dmgCount:0, dmgType:'frío'    },
-    weakened: { id:'weakened', name:'Debilitado', icon:'💀', dmgDice:0, dmgCount:0, dmgType:'ninguno' },
-    stunned:  { id:'stunned',  name:'Aturdido',   icon:'💫', dmgDice:0, dmgCount:0, dmgType:'ninguno' },
+    burning:   { id:'burning',   name:'En llamas',    icon:'🔥', dmgDice:4, dmgCount:1, dmgType:'fuego'   },
+    bleeding:  { id:'bleeding',  name:'Sangrando',    icon:'🩸', dmgDice:4, dmgCount:1, dmgType:'físico'  },
+    poisoned:  { id:'poisoned',  name:'Envenenado',   icon:'☠️', dmgDice:6, dmgCount:1, dmgType:'veneno'  },
+    chilled:   { id:'chilled',   name:'Congelado',    icon:'🧊', dmgDice:0, dmgCount:0, dmgType:'frío'    },
+    weakened:  { id:'weakened',  name:'Debilitado',   icon:'💀', dmgDice:0, dmgCount:0, dmgType:'ninguno' },
+    stunned:   { id:'stunned',   name:'Aturdido',     icon:'💫', dmgDice:0, dmgCount:0, dmgType:'ninguno' },
+    prone:     { id:'prone',     name:'Tumbado',      icon:'⬇️', dmgDice:0, dmgCount:0, dmgType:'ninguno' },
+    wet:       { id:'wet',       name:'Mojado',       icon:'💧', dmgDice:0, dmgCount:0, dmgType:'ninguno' },
+    frightened:{ id:'frightened',name:'Aterrorizado', icon:'😨', dmgDice:0, dmgCount:0, dmgType:'ninguno' },
+    covered:   { id:'covered',   name:'En Cubierta',  icon:'🏛️', dmgDice:0, dmgCount:0, dmgType:'ninguno', acBonus:2 },
   };
+
+  // ── ENEMY BARKS (BG3-style flavor text) ───────────────────────
+  const ENEMY_BARKS = {
+    attack: {
+      humanoid:  ['¡Por el trono!','¡Muere, aventurero!','¡No pasarás!','¡Pagarás por esto!','¡Sin piedad!'],
+      undead:    ['...grrrr...','☠️ ...muerte...','...el alma...','...no huyas...','...únete a nosotros...'],
+      beast:     ['¡GRAAWR!','🐺 *gruñido feroz*','*rugido*','*colmillos brillantes*','¡RAWR!'],
+      demon:     ['¡Tus almas son nuestras!','¡Caerás, mortal!','¡El caos te consume!','¡ABISMO!'],
+      goblin:    ['¡Tú cabeza mía!','¡Oro grande!','¡Aplastarte!','¡Bobo aventurero!','¡Krax aplasta!'],
+      dragon:    ['Tu audacia... te costará.','¡Insignificante mortal!','¡ARDERÁS!','He visto caer imperios.'],
+      default:   ['¡Ataque!','¡Muere!','¡Por mis señores!','¡A la batalla!'],
+    },
+    low_hp: {
+      humanoid:  ['¡No puedo perder aquí!','¡Dame fuerza!','¡Solo por esta vez!','¡Por favor...!'],
+      beast:     ['*aullido desesperado*','*retrocede herido*','*gruñido de dolor*'],
+      default:   ['¡No...!','¡Imposible...!','¡Esto no puede ser!','¡Sigue en pie!'],
+    },
+    flee: {
+      humanoid:  ['¡Me retiro!','¡No valía la pena!','¡Buscaré refuerzos!','¡Recuerda mi cara!'],
+      beast:     ['*huye despavorido*','*aullido de dolor*','*se escurre entre arbustos*'],
+      default:   ['¡Huyo!','¡Otro día!','¡Suerte tuya!','¡Volveré más fuerte!'],
+    },
+  };
+
+  function getEnemyBark(enemy, situation) {
+    const pool = ENEMY_BARKS[situation];
+    if (!pool) return '';
+    const type = (enemy.type || 'default');
+    const barks = pool[type] || pool.default || [];
+    return barks.length ? `💬 "${pick(barks)}"` : '';
+  }
 
   function applyStatusEffect(target, effectId, rounds) {
     const def = STATUS_EFFECT_DEFS[effectId];
@@ -2425,7 +2476,7 @@
       // Flee at 10% HP (non-elite, non-undead)
       if (hpPct < 0.10 && !enemy.isElite && !enemy._fleeing && !/undead|construct/.test(enemy.type||'') && Math.random() < 0.6) {
         enemy._fleeing = true;
-        return { skipped:true, msg:`💨 ${enemy.name} intenta huir! (Herido gravemente)` };
+        return { skipped:true, fled:true, msg:`💨 ${enemy.name} intenta huir! (Herido gravemente)` };
       }
       // Defend: 15% chance when healthy — buff AC for this turn
       if (!enemy._defending && hpPct > 0.4 && Math.random() < 0.15) {
@@ -2601,6 +2652,7 @@
   root._dndParts.tickStatusDamage   = tickStatusDamage;
   root._dndParts.tickEnemyConditions= tickEnemyConditions;
   root._dndParts.triggerWildMagic   = triggerWildMagic;
+  root._dndParts.getEnemyBark       = getEnemyBark;
   root._dndParts.WILD_MAGIC_SURGES  = WILD_MAGIC_SURGES;
   root._dndParts.STATUS_EFFECT_DEFS = STATUS_EFFECT_DEFS;
   root._dndParts.FEATS              = FEATS;
@@ -3111,19 +3163,24 @@
         let healed = 0;
         for (let i = 0; i < hitDice; i++) healed += roll(char.cls.hd) + char.getMod('con');
         healed = char.heal(Math.max(0, healed));
+        // Second Wind recharges on short rest
+        char._secondWindUsed = false;
         P.advanceTime(char, 2);
         P.Audio.sfx.heal();
-        return { msg:`Descanso corto. Recuperas ${healed} HP.`, healed };
+        return { msg:`Descanso corto. Recuperas ${healed} HP. Segunda Oportunidad recargada.`, healed };
       }
       // Long rest: full HP, abilities refresh
       const oldHP = char.hp;
       char.hp = char.maxHP;
       char.conditions = char.conditions.filter(c => c.id === 'cursed'); // Curses persist
       char.abilities.forEach(a => { if(a.maxUses>0) a.curUses = a.maxUses; });
+      // Recharge all per-rest abilities
+      char._secondWindUsed = false;
+      char._actionSurgeUsed = false;
       P.advanceTime(char, 8);
       P.Audio.sfx.heal();
       const healed = char.hp - oldHP;
-      return { msg:`Descanso largo. Recuperas ${healed} HP. Habilidades restauradas.`, healed };
+      return { msg:`Descanso largo. Recuperas ${healed} HP. Todas las habilidades restauradas.`, healed };
     }
   };
 
@@ -3521,22 +3578,87 @@
     const traitBadge = enemy._procTrait
       ? `<span class="dnd-trait-badge">${enemy._procTrait.icon} ${esc(enemy._procTrait.name)}</span>` : '';
 
+    // ── INITIATIVE TRACKER ──────────────────────────────────────
+    const initData = window._dndCombatInitData || null;
+    const initHtml = initData ? `
+      <div class="dnd-init-tracker">
+        <span class="dnd-init-label">⚡ INICIATIVA</span>
+        <div class="dnd-init-node ${phase==='player'||phase==='death_saves'?'dnd-init-active':''}">
+          <span>${esc(char.cls.icon)}</span>
+          <span class="dnd-init-name">${esc(char.name.split(' ')[0])}</span>
+          <span class="dnd-init-roll">${initData.playerRoll}</span>
+        </div>
+        <span class="dnd-init-sep">→</span>
+        <div class="dnd-init-node ${phase==='enemy'||phase==='busy'?'dnd-init-active':''}">
+          <span>${enemy.icon||'👹'}</span>
+          <span class="dnd-init-name">${esc(enemy.name.split(' ').slice(0,2).join(' '))}</span>
+          <span class="dnd-init-roll">${initData.enemyRoll}</span>
+        </div>
+      </div>` : '';
+
+    // ── EXTRA ATTACK BADGE ──────────────────────────────────────
+    const EXTRA_ATK_CLASSES = ['fighter','barbarian','ranger','paladin','monk'];
+    const hasExtraAtk = EXTRA_ATK_CLASSES.includes(char.cls?.id) && char.level >= 5;
+    const extraAtkBadge = hasExtraAtk ? `<span class="dnd-extra-atk-badge" title="Ataque extra al nivel 5+">×2</span>` : '';
+
+    // ── BONUS ACTION BUTTONS ────────────────────────────────────
+    const isCovered = char.hasCondition('covered');
+    let bonusButtons = '';
+    if (!_bonusUsed && phase === 'player') {
+      const ba = [];
+      // Universal: Shove
+      ba.push(`<button class="dnd-btn dnd-ba-btn" onclick="root._dndGame.combatAction('bonus_shove')" title="Empujar: Tirada de Fuerza vs enemigo. Éxito = Tumbado (des/ven)">💪 Empujar</button>`);
+      // Universal: Take Cover
+      if (!isCovered) {
+        ba.push(`<button class="dnd-btn dnd-ba-btn" onclick="root._dndGame.combatAction('bonus_cover')" title="Cubierta: +2 CA hasta el próximo turno">🏛️ Cubierta</button>`);
+      }
+      // Class specific
+      const cid = char.cls?.id;
+      if (cid === 'rogue') {
+        ba.push(`<button class="dnd-btn dnd-ba-btn" onclick="root._dndGame.combatAction('bonus_cunning_hide')" title="Esconderse: Ventaja en tu próximo ataque">👁️ Esconder</button>`);
+        ba.push(`<button class="dnd-btn dnd-ba-btn" onclick="root._dndGame.combatAction('bonus_cunning_dash')" title="Correr: intento de huida gratis">🏃 Correr</button>`);
+      }
+      if (cid === 'fighter') {
+        const swUsed = char._secondWindUsed === true;
+        ba.push(`<button class="dnd-btn dnd-ba-btn${swUsed?' dnd-btn-disabled':''}" ${swUsed?'disabled':''} onclick="root._dndGame.combatAction('bonus_second_wind')" title="Segunda Oportunidad: Cura 1d10+nivel HP. 1 vez por descanso corto">🩹 2ª Oport.</button>`);
+      }
+      if (cid === 'fighter' && char.level >= 2) {
+        const asUsed = char._actionSurgeUsed === true;
+        ba.push(`<button class="dnd-btn dnd-ba-btn${asUsed?' dnd-btn-disabled':''}" ${asUsed?'disabled':''} onclick="root._dndGame.combatAction('bonus_action_surge')" title="Oleada de Acción: Ataca de nuevo inmediatamente. 1/descanso largo">⚡ Oleada</button>`);
+      }
+      if (cid === 'warlock') {
+        const hexActive = char.hasCondition('hex');
+        if (!hexActive) ba.push(`<button class="dnd-btn dnd-ba-btn" onclick="root._dndGame.combatAction('bonus_hex')" title="Maldición: +1d6 daño por turno al objetivo">🔮 Maldecir</button>`);
+      }
+      if (cid === 'ranger') {
+        const hmActive = char.hasCondition('hunters_mark');
+        if (!hmActive) ba.push(`<button class="dnd-btn dnd-ba-btn" onclick="root._dndGame.combatAction('bonus_hunters_mark')" title="Marca del Cazador: +1d6 daño al objetivo marcado">🎯 Marcar</button>`);
+      }
+      if (ba.length > 0) {
+        bonusButtons = `<div class="dnd-bonus-section">
+          <div class="dnd-ba-label">⚡ ACCIÓN BONUS</div>
+          <div class="dnd-ba-row">${ba.join('')}</div>
+        </div>`;
+      }
+    }
+
     return `
       <div id="dnd-combat" class="dnd-screen dnd-active">
         ${buildHUD(char)}
         ${streakHtml}
+        ${initHtml}
         <div class="dnd-combat-layout">
           <!-- Combatants -->
           <div class="dnd-combatants">
             <div class="dnd-fighter dnd-player-side">
               <div class="dnd-fighter-name">${esc(char.name)}</div>
-              <div class="dnd-fighter-sub">${esc(char.cls.icon)} Nv${char.level} · CA ${char.AC}</div>
+              <div class="dnd-fighter-sub">${esc(char.cls.icon)} Nv${char.level} · CA ${char.AC}${isCovered?' 🏛️+2':''}</div>
               <div class="dnd-fighter-icon dnd-player-icon">${esc(char.cls.icon)}</div>
               <div class="dnd-hp-bar-wrap">
                 <div class="dnd-hp-bar"><div class="dnd-hp-fill" style="width:${pHpPct}%;background:${pColor}"></div></div>
                 <span>${char.hp}/${char.maxHP}${char._concentration?` 🔵${esc(char._concentration.name)}`:''}</span>
               </div>
-              <div class="dnd-cond-row">${char.conditions.map(c=>`<span class="dnd-cbadge" style="color:${c.id==='burning'?'#f97316':c.id==='bleeding'?'#ef4444':c.id==='poisoned'?'#a3e635':c.id==='chilled'?'#67e8f9':'#e2e8f0'}">${c.icon||'⚡'}${c.name}</span>`).join('')}</div>
+              <div class="dnd-cond-row">${char.conditions.map(c=>`<span class="dnd-cbadge" style="color:${c.id==='burning'?'#f97316':c.id==='bleeding'?'#ef4444':c.id==='poisoned'?'#a3e635':c.id==='chilled'?'#67e8f9':c.id==='covered'?'#60a5fa':'#e2e8f0'}">${c.icon||'⚡'}${c.name}</span>`).join('')}</div>
               ${isDeathSaves ? `
               <div class="dnd-death-saves">
                 <div class="dnd-ds-row">
@@ -3561,7 +3683,7 @@
                 <div class="dnd-hp-bar"><div class="dnd-hp-fill" style="width:${hpPct}%;background:${phColor}"></div></div>
                 <span>${enemy.hp}/${enemy.maxHP}</span>
               </div>
-              <div class="dnd-cond-row">${(enemy.conditions||[]).map(c=>`<span class="dnd-cbadge" style="color:${c.id==='burning'?'#f97316':c.id==='bleeding'?'#ef4444':c.id==='poisoned'?'#a3e635':c.id==='chilled'?'#67e8f9':'#94a3b8'}">${c.icon||''}${c.name}${c.rounds?` (${c.rounds}r)`:''}</span>`).join('')}</div>
+              <div class="dnd-cond-row">${(enemy.conditions||[]).map(c=>`<span class="dnd-cbadge" style="color:${c.id==='burning'?'#f97316':c.id==='bleeding'?'#ef4444':c.id==='poisoned'?'#a3e635':c.id==='chilled'?'#67e8f9':c.id==='prone'?'#a78bfa':c.id==='wet'?'#60a5fa':'#94a3b8'}">${c.icon||''}${c.name}${c.rounds?` (${c.rounds}r)`:''}</span>`).join('')}</div>
             </div>
           </div>
 
@@ -3578,8 +3700,8 @@
           </div>` : `
           <div class="dnd-combat-actions" id="dnd-actions" ${phase!=='player'?'style="pointer-events:none;opacity:.5"':''}>
             <div class="dnd-action-row">
-              ${!_bonusUsed ? `<button class="dnd-btn dnd-btn-attack" onclick="root._dndGame.combatAction('attack')">⚔️ Atacar</button>` : `<button class="dnd-btn dnd-btn-attack" style="opacity:.4;pointer-events:none" disabled>⚔️ Atacar</button>`}
-              ${spells.length > 0 ? `<button class="dnd-btn dnd-btn-spell" onclick="root._dndGame.openSpellMenu()">🔮 Hechizos (${spells.length})</button>` : ''}
+              <button class="dnd-btn dnd-btn-attack" onclick="root._dndGame.combatAction('attack')">⚔️ Atacar${extraAtkBadge}</button>
+              ${spells.length > 0 ? `<button class="dnd-btn dnd-btn-spell" onclick="root._dndGame.openSpellMenu()">🔮 Hechizos (${spells.filter(s=>s.cantrip).length > 0 ? spells.length + ' · ' + spells.filter(s=>s.cantrip).length + '✦' : spells.length})</button>` : ''}
             </div>
             ${allAbilities.length > 0 ? `
             <div class="dnd-ability-scroll">
@@ -3598,8 +3720,9 @@
                 </button>`;
               }).join('')}
             </div>` : ''}
+            ${bonusButtons}
             <div class="dnd-action-row">
-              ${char.inventory.filter(i=>i.e==='heal'||i.e==='mana'||i.e==='cure').slice(0,2).map(item =>
+              ${char.inventory.filter(i=>i.e==='heal'||i.e==='mana'||i.e==='cure'||i.e==='unknown_potion').slice(0,3).map(item =>
                 `<button class="dnd-btn dnd-btn-item" onclick="root._dndGame.combatAction('item', '${item.id}')">${item.icon} ${esc(item.name)} (${item.count||1})</button>`).join('')}
               <button class="dnd-btn dnd-btn-ghost" onclick="root._dndGame.combatAction('flee')">🏃 Huir</button>
               ${char.equipment.weapon?.id === 'vorpal_sword' ? `<button class="dnd-btn dnd-btn-smite" onclick="root._dndGame.combatAction('smite')">⚡ Golpe</button>` : ''}
@@ -4700,6 +4823,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     }
 
     const init = P.rollInitiative(char, enemies[0]);
+    window._dndCombatInitData = init; // for initiative tracker in UI
     combatState = {
       enemies: enemies,
       log: [
@@ -4782,13 +4906,16 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
         if (hasInspiration) { char._inspiration = false; }
         // Kill streak damage bonus
         const streakBonus = Math.round((char._killStreak||0) * 0.05 * (combatState.baseDmgBonus||1));
-        const res = P.playerAttack(char, enemy, {
-          hasAdvantage: hasInspiration || char.hasCondition('hunters_mark') || char.hasCondition('rage'),
+        const attackOptions = {
+          hasAdvantage: hasInspiration || char.hasCondition('hunters_mark') || char.hasCondition('rage') || char._hidden === true,
           hasDisadvantage: char.hasCondition('stunned') || char.hasCondition('paralyzed') || !!char._zoneBane?.disadvantage,
           weatherAtkMod: wMod.atkMod,
           weatherDmgMod: wMod.dmgMod + (char._zoneBoon?.dmgBonus||0),
           extraDmg: streakBonus
-        });
+        };
+        if (char._hidden) { char._hidden = false; } // consume hidden on attack
+
+        const res = P.playerAttack(char, enemy, attackOptions);
         if (res.hits && res.dmg > 0) {
           enemy.hp = Math.max(0, enemy.hp - res.dmg);
           spawnDmgFloat(res.dmg, res.isCrit, 'enemy');
@@ -4804,11 +4931,115 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
           combatState.log.push(`❌ Fallas el ataque. (${res.atkRoll} vs CA${enemy.ac})`);
         }
         if (res.special === 'decapitate') combatState.log.push(`☠️ DECAPITACIÓN VORPAL!`);
+
+        // ── EXTRA ATTACK (level 5+ martial classes) ───────────
+        const EXTRA_ATK_CLASSES = ['fighter','barbarian','ranger','paladin','monk'];
+        const hasExtraAtk = EXTRA_ATK_CLASSES.includes(char.cls?.id) && char.level >= 5 && enemy.hp > 0;
+        if (hasExtraAtk) {
+          const res2 = P.playerAttack(char, enemy, { ...attackOptions, hasAdvantage: false });
+          if (res2.hits && res2.dmg > 0) {
+            enemy.hp = Math.max(0, enemy.hp - res2.dmg);
+            spawnDmgFloat(res2.dmg, res2.isCrit, 'enemy');
+          }
+          if (res2.isCrit) combatState.log.push(`💥 [ATAQUE EXTRA] ¡CRÍTICO! ${res2.dmg} daño!`);
+          else if (res2.hits) combatState.log.push(`⚔️ [ATAQUE EXTRA] ${res2.dmg} daño a ${enemy.name}. [HP: ${enemy.hp}/${enemy.maxHP}]`);
+          else combatState.log.push(`❌ [ATAQUE EXTRA] Fallas. (${res2.atkRoll} vs CA${enemy.ac})`);
+        }
+
         checkEnemyDeath(enemy, () => {
           if (!char.hasCondition('paralyzed')) char.tickConditions();
           endPlayerTurn();
         });
       });
+      return;
+    } else if (action === 'bonus_shove') {
+      if (combatState._bonusActionUsed) { combatState.phase = 'player'; return; }
+      combatState._bonusActionUsed = true;
+      const strCheck = d20() + char.getMod('str');
+      const enemyStr = d20() + Math.floor((enemy.atk||4) / 4);
+      combatState.log.push(`💪 Empujón: Fuerza ${strCheck} vs ${enemy.name} ${enemyStr}`);
+      if (strCheck >= enemyStr) {
+        const shoveType = Math.random() < 0.5 ? 'prone' : 'push';
+        if (shoveType === 'prone') {
+          P.applyStatusEffect(enemy, 'prone', 1);
+          combatState.log.push(`⬇️ ¡${enemy.name} TUMBADO! Desventaja en sus ataques, ventaja en los tuyos (melee).`);
+          P.Particles.spawnBurst('magic');
+        } else {
+          combatState.log.push(`💨 ¡${enemy.name} EMPUJADO hacia atrás! Pierde 1 acción alejándose.`);
+          P.applyStatusEffect(enemy, 'stunned', 1); // simulate push = 1 turn lost
+        }
+        spawnDmgFloat(0, false, 'enemy');
+      } else {
+        combatState.log.push(`❌ Empujón falla. ${enemy.name} resiste.`);
+      }
+      combatState.phase = 'player';
+      refreshCombatScreen();
+      return;
+    } else if (action === 'bonus_cover') {
+      if (combatState._bonusActionUsed) { combatState.phase = 'player'; return; }
+      combatState._bonusActionUsed = true;
+      char.addCondition({ id:'covered', name:'En Cubierta', icon:'🏛️', acBonus:2, rounds:2 });
+      combatState.log.push(`🏛️ ¡Tomas cubierta! +2 CA por 2 turnos.`);
+      combatState.phase = 'player';
+      refreshCombatScreen();
+      return;
+    } else if (action === 'bonus_second_wind') {
+      if (combatState._bonusActionUsed || char._secondWindUsed) { combatState.phase = 'player'; return; }
+      combatState._bonusActionUsed = true;
+      char._secondWindUsed = true;
+      const healed = roll(10) + char.level;
+      char.hp = Math.min(char.maxHP, char.hp + healed);
+      char.stats.healingDone += healed;
+      combatState.log.push(`🩹 Segunda Oportunidad: Recuperas ${healed} HP. (disponible en el próximo descanso)`);
+      P.Audio.sfx.heal();
+      combatState.phase = 'player';
+      refreshCombatScreen();
+      return;
+    } else if (action === 'bonus_action_surge') {
+      if (combatState._bonusActionUsed || char._actionSurgeUsed) { combatState.phase = 'player'; return; }
+      char._actionSurgeUsed = true;
+      // Action Surge: attack immediately again this turn (treated as a full extra attack action)
+      combatState.log.push(`⚡ ¡OLEADA DE ACCIÓN! Ataque adicional inmediato.`);
+      animateDice(() => {
+        const res = P.playerAttack(char, enemy, {});
+        if (res.hits && res.dmg > 0) { enemy.hp = Math.max(0, enemy.hp - res.dmg); spawnDmgFloat(res.dmg, res.isCrit, 'enemy'); }
+        combatState.log.push(res.isCrit ? `💥 ¡OLEADA CRÍTICO! ${res.dmg} daño!` : res.hits ? `⚔️ Oleada: ${res.dmg} daño a ${enemy.name}.` : `❌ Oleada falla.`);
+        checkEnemyDeath(enemy, () => { combatState.phase = 'player'; refreshCombatScreen(); });
+      });
+      return;
+    } else if (action === 'bonus_cunning_hide') {
+      if (combatState._bonusActionUsed) { combatState.phase = 'player'; return; }
+      combatState._bonusActionUsed = true;
+      char._hidden = true;
+      combatState.log.push(`👁️ ¡Acción Astuta: Escondido! Ventaja en tu próximo ataque. Golpe furtivo garantizado.`);
+      combatState.phase = 'player';
+      refreshCombatScreen();
+      return;
+    } else if (action === 'bonus_cunning_dash') {
+      if (combatState._bonusActionUsed) { combatState.phase = 'player'; return; }
+      combatState._bonusActionUsed = true;
+      // Free flee attempt ignoring normal check
+      char.flags.escapeUsed = true;
+      combatState.log.push(`🏃 ¡Acción Astuta: Correr! Siguiente huida sin penalización.`);
+      combatState.phase = 'player';
+      refreshCombatScreen();
+      return;
+    } else if (action === 'bonus_hex') {
+      if (combatState._bonusActionUsed) { combatState.phase = 'player'; return; }
+      combatState._bonusActionUsed = true;
+      char.addCondition({ id:'hex', name:'Maldición', icon:'🔮', rounds:6 });
+      P.applyStatusEffect(enemy, 'weakened', 3);
+      combatState.log.push(`🔮 ¡Maldición de Hex! +1d6 daño en ataques mientras el objetivo esté maldito.`);
+      combatState.phase = 'player';
+      refreshCombatScreen();
+      return;
+    } else if (action === 'bonus_hunters_mark') {
+      if (combatState._bonusActionUsed) { combatState.phase = 'player'; return; }
+      combatState._bonusActionUsed = true;
+      char.addCondition({ id:'hunters_mark', name:'Marca del Cazador', icon:'🎯', rounds:10 });
+      combatState.log.push(`🎯 ¡Marca del Cazador! +1d6 daño extra en cada ataque a ${enemy.name}.`);
+      combatState.phase = 'player';
+      refreshCombatScreen();
       return;
     } else if (action === 'ability') {
       const abilityIdx = (param !== undefined && param !== null) ? parseInt(param) : 0;
@@ -5077,7 +5308,30 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     const result = P.enemyAI(enemy, char);
     combatState.log.push(result.msg || '');
 
+    // Enemy bark on attack
+    if (!result.skipped && !result.fled) {
+      const hpPct = enemy.hp / enemy.maxHP;
+      const barkSit = hpPct < 0.3 ? 'low_hp' : 'attack';
+      const bark = P.getEnemyBark(enemy, barkSit);
+      if (bark && Math.random() < 0.5) combatState.log.push(bark);
+    }
+
     if (result.skipped) {
+      // Opportunity Attack when enemy flees
+      if (result.fled) {
+        combatState.log.push(`⚔️ ¡ATAQUE DE OPORTUNIDAD! ${enemy.name} intenta escapar...`);
+        const oaRes = P.playerAttack(char, enemy, {});
+        if (oaRes.hits && oaRes.dmg > 0) {
+          enemy.hp = Math.max(0, enemy.hp - oaRes.dmg);
+          spawnDmgFloat(oaRes.dmg, oaRes.isCrit, 'enemy');
+          combatState.log.push(oaRes.isCrit
+            ? `💥 ¡Ataque de oportunidad CRÍTICO! ${oaRes.dmg} daño.`
+            : `⚔️ Golpe de oportunidad: ${oaRes.dmg} daño. [HP: ${enemy.hp}/${enemy.maxHP}]`);
+          if (enemy.hp <= 0) { checkEnemyDeath(enemy, () => {}); return; }
+        } else {
+          combatState.log.push(`❌ Fallas el ataque de oportunidad.`);
+        }
+      }
       combatState.phase = 'player';
       refreshCombatScreen();
       return;
