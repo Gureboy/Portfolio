@@ -784,6 +784,15 @@
     };
   </script>
 
+  <!-- Required overlay element for the game engine -->
+  <div id="dndOverlay"><canvas id="dndCanvas" style="position:absolute;top:0;left:0;pointer-events:none;z-index:1;"></canvas></div>
+
   <script src="dnd-easter-egg.js"></script>
+  <script>
+    // Auto-open the game since this is the dedicated game page
+    if (window._dndGame && typeof window._dndGame.open === 'function') {
+      window._dndGame.open();
+    }
+  </script>
 </body>
 </html>
