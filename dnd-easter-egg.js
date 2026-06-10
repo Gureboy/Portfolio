@@ -4963,61 +4963,6 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   root._dndParts.buildGameOverScreen  = buildGameOverScreen;
   root._dndParts.buildDevRoomScreen   = buildDevRoomScreen;
   root._dndParts.buildVictoryScreen   = buildVictoryScreen;
-  function handleLevelUpSequence() {
-    if (char._pendingSubclass) {
-      showSubclassScreen();
-    } else if (char._pendingDraft) {
-      showDraftScreen();
-    } else if (char._pendingASI) {
-      showASIScreen();
-    } else {
-      navigate('world');
-    }
-  }
-
-  function showSubclassScreen() {
-    render(P.buildSubclassScreen(char));
-  }
-
-  function showDraftScreen() {
-    render(P.buildDraftScreen(char));
-  }
-
-  root._dndGame.handleLevelUpSequence = handleLevelUpSequence;
-  root._dndGame.chooseSubclass = function(subclassId) {
-    char.subclass = subclassId;
-    char._pendingSubclass = false;
-    
-    // Add subclass trait
-    const subList = P.SUBCLASSES[char.cls.id] || [];
-    const chosen = subList.find(s => s.id === subclassId);
-    if (chosen) {
-      char.traits.push(chosen.trait);
-      P.showNotification(`⚔️ Subclase elegida: ${chosen.name}`, "success", 4000);
-    }
-    
-    handleLevelUpSequence();
-  };
-
-  root._dndGame.chooseDraft = function(perkId) {
-    char.perks = char.perks || [];
-    char.perks.push(perkId);
-    char._pendingDraft = false;
-    
-    // Apply immediate benefits
-    const perkList = P.DRAFT_PERKS || [];
-    const chosen = perkList.find(p => p.id === perkId);
-    if (chosen) {
-      if (chosen.id === 'vigor_sagrado') {
-        char.maxHP += 15;
-        char.hp += 15;
-      }
-      P.showNotification(`🌟 Rasgo adquirido: ${chosen.name}`, "success", 4000);
-    }
-    
-    handleLevelUpSequence();
-  };
-
   root._dndParts.buildLevelUpOverlay  = buildLevelUpOverlay;
   root._dndParts.showNotification     = showNotification;
   console.log('%c[DND] Part 9 loaded — All UI screens', 'color:#8b5cf6;');
@@ -6271,6 +6216,39 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     info:    () => console.log('%c[DND] Parts loaded:', 'color:#8b5cf6;', Object.keys(root._dndParts))
   };
 
+  // ── LEVEL-UP SEQUENCE HELPERS (need char/navigate/render in scope) ────
+  function showSubclassScreen() { render(P.buildSubclassScreen(char)); }
+  function showDraftScreen()    { render(P.buildDraftScreen(char)); }
+
+  function handleLevelUpSequence() {
+    if (char._pendingSubclass)     showSubclassScreen();
+    else if (char._pendingDraft)   showDraftScreen();
+    else if (char._pendingASI)     showASIScreen();
+    else                           navigate('world');
+  }
+
+  function chooseSubclass(subclassId) {
+    char.subclass = subclassId;
+    char._pendingSubclass = false;
+    const subList = P.SUBCLASSES[char.cls.id] || [];
+    const chosen  = subList.find(s => s.id === subclassId);
+    if (chosen) { char.traits.push(chosen.trait); P.showNotification(`⚔️ Subclase elegida: ${chosen.name}`, 'success', 4000); }
+    handleLevelUpSequence();
+  }
+
+  function chooseDraft(perkId) {
+    char.perks = char.perks || [];
+    char.perks.push(perkId);
+    char._pendingDraft = false;
+    const perkList = P.DRAFT_PERKS || [];
+    const chosen   = perkList.find(p => p.id === perkId);
+    if (chosen) {
+      if (chosen.id === 'vigor_sagrado') { char.maxHP += 15; char.hp += 15; }
+      P.showNotification(`🌟 Rasgo adquirido: ${chosen.name}`, 'success', 4000);
+    }
+    handleLevelUpSequence();
+  }
+
   // ── EXPOSE GAME METHODS FOR INLINE HTML ─────────────────────
   root._dndGame = {
     getChar: () => char,
@@ -6282,6 +6260,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     showTooltip, hideTooltip, acceptQuest, worldRest, loreTab,
     devCommand, enterDevRoom,
     showASIScreen, toggleASIDual, applyASIDual, applyASI,
+    handleLevelUpSequence, chooseSubclass, chooseDraft,
     checkAchievements
   };
 
