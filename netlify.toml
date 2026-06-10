@@ -1,15 +1,11 @@
 [build]
-  functions = "netlify/functions"
   publish = "."
 
-[functions]
-  node_bundler = "esbuild"
-
-# Redirect API calls to functions
-[[redirects]]
-  from = "/api/db/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+# Redirect API calls to functions (when/if serverless functions are added)
+# [[redirects]]
+#   from = "/api/db/*"
+#   to = "/.netlify/functions/:splat"
+#   status = 200
 
 # CORS headers for all API routes
 [[headers]]

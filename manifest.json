@@ -1,0 +1,25 @@
+{
+  "name": "Daniel Salini — Ingeniero & Full Stack Developer",
+  "short_name": "Katosx",
+  "description": "Portfolio profesional de Daniel Salini (Katosx) — Ingeniero Electricista, Full Stack Developer, Profesor y Músico.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#c084fc",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.ibb.co/r2bHwknw/c41bbc79-4534-4b30-9a3b-18cbc22aded1.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["portfolio", "developer", "engineering"]
+}
