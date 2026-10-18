@@ -1,0 +1,28 @@
+These world sprites are unmodified or frame-cropped from Azure Peak:
+
+- grass.png: icons/turf/grass.png
+- sand.png and sand-alt-1.png through sand-alt-3.png: icons/turf/sand.dmi
+- water-frames.png: icons/turf/newwater.dmi, state "together"
+- stone-floor.png: icons/turf/roguefloor.dmi, state "herringbone"
+- stone-wall.png and wood-wall.png: icons/turf/roguewall.dmi, states
+  "stonebrick" and "woodplain"
+- snow-floor.png: icons/turf/snow.dmi, state "snow"
+- pine-tree.png, pine-tree-alt.png, dead-tree.png, and snow-tree.png:
+  icons/obj/flora/pines.dmi
+- flower-clump.png and rock-pile.png: icons/obj/flora/plants.dmi and
+  icons/obj/flora/rocks.dmi
+- sakura-tree.png: icons/obj/structures/sakura_tree.dmi
+- human-actors.png: directional Carbon Human body frames from
+  icons/roguetown/mob/bodies/m/mt.dmi, composited with the
+  archaiccuirass, laciedress, sofiavest_f, and eirencoat states from
+  icons/clothing/onmob/donor_clothes.dmi; the exposed body pixels are
+  colorized for the scene
+- human-hair.png: directional hairstyle frames from
+  icons/mob/sprite_accessory/hair/human_hair.dmi, tinted for individual
+  characters and composited over the Carbon Human sprites
+
+Azure Peak's README states that its icons and other assets are licensed under
+Creative Commons Attribution-ShareAlike 3.0:
+https://creativecommons.org/licenses/by-sa/3.0/
+
+Source project: https://github.com/GeneralPantsuIsBadAtCoding/Azure-Peak
