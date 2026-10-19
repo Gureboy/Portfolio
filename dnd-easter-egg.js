@@ -344,7 +344,7 @@
   root._dndParts.Storage = Storage;
 
   root._dndParts.SPRITE_MAP = {
-    'warrior': 'player_hero.png', 'barbarian': 'player_hero.png', 'knight': 'player_hero.png',
+    'fighter': 'player_hero.png', 'warrior': 'player_hero.png', 'barbarian': 'player_hero.png', 'knight': 'player_hero.png',
     'wizard': 'player_hero.png', 'sorcerer': 'player_hero.png', 'cleric': 'player_hero.png',
     'paladin': 'player_hero.png', 'ranger': 'player_hero.png', 'druid': 'player_hero.png',
     'rogue': 'player_hero.png', 'bard': 'player_hero.png', 'monk': 'player_hero.png',
@@ -386,7 +386,7 @@
   };
 
   root._dndParts.getSpriteHtml = function(id, defaultEmoji, type, size, name) {
-    const isPlayerClass = ['warrior', 'barbarian', 'knight', 'wizard', 'sorcerer', 'cleric', 'paladin', 'ranger', 'druid', 'rogue', 'bard', 'monk', 'artificer', 'bloodhunter'].includes(id);
+    const isPlayerClass = ['fighter', 'warrior', 'barbarian', 'knight', 'wizard', 'sorcerer', 'cleric', 'paladin', 'ranger', 'druid', 'rogue', 'bard', 'monk', 'artificer', 'bloodhunter'].includes(id);
     const racesList = ['human', 'elf', 'halfelf', 'dwarf', 'tiefling', 'dragonborn', 'orc', 'halforc', 'halfling', 'gnome', 'aasimar', 'drow', 'changeling'];
     const isRace = racesList.includes(id);
     
@@ -3784,8 +3784,8 @@
           <h1 class="dnd-intro-title">KATOSX RPG</h1>
           <h2 class="dnd-intro-subtitle">Crónicas del Portfolio Olvidado</h2>
           <p class="dnd-intro-flavor">
-            <em>"En un mundo donde el código es magia y los bugs son dragones,<br>
-            un aventurero descubrió que el botón secreto no debería existir."</em>
+            <em>"Cuando la última campana de Vaelthar sonó bajo tierra, el mundo empezó a olvidar su propia historia.<br>
+            Solo quien se atreva a cruzar la frontera podrá descubrir qué fue borrado."</em>
           </p>
           <div class="dnd-intro-divider">⚔ ✦ ⚔</div>
           <div class="dnd-intro-btns">
@@ -4015,6 +4015,48 @@
         <div class="dnd-world-layout">
           <div class="dnd-world-main">
             <h2 class="dnd-world-title">🗺️ Mapa del Mundo</h2>
+            <section class="dnd-scene-card" aria-label="Escena de aventura 2D">
+              <div class="dnd-scene-heading">
+                <div>
+                  <span class="dnd-scene-kicker">CRÓNICAS DEL PORTFOLIO OLVIDADO · ACTO I</span>
+                  <h3>${esc((allLocs.find(l => l.id === current) || {}).name || 'La frontera')}</h3>
+                </div>
+                <p>${esc(({
+                  village: 'Las campanas repican solas. Bajo la colina, algo recuerda tu nombre.',
+                  forest: 'Los árboles susurran recuerdos que todavía no has vivido.',
+                  academy: 'En los pasillos vacíos, una pizarra escribe una profecía por sí sola.',
+                  ruins: 'Las piedras de Vaelthar aún guardan el último pensamiento de sus habitantes.',
+                  dungeon: 'Cada paso despierta un eco. El último no pertenece a tus botas.',
+                  underdark: 'La oscuridad respira despacio, como si esperara una respuesta.',
+                  peak: 'En la cumbre, el dragón sueña con un mundo que ya ha terminado.'
+                })[current] || 'El camino se abre ante ti. Cada decisión dejará una huella.')}</p>
+              </div>
+              <div class="dnd-scene-frame">
+                <canvas id="dndWorldScene" tabindex="0" aria-label="Mundo abierto 2D: muévete con WASD o las flechas e interactúa con personajes y portales usando E"></canvas>
+                <div class="dnd-scene-caption" id="dndSceneCaption" aria-live="polite">Recorre la región, habla con sus habitantes o sigue el portal.</div>
+                <section class="dnd-npc-dialogue" id="dndNpcDialogue" aria-label="Diálogo con personaje" hidden>
+                <canvas id="dndNpcPortrait" width="120" height="140" role="img" aria-label="Retrato del personaje"></canvas>
+                <div class="dnd-npc-dialogue-copy">
+                  <span id="dndNpcRole"></span>
+                  <h4 id="dndNpcName"></h4>
+                  <p id="dndNpcQuote"></p>
+                  <div class="dnd-npc-dialogue-actions">
+                    <button type="button" id="dndNpcQuestion" class="dnd-scene-control">Preguntar por la grieta</button>
+                    <button type="button" id="dndNpcTrade" class="dnd-scene-control" hidden>Ver mercancías</button>
+                    <button type="button" id="dndNpcClose" class="dnd-scene-control">Seguir camino</button>
+                  </div>
+                </div>
+                </section>
+                <div class="dnd-scene-controls" aria-label="Controles táctiles">
+                <button type="button" class="dnd-scene-control" data-move="left" aria-label="Mover a la izquierda">◀</button>
+                <button type="button" class="dnd-scene-control" data-move="up" aria-label="Mover hacia el fondo">▲</button>
+                <button type="button" class="dnd-scene-control" data-move="down" aria-label="Mover hacia el frente">▼</button>
+                <button type="button" class="dnd-scene-control" data-move="right" aria-label="Mover a la derecha">▶</button>
+                <button type="button" class="dnd-scene-control dnd-scene-interact" data-interact aria-label="Hablar con un personaje o explorar el portal">E · Interactuar</button>
+                <span class="dnd-scene-help">WASD / flechas para explorar · E para hablar o explorar</span>
+                </div>
+              </div>
+            </section>
             <div class="dnd-openworld-map">
               <svg class="dnd-map-svg" viewBox="0 0 100 100" preserveAspectRatio="none">${lines}</svg>
               ${nodes}
@@ -4037,6 +4079,7 @@
               </div>
               <p>🏅 Reputación: ${char.reputation >= 5?'✨ Héroe':char.reputation >= 2?'⚔️ Respetado':char.reputation >= -1?'😐 Neutral':char.reputation >= -4?'⚠️ Temido':'☠️ Infame'} (${char.reputation>0?'+':''}${char.reputation})</p>
               <p>💀 Enemigos: ${char.stats.kills} · 📜 Quests: ${char.stats.questsDone}</p>
+              <p id="dnd-known-npcs">🗣️ Personajes conocidos: ${(char.flags.metNPCs || []).length}</p>
               <div class="dnd-side-btns">
                 <button class="dnd-btn dnd-btn-ghost dnd-half" onclick="root._dndGame.navigate('inventory')">🎒 Inventario</button>
                 <button class="dnd-btn dnd-btn-ghost dnd-half" onclick="root._dndGame.worldRest('short')">💤 Descanso corto</button>
@@ -5199,12 +5242,663 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   let ccStep = 0;
   let _tooltipEl = null;
   let _autosaveInterval = null;
+  let worldSceneFrame = null;
+  let worldSceneCanvas = null;
+  let worldSceneContext = null;
+  let worldScenePlayer = null;
+  let worldSceneLocation = null;
+  let worldSceneKeys = new Set();
+  let worldSceneLastTime = 0;
+  let worldSceneResize = null;
+  const worldScenePositions = new Map();
+
+  const WORLD_STORIES = {
+    village: { sky:'#172b46', far:'#263d54', near:'#31513f', ground:'#273b32', path:'#82714f', accent:'#e4b96a', landmark:'⌂' },
+    forest: { sky:'#102d36', far:'#1d4b46', near:'#23634c', ground:'#173c32', path:'#6d6849', accent:'#9bc86a', landmark:'♧' },
+    academy: { sky:'#182442', far:'#344667', near:'#4b5271', ground:'#35334b', path:'#77758a', accent:'#85d9e7', landmark:'✦' },
+    ruins: { sky:'#241d38', far:'#4c3546', near:'#725044', ground:'#40313a', path:'#88745c', accent:'#d8a76b', landmark:'⌂' },
+    dungeon: { sky:'#12151f', far:'#292a38', near:'#38343d', ground:'#252329', path:'#625749', accent:'#e0a05d', landmark:'⌂' },
+    underdark: { sky:'#10162d', far:'#28204c', near:'#38245a', ground:'#241d38', path:'#514363', accent:'#ac83ff', landmark:'✧' },
+    peak: { sky:'#17263e', far:'#566277', near:'#77808c', ground:'#38404a', path:'#999080', accent:'#ff987a', landmark:'▲' }
+  };
+  const WORLD_NPCS = {
+    village: [
+      { id:'mara', name:'Mara', role:'Guardiana de las campanas', x:0.48, depth:0.38, quote:'Desde que la campana dejó de tener badajo, suena cada medianoche.', lore:'Mara te cuenta que la campana repite una melodía que solo se escucha bajo las ruinas de Vaelthar. Te pide que recuerdes la última nota: alguien la borró de la memoria de todos.' },
+      { id:'gorro', name:'Gorro', role:'Mercader de caminos', x:0.68, depth:0.72, quote:'Todo tiene precio, viajera. Menos las historias que nadie se atreve a contar.', lore:'Gorro asegura que una caravana entera olvidó el camino de regreso. En sus mapas, los senderos cambian de lugar cuando cae la noche.' }
+    ],
+    forest: [
+      { id:'lyra', name:'Lyra', role:'Exploradora del bosque', x:0.45, depth:0.35, quote:'Las raíces recuerdan cada paso. Algunas no quieren que sigas.', lore:'Lyra encontró huellas que empiezan en el claro y terminan en mitad del aire. Junto a ellas, alguien escribió tu nombre con savia.' },
+      { id:'theron', name:'Theron', role:'Vigía del sendero', x:0.69, depth:0.72, quote:'Si los pájaros callan, no preguntes por qué. Corre.', lore:'Theron oyó una voz idéntica a la suya llamándolo desde el otro lado del río. Desde entonces, el bosque devuelve todos los sonidos excepto los nombres.' }
+    ],
+    academy: [
+      { id:'brennan', name:'Brennan', role:'Profesor de la Academia', x:0.46, depth:0.38, quote:'La teoría dice que una grieta no puede recordar. La práctica discrepa.', lore:'Brennan encontró una página en blanco que predice acontecimientos después de que ocurren. La última línea todavía está húmeda: «No dejes que la campana suene tres veces».' },
+      { id:'seldris', name:'Seldris', role:'Bibliotecario arcano', x:0.68, depth:0.72, quote:'El libro que buscas no está perdido. Alguien lo está leyendo desde el otro lado.', lore:'Seldris revela que los libros de Vaelthar no fueron destruidos: sus palabras fueron arrancadas y escondidas en recuerdos vivos.' }
+    ],
+    ruins: [
+      { id:'velara', name:'Velara', role:'Cronista de Vaelthar', x:0.45, depth:0.36, quote:'No fue una guerra lo que acabó con esta ciudad. Fue un olvido.', lore:'Velara recuerda el último día de Vaelthar: los habitantes desaparecieron de las crónicas antes de desaparecer de las calles. Alguien quería borrar incluso la prueba de su existencia.' },
+      { id:'mysterious_figure', name:'La Figura', role:'Voz entre las ruinas', x:0.69, depth:0.72, quote:'Ya nos conocimos. Todavía no recuerdas cuándo.', lore:'La figura dice que la grieta no separa mundos, sino momentos. Te advierte que cada verdad recuperada también recuerda algo que preferirías olvidar.' }
+    ],
+    dungeon: [
+      { id:'thrak', name:'Thrak', role:'Guardián de Korrath', x:0.45, depth:0.37, quote:'La piedra escucha. La piedra no perdona.', lore:'Thrak custodia una puerta sellada desde antes de que existiera el reino. Al otro lado, alguien golpea tres veces cada noche.' },
+      { id:'mysterious_figure', name:'La Figura', role:'Voz entre las sombras', x:0.69, depth:0.72, quote:'Tu sombra llegó aquí antes que tú.', lore:'La figura afirma que los recuerdos robados están encadenados bajo la mazmorra. También dice que el guardián ya olvidó a quién prometió proteger.' }
+    ],
+    underdark: [
+      { id:'drow_spy', name:'La Espía Drow', role:'Mensajera del Subsuelo', x:0.45, depth:0.36, quote:'La oscuridad no es silencio. Es una conversación que aún no entiendes.', lore:'La espía oyó a la grieta pronunciar un nombre antiguo: Vaelthar no fue el primer lugar borrado, solo el último que dejó una señal.' },
+      { id:'seldris', name:'Seldris', role:'Bibliotecario arcano', x:0.69, depth:0.72, quote:'Encontré una página que describe este lugar. Está escrita en futuro.', lore:'Seldris ha leído sobre una puerta al final del Subsuelo. La página termina justo antes de revelar quién la abre.' }
+    ],
+    peak: [
+      { id:'theron', name:'Theron', role:'Vigía de la cumbre', x:0.46, depth:0.38, quote:'El dragón no duerme. Está recordando.', lore:'Theron cree que el dragón anciano conserva los nombres que el mundo perdió. Si despierta, todos recordarán a la vez, incluso aquello que la grieta intentó ocultar.' },
+      { id:'velara', name:'Velara', role:'Cronista de Vaelthar', x:0.68, depth:0.72, quote:'La última página ya tiene tu nombre.', lore:'Velara encontró la última crónica: el sello puede restaurarse, pero alguien debe elegir qué recuerdo entregar a cambio.' }
+    ]
+  };
+  const worldSpriteCache = new Map();
+  const worldSpritePending = new Map();
+  const worldTileImages = new Map();
+
+  function getWorldTileTexture(name) {
+    if (worldTileImages.has(name)) return worldTileImages.get(name);
+    const image = new Image();
+    worldTileImages.set(name, null);
+    image.onload = () => worldTileImages.set(name, image);
+    image.onerror = () => {
+      worldTileImages.delete(name);
+      console.warn(`[DND] No se pudo cargar la textura del mundo: ${name}`);
+    };
+    image.src = `assets/sprites/world/${name}.png`;
+    return null;
+  }
+
+  function stopWorldScene() {
+    if (worldSceneFrame !== null) cancelAnimationFrame(worldSceneFrame);
+    worldSceneFrame = null;
+    if (worldScenePlayer && worldSceneLocation) {
+      worldScenePositions.set(worldSceneLocation, { x: worldScenePlayer.x, depth: worldScenePlayer.depth });
+    }
+    worldSceneCanvas = null;
+    worldSceneContext = null;
+    worldSceneLocation = null;
+    worldSceneKeys.clear();
+    if (worldSceneResize) {
+      window.removeEventListener('resize', worldSceneResize);
+      worldSceneResize = null;
+    }
+  }
+
+  function startWorldScene() {
+    stopWorldScene();
+    const canvasEl = document.getElementById('dndWorldScene');
+    if (!canvasEl || !char) return;
+    worldSceneCanvas = canvasEl;
+    worldSceneContext = canvasEl.getContext('2d');
+    worldSceneLocation = char.currentLocation;
+    const savedPosition = worldScenePositions.get(worldSceneLocation);
+    worldScenePlayer = { x: savedPosition?.x ?? 0.42, depth: savedPosition?.depth ?? 0.46, jump: 0, velocityY: 0, facing: 1, direction: 0, walk: 0 };
+    worldSceneLastTime = 0;
+    worldSceneResize = () => {
+      if (!worldSceneCanvas) return;
+      const rect = worldSceneCanvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      worldSceneCanvas.width = Math.max(1, Math.round(rect.width * dpr));
+      worldSceneCanvas.height = Math.max(1, Math.round(rect.height * dpr));
+      worldSceneContext.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    worldSceneResize();
+    window.addEventListener('resize', worldSceneResize);
+    canvasEl.addEventListener('pointerdown', moveWorldSceneToPointer);
+    canvasEl.addEventListener('pointerdown', focusWorldScene, { once: true });
+    document.querySelectorAll('.dnd-scene-control[data-move]').forEach(button => {
+      button.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        worldSceneKeys.add(button.dataset.move);
+      });
+      button.addEventListener('pointerup', stopWorldSceneMovement);
+      button.addEventListener('pointerleave', stopWorldSceneMovement);
+      button.addEventListener('pointercancel', stopWorldSceneMovement);
+    });
+    const interactButton = document.querySelector('[data-interact]');
+    if (interactButton) interactButton.addEventListener('click', interactWorldScene);
+    const npcQuestion = document.getElementById('dndNpcQuestion');
+    if (npcQuestion) npcQuestion.addEventListener('click', askNpcAboutWorld);
+    const npcTrade = document.getElementById('dndNpcTrade');
+    if (npcTrade) npcTrade.addEventListener('click', tradeWithNpc);
+    const npcClose = document.getElementById('dndNpcClose');
+    if (npcClose) npcClose.addEventListener('click', closeNpcDialogue);
+    worldSceneFrame = requestAnimationFrame(drawWorldScene);
+  }
+
+  function getWorldSprite(path, onReady) {
+    if (worldSpriteCache.has(path)) {
+      const cached = worldSpriteCache.get(path);
+      if (cached) onReady(cached);
+      else worldSpritePending.get(path)?.push(onReady);
+      return;
+    }
+    worldSpriteCache.set(path, null);
+    worldSpritePending.set(path, [onReady]);
+    const image = new Image();
+    image.onload = () => {
+      const spriteCanvas = document.createElement('canvas');
+      spriteCanvas.width = image.naturalWidth;
+      spriteCanvas.height = image.naturalHeight;
+      const spriteContext = spriteCanvas.getContext('2d', { willReadFrequently: true });
+      spriteContext.drawImage(image, 0, 0);
+      const imageData = spriteContext.getImageData(0, 0, spriteCanvas.width, spriteCanvas.height);
+      const { data, width, height } = imageData;
+      const background = [data[0], data[1], data[2], data[3]];
+      const visited = new Uint8Array(width * height);
+      const queue = new Uint32Array(width * height);
+      let head = 0;
+      let tail = 0;
+      const enqueueBackground = index => {
+        const pixel = index * 4;
+        const matchesTransparent = background[3] === 0 && data[pixel + 3] === 0;
+        const matchesSolid = background[3] > 0 && data[pixel + 3] > 0 &&
+          Math.abs(data[pixel] - background[0]) < 18 &&
+          Math.abs(data[pixel + 1] - background[1]) < 18 &&
+          Math.abs(data[pixel + 2] - background[2]) < 18;
+        if (!visited[index] && (matchesTransparent || matchesSolid)) {
+          visited[index] = 1;
+          queue[tail++] = index;
+        }
+      };
+      for (let x = 0; x < width; x++) {
+        enqueueBackground(x);
+        enqueueBackground((height - 1) * width + x);
+      }
+      for (let y = 1; y < height - 1; y++) {
+        enqueueBackground(y * width);
+        enqueueBackground(y * width + width - 1);
+      }
+      while (head < tail) {
+        const index = queue[head++];
+        data[index * 4 + 3] = 0;
+        const x = index % width;
+        if (x > 0) enqueueBackground(index - 1);
+        if (x < width - 1) enqueueBackground(index + 1);
+        if (index >= width) enqueueBackground(index - width);
+        if (index < width * (height - 1)) enqueueBackground(index + width);
+      }
+      spriteContext.putImageData(imageData, 0, 0);
+      let left = width, top = height, right = -1, bottom = -1;
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          if (data[(y * width + x) * 4 + 3] < 16) continue;
+          left = Math.min(left, x);
+          top = Math.min(top, y);
+          right = Math.max(right, x);
+          bottom = Math.max(bottom, y);
+        }
+      }
+      if (right < left || bottom < top) {
+        console.warn(`[DND] El sprite no contiene píxeles visibles: ${path}`);
+        worldSpriteCache.delete(path);
+        worldSpritePending.delete(path);
+        return;
+      }
+      const croppedSprite = document.createElement('canvas');
+      croppedSprite.width = right - left + 1;
+      croppedSprite.height = bottom - top + 1;
+      croppedSprite.getContext('2d').drawImage(spriteCanvas, left, top, croppedSprite.width, croppedSprite.height, 0, 0, croppedSprite.width, croppedSprite.height);
+      worldSpriteCache.set(path, croppedSprite);
+      (worldSpritePending.get(path) || []).forEach(callback => callback(croppedSprite));
+      worldSpritePending.delete(path);
+    };
+    image.onerror = () => {
+      worldSpriteCache.delete(path);
+      worldSpritePending.delete(path);
+      console.warn(`[DND] No se pudo cargar el sprite del mundo: ${path}`);
+    };
+    image.src = `assets/sprites/${path}`;
+  }
+
+  function focusWorldScene() {
+    if (worldSceneCanvas) worldSceneCanvas.focus({ preventScroll: true });
+  }
+
+  function moveWorldSceneToPointer(event) {
+    if (!worldSceneCanvas || !worldScenePlayer) return;
+    const rect = worldSceneCanvas.getBoundingClientRect();
+    const viewWidth = rect.width / 32;
+    const viewHeight = rect.height / 32;
+    const cameraX = clamp(worldScenePlayer.x * 48 - viewWidth / 2, 0, 48 - viewWidth);
+    const cameraY = clamp(worldScenePlayer.depth * 32 - viewHeight / 2, 0, 32 - viewHeight);
+    const targetX = clamp((cameraX + (event.clientX - rect.left) / 32) / 48, 0.02, 0.98);
+    const targetDepth = clamp((cameraY + (event.clientY - rect.top) / 32) / 32, 0.02, 0.98);
+    const directionX = targetX - worldScenePlayer.x;
+    const directionY = targetDepth - worldScenePlayer.depth;
+    worldScenePlayer.direction = Math.abs(directionX) > Math.abs(directionY)
+      ? directionX >= 0 ? 2 : 3
+      : directionY >= 0 ? 0 : 1;
+    worldScenePlayer.facing = targetX >= worldScenePlayer.x ? 1 : -1;
+    worldScenePlayer.x = targetX;
+    worldScenePlayer.depth = targetDepth;
+  }
+
+  function stopWorldSceneMovement() {
+    worldSceneKeys.clear();
+  }
+
+  function interactWorldScene() {
+    if (!worldScenePlayer || !worldSceneCanvas) return;
+    const dialogue = document.getElementById('dndNpcDialogue');
+    if (dialogue && !dialogue.hidden) return;
+    const npcs = WORLD_NPCS[char.currentLocation] || [];
+    const nearby = npcs
+      .map(npc => ({ npc, distance: Math.hypot(npc.x - worldScenePlayer.x, npc.depth - worldScenePlayer.depth) }))
+      .sort((a, b) => a.distance - b.distance)[0];
+    if (nearby && nearby.distance < 0.055) {
+      openNpcDialogue(nearby.npc);
+      return;
+    }
+    if (Math.hypot(worldScenePlayer.x - 0.88, worldScenePlayer.depth - 0.57) < 0.07) {
+      P.Audio.sfx.secret();
+      explore();
+      return;
+    }
+    P.showNotification('Explora el sendero, acércate a un personaje o busca el portal brillante.', 'info', 2600);
+  }
+
+  let worldSceneCurrentNpc = null;
+
+  function openNpcDialogue(npc) {
+    worldSceneCurrentNpc = npc;
+    const dialogue = document.getElementById('dndNpcDialogue');
+    const portrait = document.getElementById('dndNpcPortrait');
+    const name = document.getElementById('dndNpcName');
+    const role = document.getElementById('dndNpcRole');
+    const quote = document.getElementById('dndNpcQuote');
+    const question = document.getElementById('dndNpcQuestion');
+    const trade = document.getElementById('dndNpcTrade');
+    if (!dialogue || !portrait || !name || !role || !quote || !question || !trade) return;
+    portrait.setAttribute('aria-label', `Retrato de ${npc.name}`);
+    const portraitContext = portrait.getContext('2d');
+    portraitContext.clearRect(0, 0, portrait.width, portrait.height);
+    const npcSpritePath = `characters/npc/${npc.id}.png`;
+    getWorldSprite(npcSpritePath, sprite => portraitContext.drawImage(sprite, 0, 0, portrait.width, portrait.height));
+    name.textContent = npc.name;
+    role.textContent = npc.role;
+    quote.textContent = `«${npc.quote}»`;
+    question.hidden = false;
+    trade.hidden = npc.id !== 'gorro';
+    dialogue.hidden = false;
+    P.Audio.sfx.pageFlip();
+  }
+
+  function askNpcAboutWorld() {
+    if (!worldSceneCurrentNpc || !char) return;
+    const npc = worldSceneCurrentNpc;
+    const quote = document.getElementById('dndNpcQuote');
+    const question = document.getElementById('dndNpcQuestion');
+    if (quote) quote.textContent = npc.lore;
+    if (question) question.hidden = true;
+    char.flags.metNPCs = char.flags.metNPCs || [];
+    if (!char.flags.metNPCs.includes(npc.id)) {
+      char.flags.metNPCs.push(npc.id);
+      const leveled = char.gainXP(15);
+      P.showNotification(`Has compartido un momento con ${npc.name}. +15 XP`, 'success', 3200);
+      const known = document.getElementById('dnd-known-npcs');
+      if (known) known.textContent = `🗣️ Personajes conocidos: ${char.flags.metNPCs.length}`;
+      if (leveled) showLevelUp();
+      autoSaveIfNeeded();
+    }
+    P.Audio.sfx.confirm();
+  }
+
+  function tradeWithNpc() {
+    if (!worldSceneCurrentNpc || worldSceneCurrentNpc.id !== 'gorro' || !char) return;
+    currentShop = P.MerchantSystem.buildShop(world.getLoc(char.currentLocation), char);
+    currentMerchant = { id:'gorro', icon:'🧔', name:'Gorro el Mercader', quote:worldSceneCurrentNpc.quote };
+    closeNpcDialogue();
+    render(P.buildMerchantScreen(char, currentMerchant, currentShop));
+  }
+
+  function closeNpcDialogue() {
+    const dialogue = document.getElementById('dndNpcDialogue');
+    if (dialogue) dialogue.hidden = true;
+    worldSceneCurrentNpc = null;
+  }
+
+  function drawWorldScene(timestamp) {
+    const canvasEl = worldSceneCanvas;
+    const ctx = worldSceneContext;
+    const player = worldScenePlayer;
+    if (!canvasEl || !ctx || !player) return;
+    const width = canvasEl.clientWidth;
+    const height = canvasEl.clientHeight;
+    const delta = Math.min((timestamp - (worldSceneLastTime || timestamp)) / 1000, 0.04);
+    worldSceneLastTime = timestamp;
+    const locationId = char.currentLocation || 'village';
+    const scene = WORLD_STORIES[locationId] || WORLD_STORIES.village;
+    const tileSize = 32;
+    const mapWidth = 48;
+    const mapHeight = 32;
+    const grassTexture = ['village', 'forest', 'academy'].includes(locationId) ? getWorldTileTexture('grass') : null;
+    const stoneTexture = getWorldTileTexture('stone-floor');
+    const snowTexture = locationId === 'peak' ? getWorldTileTexture('snow-floor') : null;
+    const wallTexture = getWorldTileTexture('wood-wall');
+    const waterTexture = getWorldTileTexture('water-frames');
+    const actorSheet = getWorldTileTexture('human-actors');
+    const actorHairSheet = getWorldTileTexture('human-hair');
+    const pathTextures = ['sand', 'sand-alt-1', 'sand-alt-2', 'sand-alt-3'].map(getWorldTileTexture);
+    const groundTexture = locationId === 'peak' ? snowTexture : grassTexture || stoneTexture;
+    const viewWidth = width / tileSize;
+    const viewHeight = height / tileSize;
+    const treeClusters = ({
+      village: [[7,7],[11,12],[11,22],[25,12],[31,7],[38,11],[7,26],[35,25]],
+      forest: [[6,7],[12,9],[16,7],[31,7],[38,10],[8,24],[15,24],[35,24],[40,21]],
+      academy: [[7,8],[34,7],[8,24],[39,24]],
+      ruins: [[8,8],[14,7],[34,9],[39,22],[8,24],[28,24]],
+      dungeon: [[8,7],[16,9],[34,7],[39,23],[8,25],[28,24]],
+      underdark: [[8,7],[16,9],[34,7],[39,23],[8,25],[28,24]],
+      peak: [[8,7],[16,9],[34,7],[39,23],[8,25],[28,24]]
+    })[locationId] || [];
+    const rockPositions = ({
+      village: [[9,20],[36,13],[32,27]],
+      forest: [[8,17],[17,8],[34,13],[39,24]],
+      academy: [[12,18],[31,11],[37,22]],
+      ruins: [[10,18],[16,8],[36,13],[35,25]],
+      dungeon: [[11,16],[25,8],[37,20]],
+      underdark: [[11,16],[25,8],[37,20]],
+      peak: [[11,20],[24,8],[38,17]]
+    })[locationId] || [];
+    const flowerPositions = ({
+      village: [[10,14],[21,19],[29,12],[35,22]],
+      forest: [[9,14],[21,8],[29,21],[37,17]],
+      academy: [[12,14],[29,9],[36,19]]
+    })[locationId] || [];
+    const treeSprite = getWorldTileTexture(
+      locationId === 'peak' ? 'snow-tree' :
+        ['ruins', 'dungeon', 'underdark'].includes(locationId) ? 'dead-tree' :
+          locationId === 'academy' ? 'sakura-tree' : 'pine-tree'
+    );
+    const alternateTreeSprite = ['village', 'forest'].includes(locationId)
+      ? getWorldTileTexture('pine-tree-alt')
+      : treeSprite;
+    const rockSprite = getWorldTileTexture('rock-pile');
+    const flowerSprite = getWorldTileTexture('flower-clump');
+    const hasCabin = ['village', 'forest', 'academy'].includes(locationId);
+    const hasPond = ['village', 'forest'].includes(locationId);
+    const cabinBounds = { left:15, right:19, top:6, bottom:10, doorX:17 };
+    const isCabinWall = (tileX, tileY) => {
+      if (!hasCabin) return false;
+      const inside = tileX >= cabinBounds.left && tileX <= cabinBounds.right &&
+        tileY >= cabinBounds.top && tileY <= cabinBounds.bottom;
+      const perimeter = tileX === cabinBounds.left || tileX === cabinBounds.right ||
+        tileY === cabinBounds.top || tileY === cabinBounds.bottom;
+      return inside && perimeter && !(tileY === cabinBounds.bottom && tileX === cabinBounds.doorX);
+    };
+    const isTreeTile = (tileX, tileY) => treeClusters.some(([x, y]) =>
+      tileX >= x && tileX <= x + 1 && tileY >= y && tileY <= y + 1);
+    const isRockTile = (tileX, tileY) => rockPositions.some(([x, y]) => tileX === x && tileY === y);
+    const isWaterTile = (tileX, tileY) =>
+      hasPond && ((tileX - 38) / 3) ** 2 + ((tileY - 8) / 2.5) ** 2 <= 1;
+    const isBlocked = (tileX, tileY) => {
+      if (tileX < 1 || tileY < 1 || tileX >= mapWidth - 1 || tileY >= mapHeight - 1) return true;
+      return isCabinWall(tileX, tileY) || isTreeTile(tileX, tileY) || isRockTile(tileX, tileY) || isWaterTile(tileX, tileY);
+    };
+    const movingLeft = worldSceneKeys.has('left');
+    const movingRight = worldSceneKeys.has('right');
+    const movingUp = worldSceneKeys.has('up');
+    const movingDown = worldSceneKeys.has('down');
+    if (movingLeft || movingRight || movingUp || movingDown) {
+      const direction = (movingRight ? 1 : 0) - (movingLeft ? 1 : 0);
+      const verticalDirection = (movingDown ? 1 : 0) - (movingUp ? 1 : 0);
+      const magnitude = Math.hypot(direction, verticalDirection) || 1;
+      const moveX = direction / magnitude * delta * 4.2 / mapWidth;
+      const moveY = verticalDirection / magnitude * delta * 4.2 / mapHeight;
+      const nextX = clamp(player.x + moveX, 0.02, 0.98);
+      const nextY = clamp(player.depth + moveY, 0.02, 0.98);
+      if (!isBlocked(Math.floor(nextX * mapWidth), Math.floor(player.depth * mapHeight))) player.x = nextX;
+      if (!isBlocked(Math.floor(player.x * mapWidth), Math.floor(nextY * mapHeight))) player.depth = nextY;
+      if (direction) {
+        player.facing = direction;
+        player.direction = direction > 0 ? 2 : 3;
+      } else if (verticalDirection) {
+        player.direction = verticalDirection > 0 ? 0 : 1;
+      }
+      player.walk += delta * 11;
+    }
+    const npcs = WORLD_NPCS[char.currentLocation] || [];
+    const cameraX = clamp(player.x * mapWidth - viewWidth / 2, 0, mapWidth - viewWidth);
+    const cameraY = clamp(player.depth * mapHeight - viewHeight / 2, 0, mapHeight - viewHeight);
+    const screenX = worldX => (worldX - cameraX) * tileSize;
+    const screenY = worldY => (worldY - cameraY) * tileSize;
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = '#111820';
+    ctx.fillRect(0, 0, width, height);
+
+    for (let tileY = Math.floor(cameraY); tileY <= Math.ceil(cameraY + viewHeight); tileY++) {
+      for (let tileX = Math.floor(cameraX); tileX <= Math.ceil(cameraX + viewWidth); tileX++) {
+        const x = screenX(tileX);
+        const y = screenY(tileY);
+        const onPath = Math.abs(tileY - 16) <= 0 || Math.abs(tileX - 23) <= 0;
+        const inCabin = hasCabin && tileX >= cabinBounds.left && tileX <= cabinBounds.right &&
+          tileY >= cabinBounds.top && tileY <= cabinBounds.bottom;
+        const cabinWall = isCabinWall(tileX, tileY);
+        const cabinDoor = hasCabin && tileY === cabinBounds.bottom && tileX === cabinBounds.doorX;
+        const water = isWaterTile(tileX, tileY);
+        const variation = Math.abs((tileX * 17 + tileY * 31 + tileX * tileY * 3) % 7);
+        if (onPath && pathTextures.length) {
+          const texture = pathTextures[variation % pathTextures.length];
+          if (texture) ctx.drawImage(texture, x, y, tileSize, tileSize);
+          else {
+            ctx.fillStyle = scene.path;
+            ctx.fillRect(x, y, tileSize, tileSize);
+          }
+        } else if (water && waterTexture) {
+          const frame = Math.floor(timestamp / 550) % 3;
+          ctx.drawImage(waterTexture, frame * tileSize, 0, tileSize, tileSize, x, y, tileSize, tileSize);
+        } else if (cabinWall && wallTexture) {
+          ctx.drawImage(wallTexture, x, y, tileSize, tileSize);
+        } else if (inCabin && stoneTexture) {
+          ctx.drawImage(stoneTexture, x, y, tileSize, tileSize);
+        } else if (groundTexture && !water && !cabinWall && !inCabin) {
+          ctx.drawImage(groundTexture, x, y, tileSize, tileSize);
+        } else {
+          ctx.fillStyle = water ? '#315967' : cabinWall ? '#3b332a' : inCabin ? '#6d5942' : scene.ground;
+          ctx.fillRect(x, y, tileSize, tileSize);
+        }
+        if (cabinWall) {
+          if (tileY === cabinBounds.top && (tileX === 16 || tileX === 18)) {
+            ctx.fillStyle = '#263a3d';
+            ctx.fillRect(x + 6, y + 9, 20, 13);
+            ctx.strokeStyle = '#c5a477';
+            ctx.strokeRect(x + 6, y + 9, 20, 13);
+            ctx.fillRect(x + 15, y + 9, 2, 13);
+          }
+        } else if (cabinDoor) {
+          ctx.fillStyle = '#39291f';
+          ctx.fillRect(x + 5, y + 2, 22, 29);
+          ctx.fillStyle = '#9c754b';
+          ctx.fillRect(x + 8, y + 4, 16, 25);
+          ctx.fillStyle = '#e4c17b';
+          ctx.fillRect(x + 20, y + 17, 2, 2);
+        } else if (inCabin) {
+          ctx.fillStyle = '#11182044';
+          ctx.fillRect(x, y, tileSize, tileSize);
+        }
+      }
+    }
+
+    const drawables = [];
+    treeClusters.forEach(([treeX, treeY], index) => {
+      const depth = treeY + 2;
+      const sprite = index % 2 && alternateTreeSprite ? alternateTreeSprite : treeSprite;
+      const size = locationId === 'academy' ? 88 : 64;
+      const height = locationId === 'academy' ? 88 : 170;
+      drawables.push({
+        depth,
+        draw: () => {
+          const x = screenX(treeX + 1);
+          const y = screenY(depth);
+          ctx.fillStyle = '#10161088';
+          ctx.beginPath();
+          ctx.ellipse(x, y + 2, size * 0.39, 9, 0, 0, Math.PI * 2);
+          ctx.fill();
+          if (sprite) ctx.drawImage(sprite, x - size / 2, y - height, size, height);
+        }
+      });
+    });
+    rockPositions.forEach(([rockX, rockY]) => {
+      drawables.push({
+        depth: rockY + 1,
+        draw: () => {
+          const x = screenX(rockX + 0.5);
+          const y = screenY(rockY + 1);
+          if (rockSprite) ctx.drawImage(rockSprite, x - 16, y - 32, 32, 32);
+        }
+      });
+    });
+    flowerPositions.forEach(([flowerX, flowerY], index) => {
+      drawables.push({
+        depth: flowerY + 1,
+        draw: () => {
+          const x = screenX(flowerX + 0.5);
+          const y = screenY(flowerY + 1);
+          if (flowerSprite) ctx.drawImage(flowerSprite, x - 16, y - 32, 32, 32);
+        }
+      });
+    });
+
+    const portalX = 42.5;
+    const portalY = 18.5;
+    const drawPortal = () => {
+      const x = screenX(portalX);
+      const y = screenY(portalY);
+      ctx.fillStyle = '#24282b';
+      ctx.fillRect(x - 15, y - 15, 30, 30);
+      ctx.fillStyle = '#50585a';
+      ctx.fillRect(x - 12, y - 12, 24, 24);
+      ctx.fillStyle = '#1c2328';
+      ctx.fillRect(x - 8, y - 8, 16, 16);
+      ctx.save();
+      ctx.shadowColor = scene.accent;
+      ctx.shadowBlur = 10;
+      ctx.strokeStyle = scene.accent;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 7, 10, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      ctx.strokeStyle = scene.accent;
+      ctx.strokeRect(x - 14, y - 14, 28, 28);
+    };
+    drawables.push({ depth: portalY, draw: drawPortal });
+
+    const directionToward = (fromX, fromY, toX, toY) => {
+      const deltaX = toX - fromX;
+      const deltaY = toY - fromY;
+      if (Math.abs(deltaX) > Math.abs(deltaY)) return deltaX >= 0 ? 2 : 3;
+      return deltaY >= 0 ? 0 : 1;
+    };
+    const actorOutfitRows = {
+      mara: 1, gorro: 2, lyra: 1, theron: 0, brennan: 3, seldris: 3,
+      velara: 1, mysterious_figure: 3, thrak: 0, drow_spy: 2
+    };
+    const actorHairRows = {
+      mara: 1, gorro: 2, lyra: 3, theron: 4, brennan: 5, seldris: 6,
+      velara: 7, mysterious_figure: 8, thrak: 9, drow_spy: 10
+    };
+    const drawActor = (x, y, label, id, direction, isPlayer = false) => {
+      const actorX = screenX(x);
+      const actorY = screenY(y);
+      const moving = isPlayer && (movingLeft || movingRight || movingUp || movingDown);
+      const pose = moving ? Math.floor(player.walk / 2) % 2 : Math.floor(timestamp / 1300) % 2;
+      const outfitRow = isPlayer ? 0 : actorOutfitRows[id] ?? 3;
+      const hairRow = isPlayer ? 0 : actorHairRows[id] ?? 8;
+      const bob = moving ? Math.abs(Math.sin(player.walk)) : 0;
+      ctx.fillStyle = '#101410a8';
+      ctx.beginPath();
+      ctx.ellipse(actorX, actorY + 2, 9, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      if (actorSheet) {
+        ctx.save();
+        ctx.filter = 'saturate(0.92) brightness(1.02)';
+        ctx.drawImage(actorSheet, direction * 32, (outfitRow * 2 + pose) * 32, 32, 32, actorX - 18, actorY - 36 - bob, 36, 36);
+        ctx.restore();
+      }
+      if (actorHairSheet) {
+        ctx.drawImage(actorHairSheet, direction * 32, hairRow * 32, 32, 32, actorX - 18, actorY - 36 - bob, 36, 36);
+      }
+      ctx.fillStyle = '#10151dea';
+      ctx.fillRect(actorX - 28, actorY - 47 - bob, 56, 10);
+      ctx.fillStyle = isPlayer ? '#e7d18a' : '#e5e9df';
+      ctx.font = '7px "Roboto Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, actorX, actorY - 40 - bob);
+    };
+
+    npcs.forEach(npc => {
+      const x = npc.x * mapWidth;
+      const y = npc.depth * mapHeight;
+      drawables.push({
+        depth: y,
+        draw: () => drawActor(x, y, npc.name, npc.id, directionToward(x, y, player.x * mapWidth, player.depth * mapHeight))
+      });
+    });
+    drawables.push({
+      depth: player.depth * mapHeight,
+      draw: () => drawActor(player.x * mapWidth, player.depth * mapHeight, char.name, 'player', player.direction, true)
+    });
+    drawables.sort((a, b) => a.depth - b.depth);
+    drawables.forEach(drawable => drawable.draw());
+
+    const cycle = (Math.sin(timestamp / 70000) + 1) / 2;
+    ctx.fillStyle = `rgba(7, 13, 24, ${0.04 + (1 - cycle) * 0.14})`;
+    ctx.fillRect(0, 0, width, height);
+    const portalGlow = ctx.createRadialGradient(
+      screenX(portalX), screenY(portalY), 3,
+      screenX(portalX), screenY(portalY), 108
+    );
+    portalGlow.addColorStop(0, `${scene.accent}55`);
+    portalGlow.addColorStop(1, `${scene.accent}00`);
+    ctx.fillStyle = portalGlow;
+    ctx.fillRect(screenX(portalX) - 108, screenY(portalY) - 108, 216, 216);
+    if (hasCabin) {
+      const lanternGlow = ctx.createRadialGradient(screenX(17.5), screenY(9), 2, screenX(17.5), screenY(9), 70);
+      lanternGlow.addColorStop(0, '#e6ac5c36');
+      lanternGlow.addColorStop(1, '#e6ac5c00');
+      ctx.fillStyle = lanternGlow;
+      ctx.fillRect(screenX(17.5) - 70, screenY(9) - 70, 140, 140);
+    }
+    if (locationId === 'peak' || locationId === 'forest') {
+      const particles = locationId === 'peak' ? 22 : 12;
+      ctx.save();
+      ctx.globalAlpha = locationId === 'peak' ? 0.45 : 0.2;
+      ctx.strokeStyle = locationId === 'peak' ? '#e6f3ff' : '#a4c9c3';
+      ctx.fillStyle = '#e6f3ff';
+      for (let i = 0; i < particles; i++) {
+        const x = (i * 97 + timestamp * (locationId === 'peak' ? 0.018 : 0.03)) % width;
+        const y = (i * 53 + timestamp * (locationId === 'peak' ? 0.026 : 0.11)) % height;
+        if (locationId === 'peak') ctx.fillRect(x, y, 2, 2);
+        else {
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x - 2, y + 6);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+
+    const caption = document.getElementById('dndSceneCaption');
+    if (caption && !caption.dataset.message) {
+      const closeToNpc = npcs.some(npc => Math.hypot(npc.x - player.x, npc.depth - player.depth) < 0.055);
+      caption.textContent = closeToNpc
+        ? 'PERSONAJE CERCA  ·  Pulsa E para conversar'
+        : Math.hypot(player.x - 0.88, player.depth - 0.57) < 0.07
+          ? 'PORTAL DETECTADO  ·  Pulsa E para entrar'
+          : 'WASD / flechas para moverte  ·  E para interactuar';
+    }
+    worldSceneFrame = requestAnimationFrame(drawWorldScene);
+  }
 
   // ── DOM HELPERS ───────────────────────────────────────────────
   const overlay   = () => document.getElementById('dndOverlay');
   const canvas    = () => document.getElementById('dndCanvas');
 
   function render(html) {
+    stopWorldScene();
     const el = overlay();
     if (!el) return;
     const existing = el.querySelector('.dnd-screen');
@@ -5233,7 +5927,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     switch(screen) {
       case 'intro':       render(P.buildIntroScreen(P.SaveSystem.hasSave())); break;
       case 'char-create': ccSelections = {}; ccStep = 0; render(P.buildCharCreateScreen(0, ccSelections)); break;
-      case 'world':       render(P.buildWorldScreen(char, world)); startAutosave(); break;
+      case 'world':       render(P.buildWorldScreen(char, world)); startWorldScene(); startAutosave(); break;
       case 'inventory':   render(P.buildInventoryScreen(char)); break;
       case 'quests':      render(P.buildQuestScreen(char)); break;
       case 'lore':        render(P.buildLoreScreen(char)); break;
@@ -5264,6 +5958,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     const el = overlay();
     if (!el) return;
     el.classList.remove('dnd-open');
+    stopWorldScene();
     P.Particles.stop();
     stopAutosave();
     document.body.style.overflow = '';
@@ -5384,6 +6079,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     });
     world = P.WorldSystem;
     world.init();
+    char.currentLocation = 'village';
     // Auto-accept first quest
     P.QuestTracker.accept(char, 'q_goblin_king');
     P.Storage.unlock('started_game');
@@ -5399,6 +6095,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     char  = saved.char;
     world = P.WorldSystem;
     world.init();
+    char.currentLocation = char.currentLocation || 'village';
     // Restore world state
     if (saved.worldData) {
       saved.worldData.forEach(wd => {
@@ -5419,6 +6116,10 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     }
     if (char.level < loc.minLevel) {
       P.showNotification(`Necesitas nivel ${loc.minLevel} para entrar aquí. Tienes nivel ${char.level}.`, 'warn'); return;
+    }
+    if (char.currentLocation === locationId) {
+      navigate('world');
+      return;
     }
     // Traveling across the open world to a different zone costs stamina/time
     if (char.currentLocation && char.currentLocation !== locationId) {
@@ -5459,7 +6160,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       P.showNotification('✨ ¡Inspiración! Ventaja en tu próxima tirada.', 'success', 4000);
     }
 
-    explore();
+    navigate('world');
   }
 
   function explore(running = false) {
@@ -6515,6 +7216,24 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
 
     // Close on ESC
     document.addEventListener('keydown', function(e) {
+      if (worldSceneCanvas && overlay()?.classList.contains('dnd-open')) {
+        const dialogue = document.getElementById('dndNpcDialogue');
+        if (dialogue && !dialogue.hidden) {
+          if (e.key === 'Escape') { closeNpcDialogue(); e.preventDefault(); }
+          return;
+        }
+        const target = e.target;
+        const isEditing = target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
+        if (!isEditing) {
+          const key = e.key.toLowerCase();
+          if (key === 'arrowleft' || key === 'a') { worldSceneKeys.add('left'); e.preventDefault(); }
+          else if (key === 'arrowright' || key === 'd') { worldSceneKeys.add('right'); e.preventDefault(); }
+          else if (key === 'arrowup' || key === 'w') { worldSceneKeys.add('up'); e.preventDefault(); }
+          else if (key === 'arrowdown' || key === 's') { worldSceneKeys.add('down'); e.preventDefault(); }
+          else if (key === ' ') { worldSceneKeys.add('jump'); e.preventDefault(); }
+          else if (key === 'e' && !e.repeat) { interactWorldScene(); e.preventDefault(); }
+        }
+      }
       if (e.key === 'Escape' && overlay()?.classList.contains('dnd-open')) {
         if (combatState) {
           P.showNotification('No puedes escapar durante el combate con ESC. Usa el botón Huir.', 'warn', 2000);
@@ -6523,6 +7242,16 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
         close();
       }
     });
+    document.addEventListener('keyup', function(e) {
+      const key = e.key.toLowerCase();
+      if (key === 'arrowleft' || key === 'a') worldSceneKeys.delete('left');
+      if (key === 'arrowright' || key === 'd') worldSceneKeys.delete('right');
+      if (key === 'arrowup' || key === 'w') worldSceneKeys.delete('up');
+      if (key === 'arrowdown' || key === 's') worldSceneKeys.delete('down');
+      if (key === ' ') worldSceneKeys.delete('jump');
+    });
+    document.addEventListener('pointerup', stopWorldSceneMovement);
+    window.addEventListener('blur', stopWorldSceneMovement);
 
     // Konami code
     initKonamiListener();
