@@ -4220,7 +4220,7 @@
     }
 
     return `
-      <div id="dnd-combat" class="dnd-screen dnd-active">
+      <div id="dnd-combat" class="dnd-screen dnd-active" data-biome="${esc(char.currentLocation || 'village')}">
         ${buildHUD(char)}
         ${streakHtml}
         ${initHtml}
@@ -6236,9 +6236,11 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   function startCombat(enemies) {
     if (!char || !enemies || enemies.length === 0) return;
     char._lastStandUsed = false; // reset last_stand trinket per combat
+    const combatLog = [];
+    combatState = { enemies, log: combatLog, phase:'busy', currentEnemyIdx:0 };
     if (char.perks && char.perks.includes('escudo_arcano')) {
       char.tempHP = 10;
-      combatState.log.push("🔵 ¡Escudo Arcano activado! Obtienes 10 HP temporales.");
+      combatLog.push("🔵 ¡Escudo Arcano activado! Obtienes 10 HP temporales.");
     }
 
     // Weather combat modifiers
@@ -6260,6 +6262,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     combatState = {
       enemies: enemies,
       log: [
+        ...combatLog,
         `⚔️ ¡Encuentro de combate!`,
         `Iniciativa: tú (${init.playerRoll}) vs ${enemies[0].name} (${init.enemyRoll})`,
         `${init.playerFirst ? '⚡ Actúas primero!' : `⚡ ${enemies[0].name} actúa primero!`}`,

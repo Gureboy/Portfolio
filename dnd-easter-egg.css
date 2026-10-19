@@ -1056,6 +1056,61 @@
   background: radial-gradient(ellipse at 50% 80%, #1a0505 0%, #060610 70%);
   overflow-y: auto;
 }
+#dnd-combat[data-biome="village"] {
+  background:
+    radial-gradient(ellipse at 18% 54%, rgba(65,96,64,.72) 0 16%, transparent 17%),
+    radial-gradient(ellipse at 84% 50%, rgba(54,82,58,.76) 0 19%, transparent 20%),
+    linear-gradient(180deg, #728a91 0%, #b5aa89 48%, #596544 49%, #1d2e26 100%) !important;
+}
+#dnd-combat[data-biome="forest"] {
+  background:
+    radial-gradient(ellipse at 16% 54%, rgba(20,67,48,.86) 0 20%, transparent 21%),
+    radial-gradient(ellipse at 85% 51%, rgba(15,57,44,.9) 0 24%, transparent 25%),
+    linear-gradient(180deg, #365a56 0%, #1c3835 48%, #214432 49%, #10251c 100%) !important;
+}
+#dnd-combat[data-biome="academy"] {
+  background:
+    radial-gradient(ellipse at 20% 54%, rgba(67,75,101,.78) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 82% 52%, rgba(73,61,91,.8) 0 22%, transparent 23%),
+    linear-gradient(180deg, #8995a4 0%, #666b83 48%, #514b65 49%, #242633 100%) !important;
+}
+#dnd-combat[data-biome="ruins"] {
+  background:
+    radial-gradient(ellipse at 18% 54%, rgba(94,68,59,.78) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 84% 50%, rgba(81,54,58,.84) 0 22%, transparent 23%),
+    linear-gradient(180deg, #796568 0%, #55454d 48%, #594934 49%, #292527 100%) !important;
+}
+#dnd-combat[data-biome="dungeon"] {
+  background:
+    radial-gradient(ellipse at 18% 53%, rgba(54,52,62,.76) 0 20%, transparent 21%),
+    radial-gradient(ellipse at 84% 51%, rgba(42,40,49,.86) 0 24%, transparent 25%),
+    linear-gradient(180deg, #30313b 0%, #20212a 48%, #343037 49%, #151519 100%) !important;
+}
+#dnd-combat[data-biome="underdark"] {
+  background:
+    radial-gradient(ellipse at 18% 52%, rgba(78,52,111,.76) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 83% 51%, rgba(45,44,101,.86) 0 23%, transparent 24%),
+    linear-gradient(180deg, #2e2849 0%, #181b34 48%, #302644 49%, #12111f 100%) !important;
+}
+#dnd-combat[data-biome="peak"] {
+  background:
+    radial-gradient(ellipse at 18% 53%, rgba(137,160,171,.74) 0 19%, transparent 20%),
+    radial-gradient(ellipse at 83% 50%, rgba(85,113,137,.84) 0 23%, transparent 24%),
+    linear-gradient(180deg, #bacbd1 0%, #829ca9 48%, #657d89 49%, #303e4b 100%) !important;
+}
+#dnd-combat[data-biome] .dnd-fighter {
+  background: rgba(17, 24, 31, .84) !important;
+  color: #f4ead2 !important;
+  border-color: rgba(218, 184, 111, .58) !important;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+#dnd-combat[data-biome] .dnd-fighter-name {
+  color: #f3d58b !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, .8);
+}
+#dnd-combat[data-biome] .dnd-fighter-sub { color: #e5dcc7; }
+#dnd-combat[data-biome] .dnd-enemy-icon img { mix-blend-mode: multiply; }
 .dnd-combat-container {
   max-width: 800px;
   margin: 0 auto;
