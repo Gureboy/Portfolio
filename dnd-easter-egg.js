@@ -1190,6 +1190,8 @@
   // e: effect type
   const ITEMS = [
     // CONSUMABLES
+    { id:'starter_seed', name:'Semillas silvestres', icon:'🌱', r:'common', p:8, e:'material', desc:'Semillas resistentes para cultivar en cualquier región.' },
+    { id:'fishing_rod', name:'Caña de pesca', icon:'🎣', r:'common', p:25, e:'tool', desc:'Permite pescar en lagos y ríos.' },
     { id:'potion_minor',  name:'Poción Menor',       icon:'🧪', r:'common',    p:20,  e:'heal',   v:15, desc:'Recupera 15 HP.' },
     { id:'potion_major',  name:'Poción Mayor',        icon:'🧪', r:'uncommon',  p:50,  e:'heal',   v:30, desc:'Recupera 30 HP.' },
     { id:'potion_supreme',name:'Poción Suprema',      icon:'🧪', r:'rare',      p:120, e:'heal',   v:60, desc:'Recupera 60 HP.' },
@@ -1303,7 +1305,7 @@
       lore:'Keldrath fue próspera hace treinta años. Antes de que el bosque empezara a susurrar.',
       encounters: ['goblin','kobold','rat','bandit','zombie','aarakocra','acolyte','blink_dog','rust_monster','satyr'],
       eventPool: ['village_well','old_soldier','haunted_barn','merchant_caravan','drunken_sage'],
-      shopInv: ['potion_minor','short_sword','leather_armor','antidote','bow_short','rope','torch','trinket_rabbit_foot','trinket_last_coin'],
+      shopInv: ['potion_minor','short_sword','leather_armor','antidote','bow_short','rope','torch','starter_seed','fishing_rod','trinket_rabbit_foot','trinket_last_coin'],
       minLevel:1, maxLevel:4, progress:0, totalEncounters:6, boss:'goblin_king',
       unlocked:true, completed:false
     },
@@ -1754,7 +1756,10 @@
     dagas:     { name:'Dagas',             icon:'🗡️' },
     arcano:    { name:'Armas Arcanas',     icon:'🪄' },
     desarmado: { name:'Combate Desarmado', icon:'👊' },
-    atletismo: { name:'Atletismo',         icon:'🏃' }
+    atletismo: { name:'Atletismo',         icon:'🏃' },
+    caza:      { name:'Caza',              icon:'🐾' },
+    agricultura:{ name:'Agricultura',      icon:'🌾' },
+    pesca:     { name:'Pesca',             icon:'🎣' }
   };
   // Maps equipped weapon id → skill trained when attacking with it
   const WEAPON_SKILL_MAP = {
@@ -1814,6 +1819,10 @@
       this.inventory = [];
       this.addItem({ id:'potion_minor', name:'Poción Menor', icon:'🧪', r:'common', p:20, e:'heal', v:15, desc:'Recupera 15 HP.' });
       this.addItem({ id:'potion_minor', name:'Poción Menor', icon:'🧪', r:'common', p:20, e:'heal', v:15, desc:'Recupera 15 HP.' });
+      for (let i = 0; i < 3; i++) {
+        this.addItem({ id:'starter_seed', name:'Semillas silvestres', icon:'🌱', r:'common', p:8, e:'material', desc:'Semillas resistentes para cultivar en cualquier región.' });
+      }
+      this.addItem({ id:'fishing_rod', name:'Caña de pesca', icon:'🎣', r:'common', p:25, e:'tool', desc:'Permite pescar en lagos y ríos.' });
 
       // Abilities (from class, copied with current uses)
       this.abilities = cls.abilities.map(a => ({ ...clone(a), curUses: a.uses }));
@@ -4032,7 +4041,7 @@
                 })[current] || 'El camino se abre ante ti. Cada decisión dejará una huella.')}</p>
               </div>
               <div class="dnd-scene-frame">
-                <canvas id="dndWorldScene" tabindex="0" aria-label="Mundo abierto 2D: muévete con WASD o las flechas e interactúa con personajes y portales usando E"></canvas>
+                <canvas id="dndWorldScene" tabindex="0" aria-label="Mundo abierto 2D: muévete con WASD o las flechas e interactúa con personajes, criaturas, parcelas, estanques y edificios usando E"></canvas>
                 <div class="dnd-scene-caption" id="dndSceneCaption" aria-live="polite">Recorre la región, habla con sus habitantes o sigue el portal.</div>
                 <section class="dnd-npc-dialogue" id="dndNpcDialogue" aria-label="Diálogo con personaje" hidden>
                 <canvas id="dndNpcPortrait" width="120" height="140" role="img" aria-label="Retrato del personaje"></canvas>
@@ -4053,7 +4062,7 @@
                 <button type="button" class="dnd-scene-control" data-move="down" aria-label="Mover hacia el frente">▼</button>
                 <button type="button" class="dnd-scene-control" data-move="right" aria-label="Mover a la derecha">▶</button>
                 <button type="button" class="dnd-scene-control dnd-scene-interact" data-interact aria-label="Hablar con un personaje o explorar el portal">E · Interactuar</button>
-                <span class="dnd-scene-help">WASD / flechas para explorar · E para hablar o explorar</span>
+                <span class="dnd-scene-help">WASD / flechas para explorar · E para interactuar, combatir, cultivar o pescar</span>
                 </div>
               </div>
             </section>
@@ -5251,6 +5260,81 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
   let worldSceneLastTime = 0;
   let worldSceneResize = null;
   const worldScenePositions = new Map();
+  const worldNpcRuntime = new Map();
+  const fieldCreatures = new Map();
+  const fieldCreatureSprites = new Map();
+  const WORLD_BUILDINGS = {
+    village: [{ x:26, y:8, name:'Granero de Keldrath' }],
+    forest: [{ x:25, y:8, name:'Refugio de cazadores' }],
+    academy: [{ x:24, y:8, name:'Aula derruida' }],
+    ruins: [{ x:26, y:8, name:'Archivo hundido' }],
+    dungeon: [{ x:25, y:8, name:'Forja de Korrath' }],
+    underdark: [{ x:25, y:8, name:'Puesto drow' }],
+    peak: [{ x:25, y:8, name:'Campamento de altura' }]
+  };
+  const FARM_PLOTS = {
+    village: [{ x:12, y:18 }, { x:13, y:18 }, { x:14, y:18 }],
+    forest: [{ x:12, y:18 }, { x:13, y:18 }, { x:14, y:18 }]
+  };
+  const FISHING_SPOTS = { village:{ x:38, y:8 }, forest:{ x:38, y:8 } };
+
+  function getRuntimeNpcs(locationId) {
+    if (!worldNpcRuntime.has(locationId)) {
+      worldNpcRuntime.set(locationId, (WORLD_NPCS[locationId] || []).map(npc => ({
+        ...npc, homeX:npc.x, homeDepth:npc.depth, targetX:npc.x, targetDepth:npc.depth,
+        pauseUntil:0, moveSeed:Math.random() * 1000
+      })));
+    }
+    return worldNpcRuntime.get(locationId);
+  }
+
+  function getFieldCreatures(locationId) {
+    if (!fieldCreatures.has(locationId)) {
+      const location = P.LOCATIONS.find(entry => entry.id === locationId);
+      const validIds = (location?.encounters || []).filter(id => P.ENEMIES.some(enemy => enemy.id === id));
+      const creatures = [];
+      const spawnPoints = shuffle([
+        { x:0.16, depth:0.28 }, { x:0.18, depth:0.76 }, { x:0.85, depth:0.55 },
+        { x:0.78, depth:0.78 }, { x:0.56, depth:0.84 }, { x:0.31, depth:0.25 }
+      ]).slice(0, Math.min(3, validIds.length));
+      for (let index = 0; index < spawnPoints.length; index++) {
+        const enemy = P.createEnemy(pick(validIds), Math.max(0, char.level - 3));
+        if (!enemy || enemy.boss) continue;
+        const key = `${locationId}-${index}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        enemy._worldCreatureKey = key;
+        const spawn = spawnPoints[index];
+        creatures.push({
+          key, enemy, x:spawn.x, depth:spawn.depth,
+          targetX:spawn.x, targetDepth:spawn.depth,
+          behavior:pick(['wander', 'patrol', 'stalker']),
+          alive:true, respawnAt:0, nextAttackAt:Date.now() + 5000, escapedUntil:0
+        });
+      }
+      fieldCreatures.set(locationId, creatures);
+    }
+    return fieldCreatures.get(locationId);
+  }
+
+  function getFieldCreatureSprite(id) {
+    if (fieldCreatureSprites.has(id)) {
+      const cached = fieldCreatureSprites.get(id);
+      return cached?.complete && cached.naturalWidth ? cached : null;
+    }
+    const candidates = [...new Set([id, id.replace(/_/g, '-'), id.replace(/-/g, '_')])];
+    const image = new Image();
+    fieldCreatureSprites.set(id, image);
+    let attempt = 0;
+    const loadNext = () => {
+      if (attempt >= candidates.length) {
+        fieldCreatureSprites.set(id, null);
+        return;
+      }
+      image.src = `assets/sprites/mob/${candidates[attempt++]}.png`;
+    };
+    image.onerror = loadNext;
+    loadNext();
+    return null;
+  }
 
   const WORLD_STORIES = {
     village: { sky:'#172b46', far:'#263d54', near:'#31513f', ground:'#273b32', path:'#82714f', accent:'#e4b96a', landmark:'⌂' },
@@ -5482,7 +5566,7 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     if (!worldScenePlayer || !worldSceneCanvas) return;
     const dialogue = document.getElementById('dndNpcDialogue');
     if (dialogue && !dialogue.hidden) return;
-    const npcs = WORLD_NPCS[char.currentLocation] || [];
+    const npcs = getRuntimeNpcs(char.currentLocation);
     const nearby = npcs
       .map(npc => ({ npc, distance: Math.hypot(npc.x - worldScenePlayer.x, npc.depth - worldScenePlayer.depth) }))
       .sort((a, b) => a.distance - b.distance)[0];
@@ -5490,15 +5574,134 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       openNpcDialogue(nearby.npc);
       return;
     }
+    const nearbyCreature = getFieldCreatures(char.currentLocation)
+      .filter(creature => creature.alive)
+      .map(creature => ({ creature, distance:Math.hypot(creature.x - worldScenePlayer.x, creature.depth - worldScenePlayer.depth) }))
+      .sort((a, b) => a.distance - b.distance)[0];
+    const fishingSpot = FISHING_SPOTS[char.currentLocation];
+    const atFishingSpot = fishingSpot &&
+      Math.hypot(fishingSpot.x / 48 - worldScenePlayer.x, fishingSpot.y / 32 - worldScenePlayer.depth) < 0.13;
+    if (nearbyCreature && nearbyCreature.distance < 0.09 && !atFishingSpot) {
+      startFieldCombat(nearbyCreature.creature);
+      return;
+    }
+    const plots = FARM_PLOTS[char.currentLocation] || [];
+    const nearbyPlot = plots
+      .map((plot, index) => ({ plot, index, distance:Math.hypot(plot.x / 48 - worldScenePlayer.x, plot.y / 32 - worldScenePlayer.depth) }))
+      .sort((a, b) => a.distance - b.distance)[0];
+    if (nearbyPlot && nearbyPlot.distance < 0.065) {
+      interactFarmPlot(nearbyPlot.index);
+      return;
+    }
+    if (fishingSpot && Math.hypot(fishingSpot.x / 48 - worldScenePlayer.x, fishingSpot.y / 32 - worldScenePlayer.depth) < 0.12) {
+      fishAtSpot();
+      return;
+    }
+    const building = (WORLD_BUILDINGS[char.currentLocation] || [])
+      .map(site => ({ site, distance:Math.hypot(site.x / 48 - worldScenePlayer.x, site.y / 32 - worldScenePlayer.depth) }))
+      .sort((a, b) => a.distance - b.distance)[0];
+    if (building && building.distance < 0.09) {
+      char.flags.visitedBuildings = char.flags.visitedBuildings || [];
+      if (!char.flags.visitedBuildings.includes(`${char.currentLocation}:${building.site.name}`)) {
+        char.flags.visitedBuildings.push(`${char.currentLocation}:${building.site.name}`);
+        char.gold += 8;
+        char.stats.goldEarned += 8;
+        const leveled = char.gainXP(12);
+        P.showNotification(`Exploraste ${building.site.name}: encontraste 8 monedas y una pista. +12 XP`, 'success', 3800);
+        if (leveled) showLevelUp();
+        autoSaveIfNeeded();
+      } else {
+        P.showNotification(`${building.site.name}: el lugar está vacío, pero conserva las huellas de quienes pasaron.`, 'info', 2800);
+      }
+      return;
+    }
     if (Math.hypot(worldScenePlayer.x - 0.88, worldScenePlayer.depth - 0.57) < 0.07) {
       P.Audio.sfx.secret();
       explore();
       return;
     }
-    P.showNotification('Explora el sendero, acércate a un personaje o busca el portal brillante.', 'info', 2600);
+    P.showNotification('Acércate a un personaje, criatura, parcela, estanque o edificio para interactuar.', 'info', 2600);
   }
 
   let worldSceneCurrentNpc = null;
+
+  function startFieldCombat(creature) {
+    creature.nextAttackAt = Date.now() + 12000;
+    creature.enemy._worldCreatureKey = creature.key;
+    startCombat([creature.enemy]);
+  }
+
+  function awardWorldSkill(skillId, amount) {
+    const gained = char.gainSkillXP(skillId, amount);
+    if (gained) {
+      P.showNotification(`${gained.icon} ${gained.skillName}: ${gained.name}`, 'success', 3000);
+    }
+  }
+
+  function interactFarmPlot(index) {
+    char.flags.farmPlots = char.flags.farmPlots || {};
+    const id = `${char.currentLocation}-${index}`;
+    const plot = char.flags.farmPlots[id];
+    if (!plot) {
+      if (!char.countItem('starter_seed')) {
+        P.showNotification('No te quedan semillas. Puedes conseguir más en la tienda de Keldrath.', 'warn', 2800);
+        return;
+      }
+      char.removeItemFromBag('starter_seed');
+      char.flags.farmPlots[id] = { plantedAt:Date.now(), watered:false };
+      awardWorldSkill('agricultura', 15);
+      P.showNotification('Plantaste semillas. Vuelve en unos minutos para cosechar.', 'success', 3000);
+    } else if (Date.now() >= plot.readyAt || Date.now() >= plot.plantedAt + 120000 - (plot.watered ? 30000 : 0)) {
+      char.addItem({ id:'wild_herbs', name:'Hierbas silvestres', icon:'🌿', r:'common', p:7, e:'material', desc:'Hierbas frescas recolectadas en el campo.' });
+      char.flags.farmPlots[id] = null;
+      awardWorldSkill('agricultura', 25);
+      P.showNotification('¡Cosecha lista! Recogiste hierbas silvestres.', 'success', 3000);
+    } else if (!plot.watered) {
+      plot.watered = true;
+      plot.readyAt = plot.plantedAt + 90000;
+      awardWorldSkill('agricultura', 5);
+      P.showNotification('Regaste la parcela. La cosecha madurará antes.', 'info', 2600);
+    } else {
+      const seconds = Math.ceil((plot.readyAt - Date.now()) / 1000);
+      P.showNotification(`La cosecha aún está creciendo: ${seconds} segundos.`, 'info', 2400);
+    }
+    autoSaveIfNeeded();
+  }
+
+  function fishAtSpot() {
+    if (!char.hasItem('fishing_rod')) {
+      P.showNotification('Necesitas una caña de pesca. Gorro vende equipo en la aldea.', 'warn', 2800);
+      return;
+    }
+    const catches = char.currentLocation === 'forest'
+      ? [
+          { id:'forest_trout', name:'Trucha moteada', icon:'🐟', p:9, weight:7 },
+          { id:'silver_carp', name:'Carpa plateada', icon:'🐠', p:12, weight:4 },
+          { id:'river_pearl', name:'Perla del río', icon:'🫧', p:24, weight:1 }
+        ]
+      : [
+          { id:'silver_carp', name:'Carpa plateada', icon:'🐠', p:12, weight:5 },
+          { id:'lake_perch', name:'Perca del lago', icon:'🐟', p:8, weight:6 },
+          { id:'old_boot', name:'Bota vieja', icon:'🥾', p:0, weight:1 }
+        ];
+    if (Math.random() < 0.08) {
+      const gold = 5 + Math.floor(Math.random() * 12);
+      char.gold += gold;
+      char.stats.goldEarned += gold;
+      P.showNotification(`La línea trajo un pequeño cofre entre las algas: 💰 ${gold} monedas.`, 'success', 3000);
+    } else {
+      let remainingWeight = Math.random() * catches.reduce((total, item) => total + item.weight, 0);
+      let caught = catches[catches.length - 1];
+      for (const item of catches) {
+        remainingWeight -= item.weight;
+        if (remainingWeight < 0) { caught = item; break; }
+      }
+      if (caught.id !== 'old_boot') char.addItem({ ...caught, r:'common', e:'material', desc:'Una captura fresca de las aguas locales.' });
+      P.showNotification(caught.id === 'old_boot' ? 'Pescaste una bota vieja. El lago se queda con el secreto.' : `¡Buena pesca! Obtuviste ${caught.icon} ${caught.name}.`, 'success', 3000);
+    }
+    awardWorldSkill('pesca', 15);
+    autoSaveIfNeeded();
+  }
 
   function openNpcDialogue(npc) {
     worldSceneCurrentNpc = npc;
@@ -5632,9 +5835,13 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     const isRockTile = (tileX, tileY) => rockPositions.some(([x, y]) => tileX === x && tileY === y);
     const isWaterTile = (tileX, tileY) =>
       hasPond && ((tileX - 38) / 3) ** 2 + ((tileY - 8) / 2.5) ** 2 <= 1;
+    const buildings = WORLD_BUILDINGS[locationId] || [];
+    const isBuildingTile = (tileX, tileY) => buildings.some(site =>
+      tileX >= site.x && tileX <= site.x + 2 && tileY >= site.y && tileY <= site.y + 2);
     const isBlocked = (tileX, tileY) => {
       if (tileX < 1 || tileY < 1 || tileX >= mapWidth - 1 || tileY >= mapHeight - 1) return true;
-      return isCabinWall(tileX, tileY) || isTreeTile(tileX, tileY) || isRockTile(tileX, tileY) || isWaterTile(tileX, tileY);
+      return isCabinWall(tileX, tileY) || isTreeTile(tileX, tileY) || isRockTile(tileX, tileY) ||
+        isWaterTile(tileX, tileY) || isBuildingTile(tileX, tileY);
     };
     const movingLeft = worldSceneKeys.has('left');
     const movingRight = worldSceneKeys.has('right');
@@ -5658,7 +5865,65 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       }
       player.walk += delta * 11;
     }
-    const npcs = WORLD_NPCS[char.currentLocation] || [];
+    const npcs = getRuntimeNpcs(locationId);
+    const creatures = getFieldCreatures(locationId);
+    const now = Date.now();
+    const fishingSpot = FISHING_SPOTS[locationId];
+    const playerAtFishingSpot = fishingSpot &&
+      Math.hypot(fishingSpot.x / mapWidth - player.x, fishingSpot.y / mapHeight - player.depth) < 0.13;
+    npcs.forEach(npc => {
+      if (now < npc.pauseUntil) return;
+      const dx = npc.targetX - npc.x;
+      const dy = npc.targetDepth - npc.depth;
+      if (Math.hypot(dx, dy) < 0.012) {
+        npc.pauseUntil = now + 900 + Math.random() * 1800;
+        npc.targetX = clamp(npc.homeX + (Math.random() - 0.5) * 0.2, 0.18, 0.82);
+        npc.targetDepth = clamp(npc.homeDepth + (Math.random() - 0.5) * 0.18, 0.2, 0.82);
+      } else {
+        const step = delta * 0.045 / (Math.hypot(dx, dy) || 1);
+        const nextX = npc.x + dx * step;
+        const nextY = npc.depth + dy * step;
+        if (!isBlocked(Math.floor(nextX * mapWidth), Math.floor(npc.depth * mapHeight))) npc.x = nextX;
+        if (!isBlocked(Math.floor(npc.x * mapWidth), Math.floor(nextY * mapHeight))) npc.depth = nextY;
+      }
+    });
+    creatures.forEach(creature => {
+      if (!creature.alive) {
+        if (now >= creature.respawnAt) {
+          creature.enemy = P.createEnemy(creature.enemy.id, Math.max(0, char.level - 3));
+          creature.enemy._worldCreatureKey = creature.key;
+          creature.alive = true;
+          creature.x = 0.2 + Math.random() * 0.6;
+          creature.depth = 0.27 + Math.random() * 0.5;
+          creature.targetX = creature.x;
+          creature.targetDepth = creature.depth;
+          creature.behavior = pick(['wander', 'patrol', 'stalker']);
+          creature.nextAttackAt = now + 5000;
+          creature.escapedUntil = 0;
+        }
+        return;
+      }
+      if (now < creature.escapedUntil) return;
+      const playerDistance = Math.hypot(creature.x - player.x, creature.depth - player.depth);
+      const pursueDistance = creature.behavior === 'stalker' ? 0.32 : creature.behavior === 'patrol' ? 0.2 : 0.12;
+      if (playerDistance < pursueDistance && !playerAtFishingSpot) {
+        creature.targetX = player.x;
+        creature.targetDepth = player.depth;
+      } else if (Math.hypot(creature.targetX - creature.x, creature.targetDepth - creature.depth) < 0.02) {
+        creature.targetX = clamp(creature.x + (Math.random() - 0.5) * 0.25, 0.1, 0.9);
+        creature.targetDepth = clamp(creature.depth + (Math.random() - 0.5) * 0.2, 0.18, 0.88);
+      }
+      const dx = creature.targetX - creature.x;
+      const dy = creature.targetDepth - creature.depth;
+      const distance = Math.hypot(dx, dy) || 1;
+      const speed = playerDistance < pursueDistance
+        ? (creature.behavior === 'stalker' ? 0.14 : 0.1)
+        : creature.behavior === 'patrol' ? 0.065 : 0.04;
+      const nextX = creature.x + dx / distance * delta * speed;
+      const nextY = creature.depth + dy / distance * delta * speed;
+      if (!isBlocked(Math.floor(nextX * mapWidth), Math.floor(creature.depth * mapHeight))) creature.x = nextX;
+      if (!isBlocked(Math.floor(creature.x * mapWidth), Math.floor(nextY * mapHeight))) creature.depth = nextY;
+    });
     const cameraX = clamp(player.x * mapWidth - viewWidth / 2, 0, mapWidth - viewWidth);
     const cameraY = clamp(player.depth * mapHeight - viewHeight / 2, 0, mapHeight - viewHeight);
     const screenX = worldX => (worldX - cameraX) * tileSize;
@@ -5757,6 +6022,70 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
           const y = screenY(flowerY + 1);
           if (flowerSprite) ctx.drawImage(flowerSprite, x - 16, y - 32, 32, 32);
         }
+      });
+      buildings.forEach(site => {
+        drawables.push({
+          depth:site.y + 3,
+          draw:() => {
+            const x = screenX(site.x + 1.5);
+            const y = screenY(site.y + 3);
+            ctx.fillStyle = '#14191dcc';
+            ctx.fillRect(x - 28, y - 44, 56, 42);
+            ctx.fillStyle = locationId === 'forest' || locationId === 'village' ? '#675039' : '#615c59';
+            ctx.fillRect(x - 25, y - 40, 50, 36);
+            ctx.fillStyle = locationId === 'ruins' ? '#77605d' : '#39343c';
+            ctx.beginPath();
+            ctx.moveTo(x - 31, y - 38);
+            ctx.lineTo(x, y - 58);
+            ctx.lineTo(x + 31, y - 38);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#d5c08d';
+            ctx.font = '7px "Roboto Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(site.name, x, y - 62);
+          }
+        });
+      });
+      (FARM_PLOTS[locationId] || []).forEach((plot, index) => {
+        drawables.push({
+          depth:plot.y + 0.5,
+          draw:() => {
+            const x = screenX(plot.x + 0.5);
+            const y = screenY(plot.y + 0.5);
+            ctx.fillStyle = '#443421';
+            ctx.fillRect(x - 11, y - 7, 22, 14);
+            const planted = char.flags.farmPlots?.[`${locationId}-${index}`];
+            ctx.fillStyle = planted ? '#76a94d' : '#c5a66e';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(planted ? (Date.now() >= (planted.readyAt || planted.plantedAt + 120000) ? '🌾' : '🌱') : '🟫', x, y + 4);
+          }
+        });
+      });
+      creatures.forEach(creature => {
+        if (!creature.alive) return;
+        drawables.push({
+          depth:creature.depth * mapHeight,
+          draw:() => {
+            const actorX = screenX(creature.x * mapWidth);
+            const actorY = screenY(creature.depth * mapHeight);
+            const sprite = getFieldCreatureSprite(creature.enemy.id);
+            if (sprite) {
+              const size = Math.max(27, Math.min(48, 28 + creature.depth * 20));
+              ctx.drawImage(sprite, actorX - size / 2, actorY - size, size, size);
+            } else {
+              ctx.font = '20px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.fillText(creature.enemy.icon || '👹', actorX, actorY - 8);
+            }
+            ctx.fillStyle = '#10151dea';
+            ctx.fillRect(actorX - 24, actorY - 36, 48, 9);
+            ctx.fillStyle = '#f3c77a';
+            ctx.font = '6px "Roboto Mono", monospace';
+            ctx.fillText(creature.enemy.name, actorX, actorY - 29);
+          }
+        });
       });
     });
 
@@ -5884,11 +6213,35 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
     const caption = document.getElementById('dndSceneCaption');
     if (caption && !caption.dataset.message) {
       const closeToNpc = npcs.some(npc => Math.hypot(npc.x - player.x, npc.depth - player.depth) < 0.055);
+      const closeToMonster = creatures.some(creature => creature.alive && Math.hypot(creature.x - player.x, creature.depth - player.depth) < 0.09);
+      const closeToPlot = (FARM_PLOTS[locationId] || []).some(plot =>
+        Math.hypot(plot.x / mapWidth - player.x, plot.y / mapHeight - player.depth) < 0.065);
+      const fishingSpot = FISHING_SPOTS[locationId];
+      const closeToWater = fishingSpot &&
+        Math.hypot(fishingSpot.x / mapWidth - player.x, fishingSpot.y / mapHeight - player.depth) < 0.12;
+      const closeToBuilding = buildings.some(site =>
+        Math.hypot(site.x / mapWidth - player.x, site.y / mapHeight - player.depth) < 0.09);
       caption.textContent = closeToNpc
         ? 'PERSONAJE CERCA  ·  Pulsa E para conversar'
+        : closeToMonster
+          ? 'CRIATURA HOSTIL CERCA  ·  Pulsa E para combatir'
+          : closeToPlot
+            ? 'PARCELA  ·  Pulsa E para plantar, regar o cosechar'
+            : closeToWater
+              ? 'ORILLA  ·  Pulsa E para pescar'
+              : closeToBuilding
+                ? 'EDIFICIO  ·  Pulsa E para explorar'
         : Math.hypot(player.x - 0.88, player.depth - 0.57) < 0.07
           ? 'PORTAL DETECTADO  ·  Pulsa E para entrar'
           : 'WASD / flechas para moverte  ·  E para interactuar';
+    }
+    const approachingCreature = creatures.find(creature => creature.alive &&
+      now >= creature.nextAttackAt && now >= creature.escapedUntil &&
+      !playerAtFishingSpot &&
+      Math.hypot(creature.x - player.x, creature.depth - player.depth) < 0.055);
+    if (approachingCreature) {
+      startFieldCombat(approachingCreature);
+      return;
     }
     worldSceneFrame = requestAnimationFrame(drawWorldScene);
   }
@@ -6556,6 +6909,15 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
       const enemyDC  = 10 + (combatState.enemies[0]?.cr || 1) * 2;
       if (char.flags.escapeUsed || fleeRoll >= enemyDC) {
         char.flags.escapeUsed = false;
+        const fieldEnemy = combatState.enemies[combatState.currentEnemyIdx];
+        if (fieldEnemy?._worldCreatureKey) {
+          const creature = (fieldCreatures.get(char.currentLocation) || []).find(entry => entry.key === fieldEnemy._worldCreatureKey);
+          if (creature) {
+            creature.escapedUntil = Date.now() + 10000;
+            creature.targetX = clamp(creature.x + (creature.x > worldScenePlayer?.x ? 0.2 : -0.2), 0.08, 0.92);
+            creature.targetDepth = clamp(creature.depth + (creature.depth > worldScenePlayer?.depth ? 0.12 : -0.12), 0.18, 0.88);
+          }
+        }
         combatState = null;
         P.showNotification('¡Huiste del combate!', 'info', 2000);
         setTimeout(() => navigate('world'), 500);
@@ -6683,6 +7045,14 @@ ${char ? (char.loreFound.map(id => `> — [LORE] ${id}`).join('\n') || '> — Ni
         if (l.type === 'gold') { char.gold += l.amount; char.stats.goldEarned += l.amount; lootMsg.push(`💰 ${fmtGold(l.amount)}`); }
         if (l.type === 'item') { char.addItem(l.item); lootMsg.push(`${l.item.icon} ${l.item.name}${l.isRareDrop?' ✦':''}`); P.QuestTracker.update(char,'item_gained',{id:l.item.id}); }
       });
+      if (enemy._worldCreatureKey) {
+        const creature = (fieldCreatures.get(char.currentLocation) || []).find(entry => entry.key === enemy._worldCreatureKey);
+        if (creature) {
+          creature.alive = false;
+          creature.respawnAt = Date.now() + 35000 + Math.floor(Math.random() * 25000);
+          awardWorldSkill('caza', 20);
+        }
+      }
       combatState.log.push(`☠️ ${enemy.name} derrotado! XP: +${enemy.xp}`);
       if (lootMsg.length) combatState.log.push(`🎁 Botín: ${lootMsg.join(', ')}`);
 
